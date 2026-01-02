@@ -18,7 +18,7 @@ const modeLabels: Record<GameMode, string> = {
   classic: "CLASSIC",
   timer: "TIMER",
   daily: "DAILY",
-  endless: "ENDLESS",
+  extreme: "EXTREME",
 };
 
 const difficultyLabels: Record<Difficulty, string> = {

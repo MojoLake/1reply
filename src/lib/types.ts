@@ -37,11 +37,13 @@ export interface JudgeScores {
 export interface JudgeResult {
   A: JudgeScores;
   B: JudgeScores;
+  C?: JudgeScores; // Only present in extreme mode
 }
 
 export interface ConfusionDelta {
   A: number;
   B: number;
+  C?: number; // Only present in extreme mode
 }
 
 export interface ContinuationResult {
@@ -52,8 +54,10 @@ export interface ContinuationResult {
 export interface ContinuationResponse {
   responseA: string;
   responseB: string;
+  responseC?: string; // Only present in extreme mode
   endingA: boolean;
   endingB: boolean;
+  endingC?: boolean; // Only present in extreme mode
 }
 
 export interface RoundResult {
@@ -62,8 +66,9 @@ export interface RoundResult {
   scoreGained: number;
   newConfusionA: number;
   newConfusionB: number;
+  newConfusionC?: number; // Only present in extreme mode
   gameOver: boolean;
-  gameOverReason?: "A" | "B";
+  gameOverReason?: "A" | "B" | "C";
 }
 
 export interface GameState {
@@ -72,14 +77,15 @@ export interface GameState {
   score: number;
   conversationA: Conversation;
   conversationB: Conversation;
+  conversationC?: Conversation; // Only present in extreme mode
   hintsRemaining: number;
   usedSituationIds: string[];
   isGameOver: boolean;
-  gameOverReason?: "A" | "B";
+  gameOverReason?: "A" | "B" | "C";
   completedConversations: number; // count of successfully completed conversations
 }
 
-export type GameMode = "classic" | "timer" | "daily" | "endless";
+export type GameMode = "classic" | "timer" | "daily" | "extreme";
 
 export type Difficulty = "easy" | "medium" | "hard";
 

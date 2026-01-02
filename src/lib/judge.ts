@@ -4,7 +4,7 @@ import { Conversation, JudgeResult, JudgeScores } from "./types";
 // Configuration for judge generation
 const JUDGE_MAX_TOKENS = 2048; // High limit to prevent mid-JSON cutoff
 
-const JUDGE_SYSTEM_PROMPT = `You are a strict evaluator for a word game. Your job is to evaluate a player's reply as the next message in TWO independent conversations.
+const JUDGE_SYSTEM_PROMPT_2 = `You are a strict evaluator for a word game. Your job is to evaluate a player's reply as the next message in TWO independent conversations.
 
 CRITICAL RULES:
 - Do not invent facts beyond what's in the transcripts
@@ -47,6 +47,58 @@ OUTPUT: Return ONLY valid JSON matching this exact schema:
   }
 }`;
 
+const JUDGE_SYSTEM_PROMPT_3 = `You are a strict evaluator for a word game. Your job is to evaluate a player's reply as the next message in THREE independent conversations simultaneously (EXTREME mode).
+
+CRITICAL RULES:
+- Do not invent facts beyond what's in the transcripts
+- Do not assume hidden intent or subtext
+- Penalize vague replies that avoid answering all three conversations
+- Penalize non-sequiturs that don't follow naturally
+- Reward replies that naturally fit ALL THREE conversation contexts
+- A reply that is grammatically correct but contextually wrong should score low
+- Consider: Would a real person in this conversation be confused by this reply?
+
+SCORING GUIDE (0-10):
+- coherence: Does the reply logically follow from the conversation? (10 = perfect follow-up, 0 = complete non-sequitur)
+- relevance: Does the reply address what the other person said/asked? (10 = directly addresses, 0 = completely off-topic)
+- tone_match: Does the reply match the conversation's tone? (10 = perfect match, 0 = totally wrong tone)
+- directness: Is the reply substantive vs evasive? (10 = clear and direct, 0 = meaningless filler)
+
+FLAGS:
+- contradiction: true if the reply contradicts established facts in this conversation
+- unsafe: true if the reply contains harmful, offensive, or inappropriate content
+
+OUTPUT: Return ONLY valid JSON matching this exact schema:
+{
+  "A": {
+    "coherence": <0-10>,
+    "relevance": <0-10>,
+    "tone_match": <0-10>,
+    "directness": <0-10>,
+    "contradiction": <true/false>,
+    "unsafe": <true/false>,
+    "notes": ["<one brief sentence explaining the score>"]
+  },
+  "B": {
+    "coherence": <0-10>,
+    "relevance": <0-10>,
+    "tone_match": <0-10>,
+    "directness": <0-10>,
+    "contradiction": <true/false>,
+    "unsafe": <true/false>,
+    "notes": ["<one brief sentence explaining the score>"]
+  },
+  "C": {
+    "coherence": <0-10>,
+    "relevance": <0-10>,
+    "tone_match": <0-10>,
+    "directness": <0-10>,
+    "contradiction": <true/false>,
+    "unsafe": <true/false>,
+    "notes": ["<one brief sentence explaining the score>"]
+  }
+}`;
+
 function formatConversationForJudge(
   conversation: Conversation,
   label: string
@@ -72,8 +124,22 @@ function formatConversationForJudge(
 function buildJudgePrompt(
   conversationA: Conversation,
   conversationB: Conversation,
-  playerReply: string
+  playerReply: string,
+  conversationC?: Conversation
 ): string {
+  if (conversationC) {
+    return `${formatConversationForJudge(conversationA, "A")}
+
+${formatConversationForJudge(conversationB, "B")}
+
+${formatConversationForJudge(conversationC, "C")}
+
+=== Player's Reply (sent to ALL THREE conversations) ===
+"${playerReply}"
+
+Evaluate how well this single reply works as the next message in EACH conversation independently.`;
+  }
+
   return `${formatConversationForJudge(conversationA, "A")}
 
 ${formatConversationForJudge(conversationB, "B")}
@@ -84,7 +150,10 @@ ${formatConversationForJudge(conversationB, "B")}
 Evaluate how well this single reply works as the next message in EACH conversation independently.`;
 }
 
-function parseJudgeResponse(response: string): JudgeResult | null {
+function parseJudgeResponse(
+  response: string,
+  expectC: boolean = false
+): JudgeResult | null {
   try {
     // Try to extract JSON from the response
     let jsonStr = response;
@@ -108,6 +177,11 @@ function parseJudgeResponse(response: string): JudgeResult | null {
       return null;
     }
 
+    // For extreme mode, we need C as well
+    if (expectC && !parsed.C) {
+      return null;
+    }
+
     const validateScores = (scores: JudgeScores): boolean => {
       return (
         typeof scores.coherence === "number" &&
@@ -124,6 +198,10 @@ function parseJudgeResponse(response: string): JudgeResult | null {
       return null;
     }
 
+    if (expectC && !validateScores(parsed.C)) {
+      return null;
+    }
+
     // Clamp scores to 0-10
     const clampScore = (s: JudgeScores): JudgeScores => ({
       coherence: Math.max(0, Math.min(10, Math.round(s.coherence))),
@@ -135,10 +213,19 @@ function parseJudgeResponse(response: string): JudgeResult | null {
       notes: s.notes.slice(0, 3), // Limit notes
     });
 
-    return {
-      A: clampScore(parsed.A),
-      B: clampScore(parsed.B),
-    };
+    const result: JudgeResult =
+      expectC && parsed.C
+        ? {
+            A: clampScore(parsed.A),
+            B: clampScore(parsed.B),
+            C: clampScore(parsed.C),
+          }
+        : {
+            A: clampScore(parsed.A),
+            B: clampScore(parsed.B),
+          };
+
+    return result;
   } catch {
     return null;
   }
@@ -149,7 +236,8 @@ export async function judgeReply(
   conversationB: Conversation,
   playerReply: string,
   apiKey: string,
-  maxRetries = 3
+  maxRetries = 3,
+  conversationC?: Conversation
 ): Promise<JudgeResult> {
   // #region agent log
   fetch("http://127.0.0.1:7251/ingest/2405a2e0-c532-44ac-bf01-d6cd188340ac", {
@@ -164,6 +252,8 @@ export async function judgeReply(
         playerReplyLen: playerReply?.length,
         hasConvA: !!conversationA,
         hasConvB: !!conversationB,
+        hasConvC: !!conversationC,
+        isExtremeMode: !!conversationC,
       },
       timestamp: Date.now(),
       sessionId: "debug-session",
@@ -175,7 +265,16 @@ export async function judgeReply(
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
-  const prompt = buildJudgePrompt(conversationA, conversationB, playerReply);
+  const isExtremeMode = !!conversationC;
+  const systemPrompt = isExtremeMode
+    ? JUDGE_SYSTEM_PROMPT_3
+    : JUDGE_SYSTEM_PROMPT_2;
+  const prompt = buildJudgePrompt(
+    conversationA,
+    conversationB,
+    playerReply,
+    conversationC
+  );
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
@@ -201,7 +300,7 @@ export async function judgeReply(
         contents: [
           {
             role: "user",
-            parts: [{ text: JUDGE_SYSTEM_PROMPT + "\n\n" + prompt }],
+            parts: [{ text: systemPrompt + "\n\n" + prompt }],
           },
         ],
         generationConfig: {
@@ -235,7 +334,7 @@ export async function judgeReply(
       ).catch(() => {});
       // #endregion
 
-      const parsed = parseJudgeResponse(response);
+      const parsed = parseJudgeResponse(response, isExtremeMode);
 
       // #region agent log
       fetch(
@@ -307,24 +406,26 @@ export async function judgeReply(
 
   // Fallback: return neutral scores if all retries fail
   console.error("All judge retries failed, returning neutral scores");
-  return {
-    A: {
-      coherence: 5,
-      relevance: 5,
-      tone_match: 5,
-      directness: 5,
-      contradiction: false,
-      unsafe: false,
-      notes: ["Evaluation failed - neutral score applied"],
-    },
-    B: {
-      coherence: 5,
-      relevance: 5,
-      tone_match: 5,
-      directness: 5,
-      contradiction: false,
-      unsafe: false,
-      notes: ["Evaluation failed - neutral score applied"],
-    },
+  const neutralScore: JudgeScores = {
+    coherence: 5,
+    relevance: 5,
+    tone_match: 5,
+    directness: 5,
+    contradiction: false,
+    unsafe: false,
+    notes: ["Evaluation failed - neutral score applied"],
   };
+
+  const result: JudgeResult = isExtremeMode
+    ? {
+        A: { ...neutralScore },
+        B: { ...neutralScore },
+        C: { ...neutralScore },
+      }
+    : {
+        A: { ...neutralScore },
+        B: { ...neutralScore },
+      };
+
+  return result;
 }

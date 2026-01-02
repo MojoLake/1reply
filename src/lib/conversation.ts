@@ -187,3 +187,31 @@ export async function generateBothContinuations(
     endingB: resultB.isEnding,
   };
 }
+
+export async function generateAllContinuations(
+  conversationA: Conversation,
+  conversationB: Conversation,
+  apiKey: string,
+  conversationC?: Conversation
+): Promise<ContinuationResponse> {
+  if (conversationC) {
+    // Generate all three continuations in parallel for extreme mode
+    const [resultA, resultB, resultC] = await Promise.all([
+      generateContinuation(conversationA, apiKey),
+      generateContinuation(conversationB, apiKey),
+      generateContinuation(conversationC, apiKey),
+    ]);
+
+    return {
+      responseA: resultA.response,
+      responseB: resultB.response,
+      responseC: resultC.response,
+      endingA: resultA.isEnding,
+      endingB: resultB.isEnding,
+      endingC: resultC.isEnding,
+    };
+  }
+
+  // Fall back to two conversations
+  return generateBothContinuations(conversationA, conversationB, apiKey);
+}

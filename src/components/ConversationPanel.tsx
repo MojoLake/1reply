@@ -6,7 +6,7 @@ import ConfusionMeter from "./ConfusionMeter";
 
 interface ConversationPanelProps {
   conversation: Conversation;
-  label: "A" | "B";
+  label: "A" | "B" | "C";
   delta?: number;
   showDelta?: boolean;
   showIntent?: boolean;
@@ -25,7 +25,7 @@ export default function ConversationPanel({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: label === "A" ? 0 : 0.1 }}
+      transition={{ delay: label === "A" ? 0 : label === "B" ? 0.1 : 0.2 }}
       className="flex flex-col h-full bg-black border border-gray-700 overflow-hidden font-mono"
     >
       {/* Header with confusion meter */}

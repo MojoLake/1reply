@@ -11,9 +11,10 @@ interface JudgeFeedbackProps {
   result: JudgeResult;
   confusionDelta: ConfusionDelta;
   scoreGained: number;
-  onContinue: (choices: { A: ConversationChoice; B: ConversationChoice }) => void;
-  completedConversations?: { A: boolean; B: boolean };
-  endingConversations: { A: boolean; B: boolean };
+  onContinue: (choices: { A: ConversationChoice; B: ConversationChoice; C?: ConversationChoice }) => void;
+  completedConversations?: { A: boolean; B: boolean; C?: boolean };
+  endingConversations: { A: boolean; B: boolean; C?: boolean };
+  isExtremeMode?: boolean;
 }
 
 function ScoreBar({ label, value }: { label: string; value: number }) {
@@ -35,7 +36,7 @@ function ConversationChoiceSelector({
   choice,
   onChoose,
 }: {
-  label: "A" | "B";
+  label: "A" | "B" | "C";
   choice: ConversationChoice | null;
   onChoose: (choice: ConversationChoice) => void;
 }) {
@@ -75,7 +76,7 @@ function ConversationScores({
   scores,
   delta,
 }: {
-  label: "A" | "B";
+  label: "A" | "B" | "C";
   scores: JudgeResult["A"];
   delta: number;
 }) {
@@ -170,32 +171,45 @@ export default function JudgeFeedback({
   onContinue,
   completedConversations,
   endingConversations,
+  isExtremeMode,
 }: JudgeFeedbackProps) {
   const [choiceA, setChoiceA] = useState<ConversationChoice | null>(null);
   const [choiceB, setChoiceB] = useState<ConversationChoice | null>(null);
+  const [choiceC, setChoiceC] = useState<ConversationChoice | null>(null);
   
   const hasCompletions =
-    completedConversations?.A || completedConversations?.B;
+    completedConversations?.A || completedConversations?.B || completedConversations?.C;
   const completionCount =
-    (completedConversations?.A ? 1 : 0) + (completedConversations?.B ? 1 : 0);
+    (completedConversations?.A ? 1 : 0) + 
+    (completedConversations?.B ? 1 : 0) + 
+    (completedConversations?.C ? 1 : 0);
   const completionBonus = completionCount * CONVERSATION_COMPLETION_BONUS;
   
-  const hasAnyEnding = endingConversations.A || endingConversations.B;
+  const hasAnyEnding = endingConversations.A || endingConversations.B || (isExtremeMode && endingConversations.C);
+  
+  // Count how many conversations are ending
+  const endingCount = 
+    (endingConversations.A ? 1 : 0) + 
+    (endingConversations.B ? 1 : 0) + 
+    (isExtremeMode && endingConversations.C ? 1 : 0);
   
   // Calculate potential bonus from current choices
   const potentialBonus = 
     (choiceA === "new" ? CONVERSATION_COMPLETION_BONUS : 0) +
-    (choiceB === "new" ? CONVERSATION_COMPLETION_BONUS : 0);
+    (choiceB === "new" ? CONVERSATION_COMPLETION_BONUS : 0) +
+    (choiceC === "new" ? CONVERSATION_COMPLETION_BONUS : 0);
   
   // Check if user can proceed
   const canProceed = 
     (!endingConversations.A || choiceA !== null) &&
-    (!endingConversations.B || choiceB !== null);
+    (!endingConversations.B || choiceB !== null) &&
+    (!isExtremeMode || !endingConversations.C || choiceC !== null);
   
   const handleProceed = () => {
     onContinue({
       A: endingConversations.A ? (choiceA || "continue") : "continue",
       B: endingConversations.B ? (choiceB || "continue") : "continue",
+      C: isExtremeMode ? (endingConversations.C ? (choiceC || "continue") : "continue") : undefined,
     });
   };
 
@@ -230,15 +244,19 @@ export default function JudgeFeedback({
           >
             <div className="flex items-center justify-center gap-2 mb-3">
               <span className="text-sm font-bold text-gray-300">
-                [!] CONVERSATION{endingConversations.A && endingConversations.B ? "S" : ""} ENDING
+                [!] CONVERSATION{endingCount > 1 ? "S" : ""} ENDING
               </span>
             </div>
             <p className="text-sm text-gray-500 text-center mb-4">
-              {endingConversations.A && endingConversations.B
-                ? "Both conversations are wrapping up."
+              {endingCount === 3
+                ? "All three conversations are wrapping up."
+                : endingCount === 2
+                ? "Two conversations are wrapping up."
                 : endingConversations.A
                 ? "Conversation A is wrapping up."
-                : "Conversation B is wrapping up."}{" "}
+                : endingConversations.B
+                ? "Conversation B is wrapping up."
+                : "Conversation C is wrapping up."}{" "}
               Choose what to do:
             </p>
             
@@ -255,6 +273,13 @@ export default function JudgeFeedback({
                   label="B"
                   choice={choiceB}
                   onChoose={setChoiceB}
+                />
+              )}
+              {isExtremeMode && endingConversations.C && (
+                <ConversationChoiceSelector
+                  label="C"
+                  choice={choiceC}
+                  onChoose={setChoiceC}
                 />
               )}
             </div>
@@ -297,11 +322,15 @@ export default function JudgeFeedback({
             </div>
             <p className="text-sm text-gray-400 mb-2">
               You successfully navigated{" "}
-              {completedConversations?.A && completedConversations?.B
-                ? "both conversations"
+              {completionCount === 3
+                ? "all three conversations"
+                : completionCount === 2
+                ? "two conversations"
                 : completedConversations?.A
                 ? "Conversation A"
-                : "Conversation B"}{" "}
+                : completedConversations?.B
+                ? "Conversation B"
+                : "Conversation C"}{" "}
               to conclusion!
             </p>
             <motion.div
@@ -318,7 +347,7 @@ export default function JudgeFeedback({
               </span>
             </motion.div>
             <p className="text-xs text-gray-600 mt-2">
-              New conversation starts next round
+              New conversation{completionCount > 1 ? "s" : ""} start{completionCount === 1 ? "s" : ""} next round
             </p>
           </motion.div>
         )}
@@ -327,6 +356,9 @@ export default function JudgeFeedback({
       <div className="space-y-3 mb-6">
         <ConversationScores label="A" scores={result.A} delta={confusionDelta.A} />
         <ConversationScores label="B" scores={result.B} delta={confusionDelta.B} />
+        {isExtremeMode && result.C && confusionDelta.C !== undefined && (
+          <ConversationScores label="C" scores={result.C} delta={confusionDelta.C} />
+        )}
       </div>
 
       <motion.button
@@ -341,7 +373,7 @@ export default function JudgeFeedback({
         }`}
       >
         {hasAnyEnding && !canProceed
-          ? "[ CHOOSE ACTION FOR ENDING CONVERSATION" + (endingConversations.A && endingConversations.B ? "S" : "") + " ]"
+          ? `[ CHOOSE ACTION FOR ENDING CONVERSATION${endingCount > 1 ? "S" : ""} ]`
           : "[ PROCEED ]"}
       </motion.button>
     </motion.div>

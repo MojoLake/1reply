@@ -8,7 +8,7 @@ interface GameOverModalProps {
   score: number;
   rounds: number;
   mode: GameMode;
-  reason?: "A" | "B";
+  reason?: "A" | "B" | "C";
   highScore?: number;
   onPlayAgain: () => void;
   onMainMenu: () => void;

@@ -58,6 +58,7 @@ function GamePageContent() {
 
   const mode = (searchParams.get("mode") as GameMode) || "classic";
   const hasTimer = mode === "timer";
+  const isExtremeMode = mode === "extreme";
 
   const [phase, setPhase] = useState<GamePhase>("loading");
   const [gameState, setGameState] = useState<GameState | null>(null);
@@ -71,6 +72,7 @@ function GamePageContent() {
   const [completedThisRound, setCompletedThisRound] = useState<{
     A: boolean;
     B: boolean;
+    C?: boolean;
   }>({ A: false, B: false });
   const [pendingContinuations, setPendingContinuations] = useState<ContinuationResponse | null>(null);
 
@@ -115,6 +117,67 @@ function GamePageContent() {
     [mode]
   );
 
+  // Fetch a single new situation for conversation swapping
+  const fetchSingleSituation = useCallback(
+    async (usedIds: string[], difficulty: Difficulty): Promise<ConversationSituation | null> => {
+      try {
+        const params = new URLSearchParams({
+          round: "1", // doesn't matter, we just need one situation
+          mode,
+          usedIds: usedIds.join(","),
+          single: "true",
+        });
+
+        const res = await fetch(`/api/round?${params}`);
+        if (!res.ok) return null;
+
+        const data = await res.json();
+        // Return situationA from the pair
+        return data.situationA as ConversationSituation;
+      } catch (error) {
+        console.error("Error fetching single situation:", error);
+        return null;
+      }
+    },
+    [mode]
+  );
+
+  // Fetch conversation continuations from LLM
+  const fetchContinuations = useCallback(
+    async (convA: Conversation, convB: Conversation, convC?: Conversation): Promise<ContinuationResponse> => {
+      try {
+        const res = await fetch("/api/continue", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            conversationA: convA,
+            conversationB: convB,
+            conversationC: convC,
+          }),
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch continuations");
+        }
+
+        const data: ContinuationResponse = await res.json();
+        return data;
+      } catch (error) {
+        console.error("Error fetching continuations:", error);
+        // Fallback to simple responses
+        return {
+          responseA: "Okay",
+          responseB: "Okay",
+          responseC: convC ? "Okay" : undefined,
+          endingA: false,
+          endingB: false,
+          endingC: convC ? false : undefined,
+        };
+      }
+    },
+    []
+  );
+
   // Initialize game
   useEffect(() => {
     const initGame = async () => {
@@ -125,14 +188,27 @@ function GamePageContent() {
       }
 
       setCurrentDifficulty(roundData.difficulty);
+      
+      // For extreme mode, fetch a third situation
+      let situationC: ConversationSituation | null = null;
+      const usedIds = [roundData.situationA.id, roundData.situationB.id];
+      
+      if (isExtremeMode) {
+        situationC = await fetchSingleSituation(usedIds, roundData.difficulty);
+        if (situationC) {
+          usedIds.push(situationC.id);
+        }
+      }
+      
       setGameState({
         mode,
         round: 1,
         score: 0,
         conversationA: createConversation(roundData.situationA),
         conversationB: createConversation(roundData.situationB),
+        conversationC: situationC ? createConversation(situationC) : undefined,
         hintsRemaining: 3,
-        usedSituationIds: [roundData.situationA.id, roundData.situationB.id],
+        usedSituationIds: usedIds,
         isGameOver: false,
         completedConversations: 0,
       });
@@ -141,7 +217,7 @@ function GamePageContent() {
     };
 
     initGame();
-  }, [fetchRound, mode, router, hasTimer]);
+  }, [fetchRound, fetchSingleSituation, mode, router, hasTimer, isExtremeMode]);
 
   // Handle reply submission
   const handleSubmitReply = useCallback(
@@ -150,7 +226,7 @@ function GamePageContent() {
       isSubmittingRef.current = true;
 
       // Clear any completion status from previous round
-      setCompletedThisRound({ A: false, B: false });
+      setCompletedThisRound({ A: false, B: false, C: isExtremeMode ? false : undefined });
       setPhase("judging");
 
       try {
@@ -160,9 +236,11 @@ function GamePageContent() {
           body: JSON.stringify({
             conversationA: gameState.conversationA,
             conversationB: gameState.conversationB,
+            conversationC: gameState.conversationC,
             playerReply: reply,
             currentConfusionA: gameState.conversationA.confusion,
             currentConfusionB: gameState.conversationB.confusion,
+            currentConfusionC: gameState.conversationC?.confusion,
             roundNumber: gameState.round,
           }),
         });
@@ -197,10 +275,22 @@ function GamePageContent() {
             ],
           };
 
+          const newC = prev.conversationC && result.newConfusionC !== undefined
+            ? {
+                ...prev.conversationC,
+                confusion: result.newConfusionC,
+                transcript: [
+                  ...prev.conversationC.transcript,
+                  { role: "player" as const, text: reply },
+                ],
+              }
+            : prev.conversationC;
+
           return {
             ...prev,
             conversationA: newA,
             conversationB: newB,
+            conversationC: newC,
             score: prev.score + result.scoreGained,
             isGameOver: result.gameOver,
             gameOverReason: result.gameOverReason,
@@ -230,38 +320,43 @@ function GamePageContent() {
               { role: "player" as const, text: reply },
             ],
           };
-          const continuations = await fetchContinuations(updatedConvA, updatedConvB);
+          const updatedConvC = gameState.conversationC && result.newConfusionC !== undefined
+            ? {
+                ...gameState.conversationC,
+                confusion: result.newConfusionC,
+                transcript: [
+                  ...gameState.conversationC.transcript,
+                  { role: "player" as const, text: reply },
+                ],
+              }
+            : undefined;
+          const continuations = await fetchContinuations(updatedConvA, updatedConvB, updatedConvC);
           setPendingContinuations(continuations);
           setPhase("feedback");
         }
       } catch (error) {
         console.error("Error judging reply:", error);
         // On error, show feedback with neutral result
+        const neutralScore = {
+          coherence: 5,
+          relevance: 5,
+          tone_match: 5,
+          directness: 5,
+          contradiction: false,
+          unsafe: false,
+          notes: ["Evaluation error - neutral score applied"],
+        };
         setLastResult({
           evaluation: {
-            A: {
-              coherence: 5,
-              relevance: 5,
-              tone_match: 5,
-              directness: 5,
-              contradiction: false,
-              unsafe: false,
-              notes: ["Evaluation error - neutral score applied"],
-            },
-            B: {
-              coherence: 5,
-              relevance: 5,
-              tone_match: 5,
-              directness: 5,
-              contradiction: false,
-              unsafe: false,
-              notes: ["Evaluation error - neutral score applied"],
-            },
+            A: neutralScore,
+            B: neutralScore,
+            C: isExtremeMode ? neutralScore : undefined,
           },
-          confusionDelta: { A: 0, B: 0 },
+          confusionDelta: { A: 0, B: 0, C: isExtremeMode ? 0 : undefined },
           scoreGained: 0,
           newConfusionA: gameState.conversationA.confusion,
           newConfusionB: gameState.conversationB.confusion,
+          newConfusionC: gameState.conversationC?.confusion,
           gameOver: false,
         });
         setPhase("feedback");
@@ -269,7 +364,7 @@ function GamePageContent() {
         isSubmittingRef.current = false;
       }
     },
-    [gameState, phase, mode]
+    [gameState, phase, mode, isExtremeMode, fetchContinuations]
   );
 
   // Update ref when handleSubmitReply changes
@@ -296,71 +391,13 @@ function GamePageContent() {
     return () => clearTimeout(timer);
   }, [hasTimer, phase, timeRemaining]);
 
-  // Fetch a single new situation for conversation swapping
-  const fetchSingleSituation = useCallback(
-    async (usedIds: string[], difficulty: Difficulty): Promise<ConversationSituation | null> => {
-      try {
-        const params = new URLSearchParams({
-          round: "1", // doesn't matter, we just need one situation
-          mode,
-          usedIds: usedIds.join(","),
-          single: "true",
-        });
-
-        const res = await fetch(`/api/round?${params}`);
-        if (!res.ok) return null;
-
-        const data = await res.json();
-        // Return situationA from the pair
-        return data.situationA as ConversationSituation;
-      } catch (error) {
-        console.error("Error fetching single situation:", error);
-        return null;
-      }
-    },
-    [mode]
-  );
-
-  // Fetch conversation continuations from LLM
-  const fetchContinuations = useCallback(
-    async (convA: Conversation, convB: Conversation): Promise<ContinuationResponse> => {
-      try {
-        const res = await fetch("/api/continue", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            conversationA: convA,
-            conversationB: convB,
-          }),
-        });
-
-        if (!res.ok) {
-          throw new Error("Failed to fetch continuations");
-        }
-
-        const data: ContinuationResponse = await res.json();
-        return data;
-      } catch (error) {
-        console.error("Error fetching continuations:", error);
-        // Fallback to simple responses
-        return {
-          responseA: "Okay",
-          responseB: "Okay",
-          endingA: false,
-          endingB: false,
-        };
-      }
-    },
-    []
-  );
-
   // Handle continue to next round with user choices for ending conversations
-  const handleContinue = async (choices: { A: ConversationChoice; B: ConversationChoice }) => {
+  const handleContinue = async (choices: { A: ConversationChoice; B: ConversationChoice; C?: ConversationChoice }) => {
     if (!gameState || !pendingContinuations) return;
 
     setPhase("loading");
     setShowHint(false);
-    setCompletedThisRound({ A: false, B: false });
+    setCompletedThisRound({ A: false, B: false, C: isExtremeMode ? false : undefined });
 
     const nextRound = gameState.round + 1;
 
@@ -379,6 +416,7 @@ function GamePageContent() {
     // User chose to start new conversations - only award bonus if they chose "new"
     const shouldSwapA = pendingContinuations.endingA && choices.A === "new";
     const shouldSwapB = pendingContinuations.endingB && choices.B === "new";
+    const shouldSwapC = isExtremeMode && pendingContinuations.endingC && choices.C === "new";
 
     // Calculate completion bonus based on user choices
     let completionBonus = 0;
@@ -391,18 +429,24 @@ function GamePageContent() {
       completionBonus += CONVERSATION_COMPLETION_BONUS;
       newCompletions++;
     }
+    if (shouldSwapC) {
+      completionBonus += CONVERSATION_COMPLETION_BONUS;
+      newCompletions++;
+    }
 
     // Track which conversations completed for UI feedback
     setCompletedThisRound({
       A: shouldSwapA,
       B: shouldSwapB,
+      C: shouldSwapC || undefined,
     });
 
     // Fetch new situations for conversations that user chose to swap
     let newSituationA: ConversationSituation | null = null;
     let newSituationB: ConversationSituation | null = null;
+    let newSituationC: ConversationSituation | null = null;
 
-    if (shouldSwapA || shouldSwapB) {
+    if (shouldSwapA || shouldSwapB || shouldSwapC) {
       const fetchPromises: Promise<ConversationSituation | null>[] = [];
       
       if (shouldSwapA) {
@@ -412,23 +456,26 @@ function GamePageContent() {
       }
       if (shouldSwapB) {
         fetchPromises.push(
-          fetchSingleSituation(
-            [
-              ...gameState.usedSituationIds,
-              ...(shouldSwapA ? [] : []), // Will add A's new ID if fetched
-            ],
-            currentDifficulty
-          )
+          fetchSingleSituation(gameState.usedSituationIds, currentDifficulty)
+        );
+      }
+      if (shouldSwapC) {
+        fetchPromises.push(
+          fetchSingleSituation(gameState.usedSituationIds, currentDifficulty)
         );
       }
 
       const newSituations = await Promise.all(fetchPromises);
       
+      let idx = 0;
       if (shouldSwapA) {
-        newSituationA = newSituations[0];
+        newSituationA = newSituations[idx++];
       }
       if (shouldSwapB) {
-        newSituationB = shouldSwapA ? newSituations[1] : newSituations[0];
+        newSituationB = newSituations[idx++];
+      }
+      if (shouldSwapC) {
+        newSituationC = newSituations[idx++];
       }
     }
 
@@ -480,10 +527,29 @@ function GamePageContent() {
         };
       }
 
+      // Build new conversation C (extreme mode only)
+      let newConvC: Conversation | undefined = prev.conversationC;
+      if (isExtremeMode && prev.conversationC) {
+        if (newSituationC) {
+          // Swap to new conversation
+          newConvC = createConversation(newSituationC);
+        } else if (continuations.responseC) {
+          // Continue existing conversation with the LLM response
+          newConvC = {
+            ...prev.conversationC,
+            transcript: [
+              ...prev.conversationC.transcript,
+              { role: "them" as const, text: continuations.responseC },
+            ],
+          };
+        }
+      }
+
       // Collect new situation IDs
       const newUsedIds = [...prev.usedSituationIds];
       if (newSituationA) newUsedIds.push(newSituationA.id);
       if (newSituationB) newUsedIds.push(newSituationB.id);
+      if (newSituationC) newUsedIds.push(newSituationC.id);
 
       return {
         ...prev,
@@ -491,6 +557,7 @@ function GamePageContent() {
         score: prev.score + completionBonus,
         conversationA: newConvA,
         conversationB: newConvB,
+        conversationC: newConvC,
         usedSituationIds: newUsedIds,
         completedConversations: prev.completedConversations + newCompletions,
       };
@@ -555,7 +622,11 @@ function GamePageContent() {
 
       <main className="flex-1 flex flex-col p-4 max-w-7xl mx-auto w-full">
         {/* Conversations */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        <div className={`flex-1 grid grid-cols-1 gap-4 mb-4 ${
+          isExtremeMode 
+            ? "lg:grid-cols-3" 
+            : "lg:grid-cols-2"
+        }`}>
           <ConversationPanel
             conversation={gameState.conversationA}
             label="A"
@@ -570,6 +641,15 @@ function GamePageContent() {
             showDelta={phase === "feedback"}
             showIntent={showHint}
           />
+          {isExtremeMode && gameState.conversationC && (
+            <ConversationPanel
+              conversation={gameState.conversationC}
+              label="C"
+              delta={lastResult?.confusionDelta.C}
+              showDelta={phase === "feedback"}
+              showIntent={showHint}
+            />
+          )}
         </div>
 
         {/* Input or Feedback */}
@@ -625,7 +705,9 @@ function GamePageContent() {
                 endingConversations={{
                   A: pendingContinuations.endingA,
                   B: pendingContinuations.endingB,
+                  C: pendingContinuations.endingC,
                 }}
+                isExtremeMode={isExtremeMode}
               />
             </motion.div>
           )}

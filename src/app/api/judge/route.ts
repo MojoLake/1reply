@@ -54,18 +54,24 @@ export async function POST(request: NextRequest) {
     const {
       conversationA,
       conversationB,
+      conversationC,
       playerReply,
       currentConfusionA,
       currentConfusionB,
+      currentConfusionC,
       roundNumber,
     } = body as {
       conversationA: Conversation;
       conversationB: Conversation;
+      conversationC?: Conversation;
       playerReply: string;
       currentConfusionA: number;
       currentConfusionB: number;
+      currentConfusionC?: number;
       roundNumber: number;
     };
+
+    const isExtremeMode = !!conversationC;
 
     // Validate input
     if (!conversationA || !conversationB || !playerReply) {
@@ -82,35 +88,47 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Judge the reply
+    // Judge the reply (with optional third conversation for extreme mode)
     const evaluation = await judgeReply(
       conversationA,
       conversationB,
       playerReply,
-      apiKey
+      apiKey,
+      3,
+      conversationC
     );
 
     // Calculate confusion deltas deterministically
     const deltaA = calculateConfusionDelta(evaluation.A);
     const deltaB = calculateConfusionDelta(evaluation.B);
+    const deltaC = isExtremeMode && evaluation.C ? calculateConfusionDelta(evaluation.C) : undefined;
 
     // Calculate new confusion levels
     const newConfusionA = clampConfusion(currentConfusionA + deltaA);
     const newConfusionB = clampConfusion(currentConfusionB + deltaB);
+    const newConfusionC = isExtremeMode && deltaC !== undefined && currentConfusionC !== undefined
+      ? clampConfusion(currentConfusionC + deltaC)
+      : undefined;
 
     // Check for game over
-    const gameOver = newConfusionA >= 5 || newConfusionB >= 5;
-    const gameOverReason = newConfusionA >= 5 ? "A" : newConfusionB >= 5 ? "B" : undefined;
+    let gameOver = newConfusionA >= 5 || newConfusionB >= 5;
+    let gameOverReason: "A" | "B" | "C" | undefined = newConfusionA >= 5 ? "A" : newConfusionB >= 5 ? "B" : undefined;
+    
+    if (isExtremeMode && newConfusionC !== undefined && newConfusionC >= 5) {
+      gameOver = true;
+      if (!gameOverReason) gameOverReason = "C";
+    }
 
     // Calculate score
     const scoreGained = gameOver ? 0 : calculateRoundScore(evaluation, roundNumber);
 
     const result: RoundResult = {
       evaluation,
-      confusionDelta: { A: deltaA, B: deltaB },
+      confusionDelta: { A: deltaA, B: deltaB, C: deltaC },
       scoreGained,
       newConfusionA,
       newConfusionB,
+      newConfusionC,
       gameOver,
       gameOverReason,
     };

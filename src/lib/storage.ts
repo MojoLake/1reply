@@ -7,12 +7,12 @@ export interface StoredGameData {
     classic: number;
     timer: number;
     daily: { score: number; date: string };
-    endless: number;
+    extreme: number;
   };
   bestRounds: {
     classic: number;
     timer: number;
-    endless: number;
+    extreme: number;
   };
   totalGamesPlayed: number;
   lastPlayed: string;
@@ -23,12 +23,12 @@ const defaultData: StoredGameData = {
     classic: 0,
     timer: 0,
     daily: { score: 0, date: "" },
-    endless: 0,
+    extreme: 0,
   },
   bestRounds: {
     classic: 0,
     timer: 0,
-    endless: 0,
+    extreme: 0,
   },
   totalGamesPlayed: 0,
   lastPlayed: "",

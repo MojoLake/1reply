@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateBothContinuations } from "@/lib/conversation";
+import { generateAllContinuations } from "@/lib/conversation";
 import { Conversation } from "@/lib/types";
 
 // Simple in-memory rate limiting (shared concept with judge)
@@ -44,9 +44,10 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { conversationA, conversationB } = body as {
+    const { conversationA, conversationB, conversationC } = body as {
       conversationA: Conversation;
       conversationB: Conversation;
+      conversationC?: Conversation;
     };
 
     if (!conversationA || !conversationB) {
@@ -56,10 +57,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await generateBothContinuations(
+    const result = await generateAllContinuations(
       conversationA,
       conversationB,
-      apiKey
+      apiKey,
+      conversationC
     );
 
     return NextResponse.json(result);
