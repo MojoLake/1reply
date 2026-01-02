@@ -76,6 +76,54 @@ export function selectSituationPair(
 }
 
 /**
+ * Select a single situation (for conversation swapping when one completes)
+ */
+export function selectSingleSituation(
+  difficulty: Difficulty,
+  usedSituationIds: string[]
+): ConversationSituation | null {
+  // Filter available situations
+  const available = situations.filter(
+    (s) =>
+      !usedSituationIds.includes(s.id) &&
+      s.difficultyTags.includes(difficulty)
+  );
+
+  // If no situations at this difficulty, include other difficulties
+  let pool = [...available];
+  if (pool.length === 0) {
+    const fallbackDifficulties: Difficulty[] =
+      difficulty === "hard"
+        ? ["medium", "easy"]
+        : difficulty === "medium"
+        ? ["easy", "hard"]
+        : ["medium", "hard"];
+
+    for (const d of fallbackDifficulties) {
+      const more = situations.filter(
+        (s) =>
+          !usedSituationIds.includes(s.id) &&
+          s.difficultyTags.includes(d) &&
+          !pool.includes(s)
+      );
+      pool = [...pool, ...more];
+      if (pool.length > 0) break;
+    }
+  }
+
+  // If still empty, recycle from all situations
+  if (pool.length === 0) {
+    pool = [...situations];
+  }
+
+  if (pool.length === 0) return null;
+
+  // Shuffle and pick one
+  const shuffled = pool.sort(() => Math.random() - 0.5);
+  return shuffled[0];
+}
+
+/**
  * Get a daily seed based on date
  */
 export function getDailySeed(): number {

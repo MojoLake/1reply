@@ -56,13 +56,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { responseA, responseB } = await generateBothContinuations(
+    const result = await generateBothContinuations(
       conversationA,
       conversationB,
       apiKey
     );
 
-    return NextResponse.json({ responseA, responseB });
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Continue error:", error);
     return NextResponse.json(

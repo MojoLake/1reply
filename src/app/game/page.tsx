@@ -10,12 +10,14 @@ import {
   ConversationSituation,
   RoundResult,
   Difficulty,
+  ContinuationResponse,
 } from "@/lib/types";
 import { getStoredData, updateHighScore } from "@/lib/storage";
+import { CONVERSATION_COMPLETION_BONUS } from "@/lib/scoring";
 import GameHeader from "@/components/GameHeader";
 import ConversationPanel from "@/components/ConversationPanel";
 import ReplyInput from "@/components/ReplyInput";
-import JudgeFeedback from "@/components/JudgeFeedback";
+import JudgeFeedback, { ConversationChoice } from "@/components/JudgeFeedback";
 import GameOverModal from "@/components/GameOverModal";
 
 type GamePhase = "loading" | "playing" | "judging" | "feedback" | "gameover";
@@ -64,6 +66,11 @@ function GamePageContent() {
     hasTimer ? 30 : undefined
   );
   const [highScore, setHighScore] = useState(0);
+  const [completedThisRound, setCompletedThisRound] = useState<{
+    A: boolean;
+    B: boolean;
+  }>({ A: false, B: false });
+  const [pendingContinuations, setPendingContinuations] = useState<ContinuationResponse | null>(null);
 
   // Refs for timer handling
   const submitRef = useRef<((reply: string) => Promise<void>) | null>(null);
@@ -125,6 +132,7 @@ function GamePageContent() {
         hintsRemaining: 3,
         usedSituationIds: [roundData.situationA.id, roundData.situationB.id],
         isGameOver: false,
+        completedConversations: 0,
       });
       setPhase("playing");
       if (hasTimer) setTimeRemaining(30);
@@ -200,6 +208,26 @@ function GamePageContent() {
           updateHighScore(mode, finalScore, gameState.round);
           setPhase("gameover");
         } else {
+          // Fetch continuations to detect if conversations are ending
+          // We need to create updated conversations with the player's reply
+          const updatedConvA = {
+            ...gameState.conversationA,
+            confusion: result.newConfusionA,
+            transcript: [
+              ...gameState.conversationA.transcript,
+              { role: "player" as const, text: reply },
+            ],
+          };
+          const updatedConvB = {
+            ...gameState.conversationB,
+            confusion: result.newConfusionB,
+            transcript: [
+              ...gameState.conversationB.transcript,
+              { role: "player" as const, text: reply },
+            ],
+          };
+          const continuations = await fetchContinuations(updatedConvA, updatedConvB);
+          setPendingContinuations(continuations);
           setPhase("feedback");
         }
       } catch (error) {
@@ -264,9 +292,34 @@ function GamePageContent() {
     return () => clearTimeout(timer);
   }, [hasTimer, phase, timeRemaining]);
 
+  // Fetch a single new situation for conversation swapping
+  const fetchSingleSituation = useCallback(
+    async (usedIds: string[], difficulty: Difficulty): Promise<ConversationSituation | null> => {
+      try {
+        const params = new URLSearchParams({
+          round: "1", // doesn't matter, we just need one situation
+          mode,
+          usedIds: usedIds.join(","),
+          single: "true",
+        });
+
+        const res = await fetch(`/api/round?${params}`);
+        if (!res.ok) return null;
+
+        const data = await res.json();
+        // Return situationA from the pair
+        return data.situationA as ConversationSituation;
+      } catch (error) {
+        console.error("Error fetching single situation:", error);
+        return null;
+      }
+    },
+    [mode]
+  );
+
   // Fetch conversation continuations from LLM
   const fetchContinuations = useCallback(
-    async (convA: Conversation, convB: Conversation) => {
+    async (convA: Conversation, convB: Conversation): Promise<ContinuationResponse> => {
       try {
         const res = await fetch("/api/continue", {
           method: "POST",
@@ -281,29 +334,29 @@ function GamePageContent() {
           throw new Error("Failed to fetch continuations");
         }
 
-        const data = await res.json();
-        return {
-          responseA: data.responseA as string,
-          responseB: data.responseB as string,
-        };
+        const data: ContinuationResponse = await res.json();
+        return data;
       } catch (error) {
         console.error("Error fetching continuations:", error);
         // Fallback to simple responses
         return {
           responseA: "Okay",
           responseB: "Okay",
+          endingA: false,
+          endingB: false,
         };
       }
     },
     []
   );
 
-  // Handle continue to next round
-  const handleContinue = async () => {
-    if (!gameState) return;
+  // Handle continue to next round with user choices for ending conversations
+  const handleContinue = async (choices: { A: ConversationChoice; B: ConversationChoice }) => {
+    if (!gameState || !pendingContinuations) return;
 
     setPhase("loading");
     setShowHint(false);
+    setCompletedThisRound({ A: false, B: false });
 
     const nextRound = gameState.round + 1;
 
@@ -317,11 +370,66 @@ function GamePageContent() {
       return;
     }
 
-    // Fetch round data and continuations in parallel
-    const [roundData, continuations] = await Promise.all([
-      fetchRound(nextRound, gameState.usedSituationIds),
-      fetchContinuations(gameState.conversationA, gameState.conversationB),
-    ]);
+    const continuations = pendingContinuations;
+    
+    // User chose to start new conversations - only award bonus if they chose "new"
+    const shouldSwapA = pendingContinuations.endingA && choices.A === "new";
+    const shouldSwapB = pendingContinuations.endingB && choices.B === "new";
+
+    // Calculate completion bonus based on user choices
+    let completionBonus = 0;
+    let newCompletions = 0;
+    if (shouldSwapA) {
+      completionBonus += CONVERSATION_COMPLETION_BONUS;
+      newCompletions++;
+    }
+    if (shouldSwapB) {
+      completionBonus += CONVERSATION_COMPLETION_BONUS;
+      newCompletions++;
+    }
+
+    // Track which conversations completed for UI feedback
+    setCompletedThisRound({
+      A: shouldSwapA,
+      B: shouldSwapB,
+    });
+
+    // Fetch new situations for conversations that user chose to swap
+    let newSituationA: ConversationSituation | null = null;
+    let newSituationB: ConversationSituation | null = null;
+
+    if (shouldSwapA || shouldSwapB) {
+      const fetchPromises: Promise<ConversationSituation | null>[] = [];
+      
+      if (shouldSwapA) {
+        fetchPromises.push(
+          fetchSingleSituation(gameState.usedSituationIds, currentDifficulty)
+        );
+      }
+      if (shouldSwapB) {
+        fetchPromises.push(
+          fetchSingleSituation(
+            [
+              ...gameState.usedSituationIds,
+              ...(shouldSwapA ? [] : []), // Will add A's new ID if fetched
+            ],
+            currentDifficulty
+          )
+        );
+      }
+
+      const newSituations = await Promise.all(fetchPromises);
+      
+      if (shouldSwapA) {
+        newSituationA = newSituations[0];
+      }
+      if (shouldSwapB) {
+        newSituationB = shouldSwapA ? newSituations[1] : newSituations[0];
+      }
+    }
+
+    // Always fetch round data to update difficulty
+    const roundData = await fetchRound(nextRound, gameState.usedSituationIds);
 
     if (!roundData) {
       // If can't fetch new round, end game
@@ -336,31 +444,57 @@ function GamePageContent() {
     setGameState((prev) => {
       if (!prev) return prev;
 
-      return {
-        ...prev,
-        round: nextRound,
-        conversationA: {
+      // Build new conversation A
+      let newConvA: Conversation;
+      if (newSituationA) {
+        // Swap to new conversation
+        newConvA = createConversation(newSituationA);
+      } else {
+        // Continue existing conversation with the LLM response
+        newConvA = {
           ...prev.conversationA,
           transcript: [
             ...prev.conversationA.transcript,
             { role: "them" as const, text: continuations.responseA },
           ],
-        },
-        conversationB: {
+        };
+      }
+
+      // Build new conversation B
+      let newConvB: Conversation;
+      if (newSituationB) {
+        // Swap to new conversation
+        newConvB = createConversation(newSituationB);
+      } else {
+        // Continue existing conversation with the LLM response
+        newConvB = {
           ...prev.conversationB,
           transcript: [
             ...prev.conversationB.transcript,
             { role: "them" as const, text: continuations.responseB },
           ],
-        },
-        usedSituationIds: [
-          ...prev.usedSituationIds,
-          roundData.situationA.id,
-          roundData.situationB.id,
-        ],
+        };
+      }
+
+      // Collect new situation IDs
+      const newUsedIds = [...prev.usedSituationIds];
+      if (newSituationA) newUsedIds.push(newSituationA.id);
+      if (newSituationB) newUsedIds.push(newSituationB.id);
+
+      return {
+        ...prev,
+        round: nextRound,
+        score: prev.score + completionBonus,
+        conversationA: newConvA,
+        conversationB: newConvB,
+        usedSituationIds: newUsedIds,
+        completedConversations: prev.completedConversations + newCompletions,
       };
     });
 
+    // Clear pending continuations
+    setPendingContinuations(null);
+    
     if (hasTimer) setTimeRemaining(Math.max(20, 35 - nextRound * 2));
     setPhase("playing");
   };
@@ -467,7 +601,7 @@ function GamePageContent() {
             </motion.div>
           )}
 
-          {phase === "feedback" && lastResult && (
+          {phase === "feedback" && lastResult && pendingContinuations && (
             <motion.div
               key="feedback"
               initial={{ opacity: 0, y: 20 }}
@@ -479,6 +613,11 @@ function GamePageContent() {
                 confusionDelta={lastResult.confusionDelta}
                 scoreGained={lastResult.scoreGained}
                 onContinue={handleContinue}
+                completedConversations={completedThisRound}
+                endingConversations={{
+                  A: pendingContinuations.endingA,
+                  B: pendingContinuations.endingB,
+                }}
               />
             </motion.div>
           )}

@@ -1,6 +1,12 @@
 import { JudgeResult } from "./types";
 
 /**
+ * Bonus points awarded for successfully completing a conversation
+ * (navigating it to a natural conclusion)
+ */
+export const CONVERSATION_COMPLETION_BONUS = 200;
+
+/**
  * Calculate score gained from a round based on judge results.
  * 
  * score += 10 * min(coherenceA, coherenceB)

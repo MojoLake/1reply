@@ -44,6 +44,18 @@ export interface ConfusionDelta {
   B: number;
 }
 
+export interface ContinuationResult {
+  response: string;
+  isEnding: boolean; // true if this is a conversation-ending message
+}
+
+export interface ContinuationResponse {
+  responseA: string;
+  responseB: string;
+  endingA: boolean;
+  endingB: boolean;
+}
+
 export interface RoundResult {
   evaluation: JudgeResult;
   confusionDelta: ConfusionDelta;
@@ -64,6 +76,7 @@ export interface GameState {
   usedSituationIds: string[];
   isGameOver: boolean;
   gameOverReason?: "A" | "B";
+  completedConversations: number; // count of successfully completed conversations
 }
 
 export type GameMode = "classic" | "timer" | "daily" | "endless";

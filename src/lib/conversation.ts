@@ -1,5 +1,9 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { Conversation } from "./types";
+import {
+  Conversation,
+  ContinuationResult,
+  ContinuationResponse,
+} from "./types";
 
 // Configuration for continuation generation
 const CONTINUATION_MAX_TOKENS = 1024; // Increased buffer to prevent mid-sentence cutoff
@@ -18,7 +22,15 @@ RULES:
 - If they make a statement, react naturally to it
 - ALWAYS write complete sentences - never stop mid-thought or mid-sentence
 
-OUTPUT: Return ONLY the response text, nothing else. No quotes, no explanations, just the complete message.`;
+CONVERSATION ENDING DETECTION:
+A conversation is "ending" if your response is a natural conclusion like:
+- Goodbyes: "See you!", "Talk later!", "Bye!"
+- Sign-offs: "Have a great day!", "Take care!"
+- Closing acknowledgments: "Thanks, will do!", "Perfect, see you then!"
+- Scheduling confirmations that close the topic: "Sounds good, 3pm it is!"
+
+OUTPUT: Return ONLY valid JSON in this exact format (no markdown, no code blocks):
+{"response": "<your message>", "isEnding": <true/false>}`;
 
 function formatConversationForContinuation(conversation: Conversation): string {
   const lines: string[] = [];
@@ -39,11 +51,53 @@ function formatConversationForContinuation(conversation: Conversation): string {
   return lines.join("\n");
 }
 
+function parseContinuationResponse(
+  rawResponse: string
+): ContinuationResult | null {
+  try {
+    // Try to extract JSON from the response
+    let jsonStr = rawResponse.trim();
+
+    // Look for JSON in code blocks
+    const codeBlockMatch = rawResponse.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (codeBlockMatch) {
+      jsonStr = codeBlockMatch[1].trim();
+    } else {
+      // Look for raw JSON object
+      const jsonMatch = rawResponse.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        jsonStr = jsonMatch[0];
+      }
+    }
+
+    const parsed = JSON.parse(jsonStr);
+
+    if (typeof parsed.response === "string" && parsed.response.length > 0) {
+      return {
+        response: parsed.response,
+        isEnding: Boolean(parsed.isEnding),
+      };
+    }
+
+    return null;
+  } catch {
+    // If JSON parsing fails, try to use the raw response as plain text
+    const cleaned = rawResponse.trim();
+    if (cleaned.length > 0 && !cleaned.startsWith("{")) {
+      return {
+        response: cleaned,
+        isEnding: false, // Can't determine, default to false
+      };
+    }
+    return null;
+  }
+}
+
 export async function generateContinuation(
   conversation: Conversation,
   apiKey: string,
   maxRetries = 2
-): Promise<string> {
+): Promise<ContinuationResult> {
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
@@ -65,25 +119,31 @@ export async function generateContinuation(
         },
       });
 
-      const response = result.response.text().trim();
+      const rawResponse = result.response.text().trim();
+      const parsed = parseContinuationResponse(rawResponse);
 
-      // Clean up response - remove quotes if the model wrapped it
-      let cleaned = response;
-      if (
-        (cleaned.startsWith('"') && cleaned.endsWith('"')) ||
-        (cleaned.startsWith("'") && cleaned.endsWith("'"))
-      ) {
-        cleaned = cleaned.slice(1, -1);
-      }
+      if (parsed) {
+        // Clean up response - remove quotes if the model wrapped it
+        let cleaned = parsed.response;
+        if (
+          (cleaned.startsWith('"') && cleaned.endsWith('"')) ||
+          (cleaned.startsWith("'") && cleaned.endsWith("'"))
+        ) {
+          cleaned = cleaned.slice(1, -1);
+        }
 
-      // Remove any "Name:" prefix if model included it
-      const namePrefix = `${conversation.situation.personName}:`;
-      if (cleaned.startsWith(namePrefix)) {
-        cleaned = cleaned.slice(namePrefix.length).trim();
-      }
+        // Remove any "Name:" prefix if model included it
+        const namePrefix = `${conversation.situation.personName}:`;
+        if (cleaned.startsWith(namePrefix)) {
+          cleaned = cleaned.slice(namePrefix.length).trim();
+        }
 
-      if (cleaned.length > 0) {
-        return cleaned;
+        if (cleaned.length > 0) {
+          return {
+            response: cleaned,
+            isEnding: parsed.isEnding,
+          };
+        }
       }
     } catch (error) {
       console.error(`Continuation error on attempt ${attempt + 1}:`, error);
@@ -103,19 +163,27 @@ export async function generateContinuation(
   };
 
   const options = fallbacks[conversation.situation.tone] || fallbacks.casual;
-  return options[Math.floor(Math.random() * options.length)];
+  return {
+    response: options[Math.floor(Math.random() * options.length)],
+    isEnding: false,
+  };
 }
 
 export async function generateBothContinuations(
   conversationA: Conversation,
   conversationB: Conversation,
   apiKey: string
-): Promise<{ responseA: string; responseB: string }> {
+): Promise<ContinuationResponse> {
   // Generate both continuations in parallel
-  const [responseA, responseB] = await Promise.all([
+  const [resultA, resultB] = await Promise.all([
     generateContinuation(conversationA, apiKey),
     generateContinuation(conversationB, apiKey),
   ]);
 
-  return { responseA, responseB };
+  return {
+    responseA: resultA.response,
+    responseB: resultB.response,
+    endingA: resultA.isEnding,
+    endingB: resultB.isEnding,
+  };
 }
