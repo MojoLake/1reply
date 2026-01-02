@@ -264,6 +264,40 @@ function GamePageContent() {
     return () => clearTimeout(timer);
   }, [hasTimer, phase, timeRemaining]);
 
+  // Fetch conversation continuations from LLM
+  const fetchContinuations = useCallback(
+    async (convA: Conversation, convB: Conversation) => {
+      try {
+        const res = await fetch("/api/continue", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            conversationA: convA,
+            conversationB: convB,
+          }),
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch continuations");
+        }
+
+        const data = await res.json();
+        return {
+          responseA: data.responseA as string,
+          responseB: data.responseB as string,
+        };
+      } catch (error) {
+        console.error("Error fetching continuations:", error);
+        // Fallback to simple responses
+        return {
+          responseA: "Okay",
+          responseB: "Okay",
+        };
+      }
+    },
+    []
+  );
+
   // Handle continue to next round
   const handleContinue = async () => {
     if (!gameState) return;
@@ -283,7 +317,12 @@ function GamePageContent() {
       return;
     }
 
-    const roundData = await fetchRound(nextRound, gameState.usedSituationIds);
+    // Fetch round data and continuations in parallel
+    const [roundData, continuations] = await Promise.all([
+      fetchRound(nextRound, gameState.usedSituationIds),
+      fetchContinuations(gameState.conversationA, gameState.conversationB),
+    ]);
+
     if (!roundData) {
       // If can't fetch new round, end game
       setGameState((prev) =>
@@ -292,10 +331,6 @@ function GamePageContent() {
       setPhase("gameover");
       return;
     }
-
-    // Generate continuation for each conversation (add AI response)
-    const continuationA = generateContinuation(gameState.conversationA);
-    const continuationB = generateContinuation(gameState.conversationB);
 
     setCurrentDifficulty(roundData.difficulty);
     setGameState((prev) => {
@@ -306,11 +341,17 @@ function GamePageContent() {
         round: nextRound,
         conversationA: {
           ...prev.conversationA,
-          transcript: [...prev.conversationA.transcript, continuationA],
+          transcript: [
+            ...prev.conversationA.transcript,
+            { role: "them" as const, text: continuations.responseA },
+          ],
         },
         conversationB: {
           ...prev.conversationB,
-          transcript: [...prev.conversationB.transcript, continuationB],
+          transcript: [
+            ...prev.conversationB.transcript,
+            { role: "them" as const, text: continuations.responseB },
+          ],
         },
         usedSituationIds: [
           ...prev.usedSituationIds,
@@ -322,42 +363,6 @@ function GamePageContent() {
 
     if (hasTimer) setTimeRemaining(Math.max(20, 35 - nextRound * 2));
     setPhase("playing");
-  };
-
-  // Generate a simple continuation message
-  const generateContinuation = (conversation: Conversation) => {
-    const continuations = [
-      "That makes sense!",
-      "I see what you mean.",
-      "Okay, got it.",
-      "Right, right.",
-      "Hmm, interesting.",
-      "Fair enough.",
-      "Yeah, I hear you.",
-      "Alright then.",
-      "Makes sense to me.",
-      "I understand.",
-    ];
-
-    // Add some context-aware continuations based on tone
-    const toneContinuations: Record<string, string[]> = {
-      excited: ["That's awesome!", "Oh nice!", "Love it!", "So cool!"],
-      stressed: ["Ugh, okay.", "That helps, I guess.", "Alright..."],
-      casual: ["Cool cool", "Sure thing", "Sounds good", "Alright"],
-      formal: ["Thank you for clarifying.", "I appreciate that.", "Noted."],
-      flirty: ["Smooth 😏", "Oh really? 😊", "I like that"],
-      concerned: ["I hope so...", "If you say so.", "I appreciate you saying that."],
-    };
-
-    const options = [
-      ...continuations,
-      ...(toneContinuations[conversation.situation.tone] || []),
-    ];
-
-    return {
-      role: "them" as const,
-      text: options[Math.floor(Math.random() * options.length)],
-    };
   };
 
   // Handle hint
