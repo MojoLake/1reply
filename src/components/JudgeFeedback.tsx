@@ -356,7 +356,7 @@ export default function JudgeFeedback({
       >
         {hasAnyEnding && !canProceed
           ? "Choose what to do with ending conversation" + (endingConversations.A && endingConversations.B ? "s" : "")
-          : "Continue to Next Round"}
+          : "Proceed"}
       </motion.button>
     </motion.div>
   );
