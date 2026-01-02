@@ -147,6 +147,8 @@ function GamePageContent() {
       if (!gameState || phase !== "playing" || isSubmittingRef.current) return;
       isSubmittingRef.current = true;
 
+      // Clear any completion status from previous round
+      setCompletedThisRound({ A: false, B: false });
       setPhase("judging");
 
       try {
