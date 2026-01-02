@@ -32,12 +32,14 @@ function createConversation(situation: ConversationSituation): Conversation {
 
 function LoadingSpinner() {
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+    <div className="min-h-screen bg-black flex items-center justify-center font-mono">
       <motion.div
-        animate={{ rotate: 360 }}
+        animate={{ opacity: [1, 0.3, 1] }}
         transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-        className="w-8 h-8 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full"
-      />
+        className="text-white text-2xl"
+      >
+        [LOADING...]
+      </motion.div>
     </div>
   );
 }
@@ -527,18 +529,20 @@ function GamePageContent() {
   // Loading state
   if (phase === "loading" || !gameState) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center font-mono">
         <motion.div
-          animate={{ rotate: 360 }}
+          animate={{ opacity: [1, 0.3, 1] }}
           transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-          className="w-8 h-8 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full"
-        />
+          className="text-white text-xl"
+        >
+          [LOADING...]
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col">
+    <div className="min-h-screen bg-black flex flex-col">
       <GameHeader
         round={gameState.round}
         score={gameState.score}
@@ -592,14 +596,16 @@ function GamePageContent() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex flex-col items-center justify-center py-8"
+              className="flex flex-col items-center justify-center py-8 font-mono"
             >
               <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                className="w-10 h-10 border-3 border-indigo-500/30 border-t-indigo-500 rounded-full mb-4"
-              />
-              <p className="text-zinc-400">Evaluating your reply...</p>
+                animate={{ opacity: [1, 0.3, 1] }}
+                transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
+                className="text-white text-xl mb-4"
+              >
+                [EVALUATING...]
+              </motion.div>
+              <p className="text-gray-500">Processing your reply...</p>
             </motion.div>
           )}
 

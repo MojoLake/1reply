@@ -12,35 +12,30 @@ const modes: {
   name: string;
   description: string;
   icon: string;
-  gradient: string;
 }[] = [
   {
     id: "classic",
-    name: "Classic",
+    name: "CLASSIC",
     description: "No timer. Take your time to craft the perfect reply.",
-    icon: "🎯",
-    gradient: "from-indigo-600 to-blue-600",
+    icon: "[>]",
   },
   {
     id: "timer",
-    name: "Timer",
+    name: "TIMER",
     description: "20-35 seconds per round. Think fast!",
-    icon: "⏱️",
-    gradient: "from-amber-600 to-orange-600",
+    icon: "[T]",
   },
   {
     id: "daily",
-    name: "Daily Challenge",
+    name: "DAILY",
     description: "5 rounds. Same seed for everyone. Compare scores!",
-    icon: "📅",
-    gradient: "from-emerald-600 to-teal-600",
+    icon: "[D]",
   },
   {
     id: "endless",
-    name: "Endless",
+    name: "ENDLESS",
     description: "How long can you keep both conversations going?",
-    icon: "♾️",
-    gradient: "from-purple-600 to-pink-600",
+    icon: "[~]",
   },
 ];
 
@@ -59,38 +54,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col">
-      {/* Background gradient */}
-      <div className="fixed inset-0 bg-gradient-to-br from-indigo-900/20 via-zinc-950 to-purple-900/20 pointer-events-none" />
-
-      {/* Animated background elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{
-            x: [0, 100, 0],
-            y: [0, -50, 0],
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: 20,
-            ease: "easeInOut",
-          }}
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            x: [0, -100, 0],
-            y: [0, 50, 0],
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: 25,
-            ease: "easeInOut",
-          }}
-          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"
-        />
-      </div>
-
+    <div className="min-h-screen bg-black flex flex-col">
       <main className="relative flex-1 flex flex-col items-center justify-center p-4">
         {/* Hero */}
         <motion.div
@@ -98,25 +62,33 @@ export default function HomePage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <motion.h1
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", duration: 0.8 }}
-            className="text-6xl md:text-8xl font-black mb-4"
+          {/* ASCII Art Title */}
+          <motion.pre
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="text-white text-xs sm:text-sm md:text-base font-mono mb-6 leading-tight"
           >
-            <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              1Reply
-            </span>
-          </motion.h1>
+{`
+  __  ____            _       
+ /_ |/ __ \\          | |      
+  | | |  | | ___ _ __| |_   _ 
+  | | |  | |/ _ \\ '_ \\ | | | |
+  | | |__| |  __/ |_) | | |_| |
+  |_|\\____/ \\___| .__/|_|\\__, |
+                | |       __/ |
+                |_|      |___/ 
+`}
+          </motion.pre>
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-xl text-zinc-400 max-w-lg mx-auto"
+            className="text-gray-400 max-w-lg mx-auto font-mono"
           >
             Two conversations. One reply.
             <br />
-            <span className="text-zinc-500">
+            <span className="text-gray-600">
               Craft messages that work for both sides.
             </span>
           </motion.p>
@@ -127,18 +99,18 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="mb-12 flex flex-wrap justify-center gap-6 text-sm text-zinc-500"
+          className="mb-12 flex flex-wrap justify-center gap-6 text-sm text-gray-500 font-mono"
         >
           <div className="flex items-center gap-2">
-            <span className="text-2xl">💬</span>
+            <span className="text-white">[A][B]</span>
             <span>Two conversations</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-2xl">✍️</span>
+            <span className="text-white">&gt;_</span>
             <span>One reply</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-2xl">🎯</span>
+            <span className="text-white">[OK]</span>
             <span>Keep them going</span>
           </div>
         </motion.div>
@@ -156,49 +128,48 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 + index * 0.1 }}
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
               onClick={() => handleModeSelect(mode.id)}
-              className="relative group p-6 bg-zinc-900/50 rounded-2xl border border-zinc-800 hover:border-zinc-700 transition-all text-left overflow-hidden"
+              className="relative group p-5 bg-black border border-gray-700 hover:border-white hover:bg-white hover:text-black transition-all text-left font-mono"
             >
-              {/* Gradient overlay on hover */}
-              <div
-                className={`absolute inset-0 bg-gradient-to-br ${mode.gradient} opacity-0 group-hover:opacity-10 transition-opacity`}
-              />
-
-              <div className="relative">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-3xl">{mode.icon}</span>
-                  <h3 className="text-xl font-bold text-white">{mode.name}</h3>
-                </div>
-                <p className="text-sm text-zinc-500">{mode.description}</p>
-
-                {/* High score */}
-                {stats && mode.id !== "daily" && stats.highScores[mode.id] > 0 && (
-                  <div className="mt-3 text-xs text-zinc-600">
-                    Best: {formatScore(stats.highScores[mode.id])} pts
-                    {stats.bestRounds[mode.id] > 0 &&
-                      ` • ${stats.bestRounds[mode.id]} rounds`}
-                  </div>
-                )}
-
-                {/* Daily specific */}
-                {mode.id === "daily" && (
-                  <div className="mt-3">
-                    {dailyPlayed ? (
-                      <span className="text-xs text-emerald-500">
-                        ✓ Completed today
-                        {stats?.highScores.daily.score &&
-                          ` • ${formatScore(stats.highScores.daily.score)} pts`}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-amber-400">
-                        Today&apos;s challenge awaits!
-                      </span>
-                    )}
-                  </div>
-                )}
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-lg font-bold">{mode.icon}</span>
+                <h3 className="text-lg font-bold tracking-wide">{mode.name}</h3>
               </div>
+              <p className="text-sm text-gray-500 group-hover:text-gray-600">{mode.description}</p>
+
+              {/* High score */}
+              {stats && mode.id !== "daily" && stats.highScores[mode.id] > 0 && (
+                <div className="mt-3 text-xs text-gray-600 group-hover:text-gray-500">
+                  Best: {formatScore(stats.highScores[mode.id])} pts
+                  {stats.bestRounds[mode.id] > 0 &&
+                    ` | ${stats.bestRounds[mode.id]} rounds`}
+                </div>
+              )}
+
+              {/* Daily specific */}
+              {mode.id === "daily" && (
+                <div className="mt-3">
+                  {dailyPlayed ? (
+                    <span className="text-xs text-gray-500 group-hover:text-gray-600">
+                      [x] Completed today
+                      {stats?.highScores.daily.score &&
+                        ` | ${formatScore(stats.highScores.daily.score)} pts`}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-gray-400 group-hover:text-gray-600">
+                      [ ] Today&apos;s challenge awaits!
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Corner decorations */}
+              <span className="absolute top-0 left-0 text-gray-700 group-hover:text-black text-xs">+</span>
+              <span className="absolute top-0 right-0 text-gray-700 group-hover:text-black text-xs">+</span>
+              <span className="absolute bottom-0 left-0 text-gray-700 group-hover:text-black text-xs">+</span>
+              <span className="absolute bottom-0 right-0 text-gray-700 group-hover:text-black text-xs">+</span>
             </motion.button>
           ))}
         </motion.div>
@@ -209,7 +180,7 @@ export default function HomePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
-            className="text-center text-sm text-zinc-600"
+            className="text-center text-sm text-gray-600 font-mono"
           >
             {stats.totalGamesPlayed} games played
           </motion.div>
@@ -217,9 +188,9 @@ export default function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="relative py-6 text-center text-sm text-zinc-600">
+      <footer className="relative py-6 text-center text-sm text-gray-600 font-mono">
         <p>
-          Made with 🧠 for wordplay enthusiasts
+          Made with &lt;3 for wordplay enthusiasts
         </p>
       </footer>
     </div>

@@ -1,8 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #09090b;
-  --foreground: #fafafa;
+  --background: #000000;
+  --foreground: #ffffff;
+  --gray-dim: #666666;
+  --gray-mid: #888888;
+  --gray-light: #aaaaaa;
+  --border: #333333;
 }
 
 * {
@@ -16,45 +21,61 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family:
-    "SF Pro Display",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  font-family: "JetBrains Mono", "Courier New", Courier, monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar */
+/* CRT Scanline effect overlay */
+.crt-overlay {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  z-index: 9999;
+}
+
+/* CRT screen glow */
+.crt-glow {
+  box-shadow: 
+    inset 0 0 60px rgba(255, 255, 255, 0.05),
+    0 0 20px rgba(255, 255, 255, 0.02);
+}
+
+/* Custom scrollbar - terminal style */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #000;
+  border-left: 1px solid var(--border);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3f3f46;
-  border-radius: 4px;
+  background: var(--gray-dim);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #52525b;
+  background: var(--gray-mid);
 }
 
-/* Selection */
+/* Selection - inverted terminal style */
 ::selection {
-  background: rgba(99, 102, 241, 0.3);
-  color: white;
+  background: #ffffff;
+  color: #000000;
 }
 
 /* Focus visible */
 :focus-visible {
-  outline: 2px solid rgba(99, 102, 241, 0.5);
+  outline: 1px solid #ffffff;
   outline-offset: 2px;
 }
 
@@ -67,6 +88,20 @@ textarea:focus {
   outline: none;
 }
 
+/* Blinking cursor animation */
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
 /* Animation classes */
 @keyframes pulse-slow {
   0%,
@@ -74,7 +109,7 @@ textarea:focus {
     opacity: 1;
   }
   50% {
-    opacity: 0.7;
+    opacity: 0.5;
   }
 }
 
@@ -88,11 +123,10 @@ textarea:focus {
 }
 
 .conversation-scroll::-webkit-scrollbar-thumb {
-  background: #27272a;
-  border-radius: 2px;
+  background: var(--gray-dim);
 }
 
-/* Loading spinner */
+/* Loading spinner - ASCII style */
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -101,4 +135,58 @@ textarea:focus {
 
 .spinner {
   animation: spin 1s linear infinite;
+}
+
+/* ASCII spinner frames */
+@keyframes ascii-spin {
+  0% { content: "|"; }
+  25% { content: "/"; }
+  50% { content: "-"; }
+  75% { content: "\\"; }
+  100% { content: "|"; }
+}
+
+/* Terminal button styles */
+.terminal-btn {
+  border: 1px solid var(--foreground);
+  background: transparent;
+  color: var(--foreground);
+  transition: all 0.1s ease;
+}
+
+.terminal-btn:hover:not(:disabled) {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+.terminal-btn:disabled {
+  border-color: var(--gray-dim);
+  color: var(--gray-dim);
+  cursor: not-allowed;
+}
+
+/* Terminal panel borders */
+.terminal-panel {
+  border: 1px solid var(--border);
+  background: var(--background);
+}
+
+/* Inverted style for player messages */
+.terminal-inverted {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+/* Screen flicker effect */
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  92% { opacity: 1; }
+  93% { opacity: 0.8; }
+  94% { opacity: 1; }
+  97% { opacity: 0.9; }
+  98% { opacity: 1; }
+}
+
+.screen-flicker {
+  animation: flicker 4s infinite;
 }

@@ -17,26 +17,15 @@ interface JudgeFeedbackProps {
 }
 
 function ScoreBar({ label, value }: { label: string; value: number }) {
-  const percentage = (value / 10) * 100;
-  const color =
-    value >= 7
-      ? "bg-emerald-500"
-      : value >= 5
-      ? "bg-amber-500"
-      : "bg-red-500";
+  const filled = Math.round((value / 10) * 10);
+  const empty = 10 - filled;
+  const bar = "█".repeat(filled) + "░".repeat(empty);
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-xs text-zinc-400 w-20">{label}</span>
-      <div className="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden">
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${percentage}%` }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className={`h-full ${color}`}
-        />
-      </div>
-      <span className="text-xs font-mono text-zinc-300 w-6 text-right">{value}</span>
+    <div className="flex items-center gap-2 font-mono">
+      <span className="text-xs text-gray-500 w-20">{label}</span>
+      <span className="text-gray-400 text-sm">[{bar}]</span>
+      <span className="text-xs text-gray-300 w-6 text-right">{value}</span>
     </div>
   );
 }
@@ -51,29 +40,29 @@ function ConversationChoiceSelector({
   onChoose: (choice: ConversationChoice) => void;
 }) {
   return (
-    <div className="bg-zinc-900/50 rounded-lg p-3 border border-zinc-800">
+    <div className="bg-black p-3 border border-gray-700 font-mono">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-zinc-300">Conversation {label}</span>
+        <span className="text-sm font-medium text-gray-300">[{label}]</span>
         <div className="flex gap-2">
           <button
             onClick={() => onChoose("new")}
-            className={`px-3 py-1.5 text-sm rounded-lg transition-all ${
+            className={`px-3 py-1.5 text-sm transition-all border ${
               choice === "new"
-                ? "bg-emerald-500/30 text-emerald-300 border border-emerald-500/50"
-                : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-emerald-500/30 hover:text-emerald-400"
+                ? "bg-white text-black border-white"
+                : "bg-black text-gray-400 border-gray-600 hover:border-white hover:text-white"
             }`}
           >
-            Start New (+{CONVERSATION_COMPLETION_BONUS})
+            NEW (+{CONVERSATION_COMPLETION_BONUS})
           </button>
           <button
             onClick={() => onChoose("continue")}
-            className={`px-3 py-1.5 text-sm rounded-lg transition-all ${
+            className={`px-3 py-1.5 text-sm transition-all border ${
               choice === "continue"
-                ? "bg-indigo-500/30 text-indigo-300 border border-indigo-500/50"
-                : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-indigo-500/30 hover:text-indigo-400"
+                ? "bg-white text-black border-white"
+                : "bg-black text-gray-400 border-gray-600 hover:border-white hover:text-white"
             }`}
           >
-            Keep Going
+            CONTINUE
           </button>
         </div>
       </div>
@@ -93,37 +82,37 @@ function ConversationScores({
   const [expanded, setExpanded] = useState(false);
 
   const overallGood = scores.coherence >= 6 && scores.relevance >= 6 && !scores.contradiction;
-  const statusEmoji = scores.unsafe
-    ? "🚫"
+  const statusSymbol = scores.unsafe
+    ? "[!]"
     : scores.contradiction
-    ? "❌"
+    ? "[X]"
     : overallGood
-    ? "✅"
-    : "⚠️";
+    ? "[OK]"
+    : "[?]";
 
   return (
-    <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800">
+    <div className="bg-black border border-gray-700 p-4 font-mono">
       <div
         className="flex items-center justify-between cursor-pointer"
         onClick={() => setExpanded(!expanded)}
       >
         <div className="flex items-center gap-2">
-          <span className="text-lg">{statusEmoji}</span>
-          <span className="font-medium text-zinc-200">Conversation {label}</span>
+          <span className="text-sm text-gray-400">{statusSymbol}</span>
+          <span className="font-medium text-white">[{label}]</span>
         </div>
         <div className="flex items-center gap-2">
           <span
-            className={`text-sm font-mono font-bold ${
-              delta > 0 ? "text-red-400" : delta < 0 ? "text-emerald-400" : "text-zinc-400"
+            className={`text-sm font-bold ${
+              delta > 0 ? "text-white" : delta < 0 ? "text-gray-400" : "text-gray-600"
             }`}
           >
             {delta > 0 ? `+${delta}` : delta === 0 ? "±0" : delta} confusion
           </span>
           <motion.span
             animate={{ rotate: expanded ? 180 : 0 }}
-            className="text-zinc-500"
+            className="text-gray-500"
           >
-            ▼
+            v
           </motion.span>
         </div>
       </div>
@@ -139,29 +128,29 @@ function ConversationScores({
             <div className="pt-4 space-y-2">
               <ScoreBar label="Coherence" value={scores.coherence} />
               <ScoreBar label="Relevance" value={scores.relevance} />
-              <ScoreBar label="Tone Match" value={scores.tone_match} />
-              <ScoreBar label="Directness" value={scores.directness} />
+              <ScoreBar label="Tone" value={scores.tone_match} />
+              <ScoreBar label="Direct" value={scores.directness} />
 
               {(scores.contradiction || scores.unsafe) && (
                 <div className="flex gap-2 pt-2">
                   {scores.contradiction && (
-                    <span className="px-2 py-0.5 text-xs bg-red-500/20 text-red-400 rounded">
-                      Contradiction
+                    <span className="px-2 py-0.5 text-xs border border-gray-600 text-gray-400">
+                      [CONTRADICTION]
                     </span>
                   )}
                   {scores.unsafe && (
-                    <span className="px-2 py-0.5 text-xs bg-red-500/20 text-red-400 rounded">
-                      Unsafe
+                    <span className="px-2 py-0.5 text-xs border border-gray-600 text-gray-400">
+                      [UNSAFE]
                     </span>
                   )}
                 </div>
               )}
 
               {scores.notes.length > 0 && (
-                <div className="pt-2 border-t border-zinc-800">
+                <div className="pt-2 border-t border-gray-800">
                   {scores.notes.map((note, i) => (
-                    <p key={i} className="text-xs text-zinc-500 italic">
-                      {note}
+                    <p key={i} className="text-xs text-gray-600 italic">
+                      &gt; {note}
                     </p>
                   ))}
                 </div>
@@ -214,18 +203,18 @@ export default function JudgeFeedback({
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="w-full max-w-2xl mx-auto p-6 bg-zinc-900/80 backdrop-blur-sm rounded-2xl border border-zinc-700"
+      className="w-full max-w-2xl mx-auto p-6 bg-black border border-gray-600 font-mono"
     >
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-white mb-2">Round Complete!</h2>
+        <h2 className="text-xl font-bold text-white mb-2">ROUND COMPLETE</h2>
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", delay: 0.2 }}
-          className="inline-block px-4 py-2 bg-indigo-500/20 rounded-lg"
+          className="inline-block px-4 py-2 border border-gray-600"
         >
-          <span className="text-indigo-400 font-mono font-bold">+{scoreGained}</span>
-          <span className="text-zinc-400 ml-2">points</span>
+          <span className="text-white font-bold">+{scoreGained}</span>
+          <span className="text-gray-500 ml-2">points</span>
         </motion.div>
       </div>
 
@@ -237,21 +226,20 @@ export default function JudgeFeedback({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ type: "spring", delay: 0.3 }}
-            className="mb-6 p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl"
+            className="mb-6 p-4 border border-gray-500 bg-black"
           >
             <div className="flex items-center justify-center gap-2 mb-3">
-              <span className="text-xl">💬</span>
-              <span className="text-lg font-bold text-amber-400">
-                Conversation{endingConversations.A && endingConversations.B ? "s" : ""} Reaching Conclusion
+              <span className="text-sm font-bold text-gray-300">
+                [!] CONVERSATION{endingConversations.A && endingConversations.B ? "S" : ""} ENDING
               </span>
             </div>
-            <p className="text-sm text-zinc-300 text-center mb-4">
+            <p className="text-sm text-gray-500 text-center mb-4">
               {endingConversations.A && endingConversations.B
-                ? "Both conversations are wrapping up naturally."
+                ? "Both conversations are wrapping up."
                 : endingConversations.A
-                ? "Conversation A is wrapping up naturally."
-                : "Conversation B is wrapping up naturally."}{" "}
-              Choose what to do next:
+                ? "Conversation A is wrapping up."
+                : "Conversation B is wrapping up."}{" "}
+              Choose what to do:
             </p>
             
             <div className="space-y-3">
@@ -278,11 +266,11 @@ export default function JudgeFeedback({
                 transition={{ type: "spring", delay: 0.5 }}
                 className="mt-4 text-center"
               >
-                <span className="inline-block px-3 py-1 bg-emerald-500/30 rounded-lg">
-                  <span className="text-emerald-300 font-mono font-bold">
+                <span className="inline-block px-3 py-1 border border-gray-500">
+                  <span className="text-white font-bold">
                     +{potentialBonus}
                   </span>
-                  <span className="text-emerald-400/70 ml-2 text-sm">
+                  <span className="text-gray-500 ml-2 text-sm">
                     completion bonus
                   </span>
                 </span>
@@ -300,39 +288,37 @@ export default function JudgeFeedback({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ type: "spring", delay: 0.3 }}
-            className="mb-6 p-4 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 rounded-xl text-center"
+            className="mb-6 p-4 border border-gray-500 text-center"
           >
             <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="text-2xl">🎉</span>
-              <span className="text-lg font-bold text-emerald-400">
-                Conversation{completionCount > 1 ? "s" : ""} Completed!
+              <span className="text-lg font-bold text-white">
+                [+++] COMPLETED [+++]
               </span>
-              <span className="text-2xl">🎉</span>
             </div>
-            <p className="text-sm text-zinc-300 mb-2">
+            <p className="text-sm text-gray-400 mb-2">
               You successfully navigated{" "}
               {completedConversations?.A && completedConversations?.B
                 ? "both conversations"
                 : completedConversations?.A
                 ? "Conversation A"
                 : "Conversation B"}{" "}
-              to a natural conclusion!
+              to conclusion!
             </p>
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", delay: 0.5 }}
-              className="inline-block px-3 py-1 bg-emerald-500/30 rounded-lg"
+              className="inline-block px-3 py-1 border border-gray-500"
             >
-              <span className="text-emerald-300 font-mono font-bold">
+              <span className="text-white font-bold">
                 +{completionBonus}
               </span>
-              <span className="text-emerald-400/70 ml-2 text-sm">
+              <span className="text-gray-500 ml-2 text-sm">
                 completion bonus
               </span>
             </motion.div>
-            <p className="text-xs text-zinc-500 mt-2">
-              A new conversation will begin next round
+            <p className="text-xs text-gray-600 mt-2">
+              New conversation starts next round
             </p>
           </motion.div>
         )}
@@ -348,17 +334,16 @@ export default function JudgeFeedback({
         whileTap={canProceed ? { scale: 0.98 } : {}}
         onClick={handleProceed}
         disabled={!canProceed}
-        className={`w-full py-3 font-semibold rounded-xl transition-all ${
+        className={`w-full py-3 font-semibold transition-all border ${
           canProceed
-            ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/25"
-            : "bg-zinc-800 text-zinc-500 cursor-not-allowed"
+            ? "border-white text-white hover:bg-white hover:text-black"
+            : "border-gray-700 text-gray-600 cursor-not-allowed"
         }`}
       >
         {hasAnyEnding && !canProceed
-          ? "Choose what to do with ending conversation" + (endingConversations.A && endingConversations.B ? "s" : "")
-          : "Proceed"}
+          ? "[ CHOOSE ACTION FOR ENDING CONVERSATION" + (endingConversations.A && endingConversations.B ? "S" : "") + " ]"
+          : "[ PROCEED ]"}
       </motion.button>
     </motion.div>
   );
 }
-

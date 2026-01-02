@@ -25,14 +25,14 @@ export default function ConfusionMeter({
   const meaning = getConfusionMeaning(confusion);
 
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="flex flex-col items-center gap-1 font-mono">
       <div className="flex items-center gap-3">
         {/* ASCII Face */}
         <motion.div
           key={confusion}
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className={`font-mono text-3xl font-bold ${colorClass}`}
+          className={`text-2xl font-bold ${colorClass}`}
         >
           {face}
         </motion.div>
@@ -43,11 +43,11 @@ export default function ConfusionMeter({
             key={confusion}
             initial={{ opacity: 0.5 }}
             animate={{ opacity: 1 }}
-            className={`font-mono text-lg tracking-wider ${colorClass}`}
+            className={`text-sm tracking-wider ${colorClass}`}
           >
             {bar}
           </motion.div>
-          <span className="text-xs text-zinc-500 mt-0.5">{meaning}</span>
+          <span className="text-xs text-gray-600 mt-0.5">{meaning}</span>
         </div>
 
         {/* Delta indicator */}
@@ -57,12 +57,12 @@ export default function ConfusionMeter({
               initial={{ opacity: 0, x: -10, scale: 0.8 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 10 }}
-              className={`font-mono text-lg font-bold ${
-                delta > 0 ? "text-red-400" : "text-emerald-400"
+              className={`text-sm font-bold ${
+                delta > 0 ? "text-white" : "text-gray-500"
               }`}
             >
               {delta > 0 ? `+${delta}` : delta}
-              {delta > 0 ? " ↑" : " ↓"}
+              {delta > 0 ? " ^" : " v"}
             </motion.div>
           )}
         </AnimatePresence>
@@ -70,4 +70,3 @@ export default function ConfusionMeter({
     </div>
   );
 }
-

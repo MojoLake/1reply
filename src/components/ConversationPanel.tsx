@@ -26,16 +26,16 @@ export default function ConversationPanel({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: label === "A" ? 0 : 0.1 }}
-      className="flex flex-col h-full bg-zinc-900/50 rounded-2xl border border-zinc-800 overflow-hidden"
+      className="flex flex-col h-full bg-black border border-gray-700 overflow-hidden font-mono"
     >
       {/* Header with confusion meter */}
-      <div className="px-4 py-3 border-b border-zinc-800 bg-zinc-900/80">
+      <div className="px-4 py-3 border-b border-gray-700 bg-black">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-mono text-zinc-500 uppercase tracking-wider">
-              Conv {label}
+            <span className="text-xs text-gray-500 uppercase tracking-wider">
+              [{label}]
             </span>
-            <span className="text-sm font-medium text-zinc-300">
+            <span className="text-sm font-medium text-white">
               {situation.personName}
             </span>
           </div>
@@ -48,15 +48,15 @@ export default function ConversationPanel({
       </div>
 
       {/* Context */}
-      <div className="px-4 py-2 border-b border-zinc-800/50 bg-zinc-900/30">
-        <p className="text-xs text-zinc-500">{situation.personContext}</p>
+      <div className="px-4 py-2 border-b border-gray-800 bg-black">
+        <p className="text-xs text-gray-500">&gt; {situation.personContext}</p>
         {showIntent && (
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-xs text-amber-400/80 mt-1"
+            className="text-xs text-gray-400 mt-1"
           >
-            Intent: {situation.intent.replace(/_/g, " ")}
+            &gt; Intent: {situation.intent.replace(/_/g, " ")}
           </motion.p>
         )}
       </div>
@@ -72,15 +72,20 @@ export default function ConversationPanel({
             className={`flex ${msg.role === "player" ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`max-w-[85%] rounded-2xl px-4 py-2 ${
+              className={`max-w-[85%] px-3 py-2 ${
                 msg.role === "player"
-                  ? "bg-indigo-600 text-white rounded-br-md"
-                  : "bg-zinc-800 text-zinc-100 rounded-bl-md"
+                  ? "bg-white text-black"
+                  : "bg-gray-900 text-gray-300 border border-gray-700"
               }`}
             >
               {msg.role === "them" && (
-                <span className="text-xs font-medium text-zinc-400 block mb-1">
-                  {situation.personName}
+                <span className="text-xs font-medium text-gray-500 block mb-1">
+                  {situation.personName}:
+                </span>
+              )}
+              {msg.role === "player" && (
+                <span className="text-xs font-medium text-gray-600 block mb-1">
+                  You:
                 </span>
               )}
               <p className="text-sm leading-relaxed">{msg.text}</p>
@@ -88,7 +93,12 @@ export default function ConversationPanel({
           </motion.div>
         ))}
       </div>
+
+      {/* Corner decorations */}
+      <div className="absolute top-0 left-0 text-gray-700 text-xs select-none">+</div>
+      <div className="absolute top-0 right-0 text-gray-700 text-xs select-none">+</div>
+      <div className="absolute bottom-0 left-0 text-gray-700 text-xs select-none">+</div>
+      <div className="absolute bottom-0 right-0 text-gray-700 text-xs select-none">+</div>
     </motion.div>
   );
 }
-

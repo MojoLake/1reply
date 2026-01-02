@@ -26,7 +26,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-zinc-950 text-white antialiased">
+      <body className="min-h-screen bg-black text-white antialiased font-mono crt-glow">
+        {/* CRT Scanline overlay */}
+        <div className="crt-overlay" />
         {children}
       </body>
     </html>

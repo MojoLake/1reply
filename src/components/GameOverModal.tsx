@@ -26,7 +26,7 @@ export default function GameOverModal({
   const isNewHighScore = highScore !== undefined && score > highScore;
 
   const handleShare = () => {
-    const text = `🎮 1Reply ${mode === "daily" ? "Daily" : ""}\n\n🏆 Score: ${formatScore(score)}\n📍 Rounds: ${rounds}\n\nCan you do better? Play at ${window.location.origin}`;
+    const text = `1Reply ${mode === "daily" ? "Daily" : ""}\n\nScore: ${formatScore(score)}\nRounds: ${rounds}\n\nCan you do better? Play at ${window.location.origin}`;
 
     if (navigator.share) {
       navigator.share({ text });
@@ -40,28 +40,37 @@ export default function GameOverModal({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 font-mono"
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", duration: 0.5 }}
-        className="w-full max-w-md bg-zinc-900 rounded-2xl border border-zinc-700 overflow-hidden"
+        className="w-full max-w-md bg-black border border-gray-600 overflow-hidden"
       >
         {/* Header */}
-        <div className="p-6 bg-gradient-to-b from-red-900/30 to-transparent text-center">
-          <motion.div
+        <div className="p-6 border-b border-gray-700 text-center">
+          <motion.pre
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", delay: 0.2 }}
-            className="text-6xl mb-4"
+            className="text-white text-xs mb-4 leading-tight"
           >
-            {reason ? ">:(" : "😵"}
-          </motion.div>
-          <h2 className="text-2xl font-bold text-white mb-1">Game Over!</h2>
+{reason ? `
+  +-----------------+
+  |   GAME  OVER    |
+  |      >:(        |
+  +-----------------+
+` : `
+  +-----------------+
+  |   GAME  OVER    |
+  |      X_X        |
+  +-----------------+
+`}
+          </motion.pre>
           {reason && (
-            <p className="text-sm text-red-400">
-              Conversation {reason} became too confused
+            <p className="text-sm text-gray-500">
+              Conversation [{reason}] became too confused
             </p>
           )}
         </div>
@@ -73,37 +82,36 @@ export default function GameOverModal({
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", delay: 0.3 }}
-              className="text-center p-3 bg-amber-500/20 rounded-xl border border-amber-500/30"
+              className="text-center p-3 border border-gray-500"
             >
-              <span className="text-2xl">🏆</span>
-              <span className="ml-2 text-amber-400 font-bold">NEW HIGH SCORE!</span>
+              <span className="text-white font-bold">[!!!] NEW HIGH SCORE [!!!]</span>
             </motion.div>
           )}
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-zinc-800/50 rounded-xl p-4 text-center">
-              <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">
+            <div className="border border-gray-700 p-4 text-center">
+              <div className="text-xs text-gray-600 uppercase tracking-wider mb-1">
                 Final Score
               </div>
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", delay: 0.4 }}
-                className="text-3xl font-bold font-mono text-white"
+                className="text-2xl font-bold text-white"
               >
                 {formatScore(score)}
               </motion.div>
             </div>
 
-            <div className="bg-zinc-800/50 rounded-xl p-4 text-center">
-              <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">
-                Rounds Survived
+            <div className="border border-gray-700 p-4 text-center">
+              <div className="text-xs text-gray-600 uppercase tracking-wider mb-1">
+                Rounds
               </div>
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", delay: 0.5 }}
-                className="text-3xl font-bold font-mono text-white"
+                className="text-2xl font-bold text-white"
               >
                 {rounds}
               </motion.div>
@@ -111,7 +119,7 @@ export default function GameOverModal({
           </div>
 
           {highScore !== undefined && !isNewHighScore && (
-            <div className="text-center text-sm text-zinc-500">
+            <div className="text-center text-sm text-gray-600">
               High Score: {formatScore(highScore)}
             </div>
           )}
@@ -123,9 +131,9 @@ export default function GameOverModal({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={onPlayAgain}
-            className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold rounded-xl transition-all shadow-lg shadow-indigo-500/25"
+            className="w-full py-3 border border-white text-white font-semibold hover:bg-white hover:text-black transition-all"
           >
-            Play Again
+            [ PLAY AGAIN ]
           </motion.button>
 
           <div className="flex gap-3">
@@ -133,18 +141,18 @@ export default function GameOverModal({
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleShare}
-              className="flex-1 py-3 bg-zinc-800 hover:bg-zinc-700 text-white font-medium rounded-xl transition-colors"
+              className="flex-1 py-3 border border-gray-600 text-gray-400 font-medium hover:border-white hover:text-white transition-all"
             >
-              📤 Share
+              [ SHARE ]
             </motion.button>
 
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={onMainMenu}
-              className="flex-1 py-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 font-medium rounded-xl transition-colors"
+              className="flex-1 py-3 border border-gray-600 text-gray-500 font-medium hover:border-white hover:text-white transition-all"
             >
-              Main Menu
+              [ MENU ]
             </motion.button>
           </div>
         </div>
@@ -152,4 +160,3 @@ export default function GameOverModal({
     </motion.div>
   );
 }
-

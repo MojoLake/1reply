@@ -50,26 +50,28 @@ export default function ReplyInput({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full"
+      className="w-full font-mono"
     >
       {/* Timer display */}
       {timeRemaining !== undefined && (
         <div className="flex justify-center mb-3">
           <motion.div
-            className={`px-4 py-1.5 rounded-full font-mono text-sm font-bold ${
+            className={`px-4 py-1.5 text-sm font-bold border ${
               timeRemaining <= 5
-                ? "bg-red-500/20 text-red-400 animate-pulse"
+                ? "border-white text-white animate-pulse"
                 : timeRemaining <= 10
-                ? "bg-amber-500/20 text-amber-400"
-                : "bg-zinc-800 text-zinc-400"
+                ? "border-gray-500 text-gray-400"
+                : "border-gray-700 text-gray-500"
             }`}
           >
-            {timeRemaining}s
+            [{timeRemaining}s]
           </motion.div>
         </div>
       )}
 
       <div className="relative">
+        {/* Terminal prompt indicator */}
+        <div className="absolute left-3 top-4 text-gray-500 select-none">&gt;</div>
         <textarea
           ref={textareaRef}
           value={reply}
@@ -77,22 +79,22 @@ export default function ReplyInput({
           onKeyDown={handleKeyDown}
           disabled={disabled || isLoading}
           placeholder="Type a reply that works for both conversations..."
-          className={`w-full px-5 py-4 bg-zinc-900 border-2 rounded-2xl text-white placeholder-zinc-500 resize-none focus:outline-none transition-colors ${
+          className={`w-full pl-8 pr-5 py-4 bg-black border text-white placeholder-gray-600 resize-none focus:outline-none transition-colors ${
             disabled || isLoading
-              ? "border-zinc-800 opacity-60 cursor-not-allowed"
-              : "border-zinc-700 focus:border-indigo-500"
+              ? "border-gray-800 opacity-60 cursor-not-allowed"
+              : "border-gray-700 focus:border-white"
           }`}
           rows={3}
         />
 
         {/* Character count */}
         <div
-          className={`absolute bottom-3 right-3 text-xs font-mono ${
+          className={`absolute bottom-3 right-3 text-xs ${
             isOverLimit
-              ? "text-red-400"
+              ? "text-white"
               : isNearLimit
-              ? "text-amber-400"
-              : "text-zinc-600"
+              ? "text-gray-400"
+              : "text-gray-600"
           }`}
         >
           {charCount}/{maxLength}
@@ -105,27 +107,27 @@ export default function ReplyInput({
           whileTap={{ scale: disabled || isLoading ? 1 : 0.98 }}
           onClick={handleSubmit}
           disabled={disabled || isLoading || !reply.trim() || isOverLimit}
-          className={`px-8 py-3 rounded-xl font-semibold text-white transition-all ${
+          className={`px-8 py-3 font-semibold text-sm transition-all border ${
             disabled || isLoading || !reply.trim() || isOverLimit
-              ? "bg-zinc-700 cursor-not-allowed opacity-60"
-              : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-500/25"
+              ? "border-gray-700 text-gray-600 cursor-not-allowed"
+              : "border-white text-white hover:bg-white hover:text-black"
           }`}
         >
           {isLoading ? (
             <span className="flex items-center gap-2">
               <motion.span
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
-              />
-              Evaluating...
+                animate={{ opacity: [1, 0.3, 1] }}
+                transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
+              >
+                [...]
+              </motion.span>
+              EVALUATING
             </span>
           ) : (
-            "Send Reply"
+            "[ SEND REPLY ]"
           )}
         </motion.button>
       </div>
     </motion.div>
   );
 }
-
