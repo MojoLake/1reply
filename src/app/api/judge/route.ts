@@ -39,9 +39,6 @@ export async function POST(request: NextRequest) {
 
   // Get API key from environment
   const apiKey = process.env.GEMINI_API_KEY;
-  // #region agent log
-  fetch('http://127.0.0.1:7251/ingest/2405a2e0-c532-44ac-bf01-d6cd188340ac',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'route.ts:judge-apikey-check',message:'API key check',data:{hasApiKey:!!apiKey,apiKeyLen:apiKey?.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H1'})}).catch(()=>{});
-  // #endregion
   if (!apiKey) {
     return NextResponse.json(
       { error: "API key not configured" },

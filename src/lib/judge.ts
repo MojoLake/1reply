@@ -239,29 +239,6 @@ export async function judgeReply(
   maxRetries = 3,
   conversationC?: Conversation
 ): Promise<JudgeResult> {
-  // #region agent log
-  fetch("http://127.0.0.1:7251/ingest/2405a2e0-c532-44ac-bf01-d6cd188340ac", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      location: "judge.ts:judgeReply-entry",
-      message: "judgeReply called",
-      data: {
-        hasApiKey: !!apiKey,
-        apiKeyLen: apiKey?.length,
-        playerReplyLen: playerReply?.length,
-        hasConvA: !!conversationA,
-        hasConvB: !!conversationB,
-        hasConvC: !!conversationC,
-        isExtremeMode: !!conversationC,
-      },
-      timestamp: Date.now(),
-      sessionId: "debug-session",
-      hypothesisId: "H1,H4",
-    }),
-  }).catch(() => {});
-  // #endregion
-
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
@@ -278,24 +255,6 @@ export async function judgeReply(
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      // #region agent log
-      fetch(
-        "http://127.0.0.1:7251/ingest/2405a2e0-c532-44ac-bf01-d6cd188340ac",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            location: "judge.ts:before-generateContent",
-            message: "Calling Gemini API",
-            data: { attempt: attempt + 1, promptLen: prompt.length },
-            timestamp: Date.now(),
-            sessionId: "debug-session",
-            hypothesisId: "H3,H5",
-          }),
-        }
-      ).catch(() => {});
-      // #endregion
-
       const result = await model.generateContent({
         contents: [
           {
@@ -310,53 +269,7 @@ export async function judgeReply(
       });
 
       const response = result.response.text();
-      console.log("response", response);
-
-      // #region agent log
-      fetch(
-        "http://127.0.0.1:7251/ingest/2405a2e0-c532-44ac-bf01-d6cd188340ac",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            location: "judge.ts:after-generateContent",
-            message: "Gemini response received",
-            data: {
-              attempt: attempt + 1,
-              responseLen: response?.length,
-              responsePreview: response?.substring(0, 500),
-            },
-            timestamp: Date.now(),
-            sessionId: "debug-session",
-            hypothesisId: "H2,H3",
-          }),
-        }
-      ).catch(() => {});
-      // #endregion
-
       const parsed = parseJudgeResponse(response, isExtremeMode);
-
-      // #region agent log
-      fetch(
-        "http://127.0.0.1:7251/ingest/2405a2e0-c532-44ac-bf01-d6cd188340ac",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            location: "judge.ts:after-parse",
-            message: "Parse result",
-            data: {
-              attempt: attempt + 1,
-              parseSuccess: !!parsed,
-              parsedKeys: parsed ? Object.keys(parsed) : null,
-            },
-            timestamp: Date.now(),
-            sessionId: "debug-session",
-            hypothesisId: "H2",
-          }),
-        }
-      ).catch(() => {});
-      // #endregion
 
       if (parsed) {
         return parsed;
@@ -364,45 +277,9 @@ export async function judgeReply(
 
       console.warn(`Judge parse failed on attempt ${attempt + 1}, retrying...`);
     } catch (error) {
-      // #region agent log
-      fetch(
-        "http://127.0.0.1:7251/ingest/2405a2e0-c532-44ac-bf01-d6cd188340ac",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            location: "judge.ts:catch-error",
-            message: "Gemini API error caught",
-            data: {
-              attempt: attempt + 1,
-              errorMessage: String(error),
-              errorName: (error as Error)?.name,
-            },
-            timestamp: Date.now(),
-            sessionId: "debug-session",
-            hypothesisId: "H1,H3",
-          }),
-        }
-      ).catch(() => {});
-      // #endregion
       console.error(`Judge API error on attempt ${attempt + 1}:`, error);
     }
   }
-
-  // #region agent log
-  fetch("http://127.0.0.1:7251/ingest/2405a2e0-c532-44ac-bf01-d6cd188340ac", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      location: "judge.ts:all-retries-failed",
-      message: "All retries exhausted, returning neutral",
-      data: { maxRetries },
-      timestamp: Date.now(),
-      sessionId: "debug-session",
-      hypothesisId: "H5",
-    }),
-  }).catch(() => {});
-  // #endregion
 
   // Fallback: return neutral scores if all retries fail
   console.error("All judge retries failed, returning neutral scores");

@@ -58,7 +58,7 @@ export function selectSituationPair(
   const shuffled = pool.sort(() => Math.random() - 0.5);
 
   // Try to pick situations with different intents for more challenge
-  let situationA = shuffled[0];
+  const situationA = shuffled[0];
   let situationB = shuffled.find(
     (s) => s.id !== situationA.id && s.intent !== situationA.intent
   );

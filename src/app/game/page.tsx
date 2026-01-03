@@ -119,7 +119,7 @@ function GamePageContent() {
 
   // Fetch a single new situation for conversation swapping
   const fetchSingleSituation = useCallback(
-    async (usedIds: string[], difficulty: Difficulty): Promise<ConversationSituation | null> => {
+    async (usedIds: string[]): Promise<ConversationSituation | null> => {
       try {
         const params = new URLSearchParams({
           round: "1", // doesn't matter, we just need one situation
@@ -194,7 +194,7 @@ function GamePageContent() {
       const usedIds = [roundData.situationA.id, roundData.situationB.id];
       
       if (isExtremeMode) {
-        situationC = await fetchSingleSituation(usedIds, roundData.difficulty);
+        situationC = await fetchSingleSituation(usedIds);
         if (situationC) {
           usedIds.push(situationC.id);
         }
@@ -451,17 +451,17 @@ function GamePageContent() {
       
       if (shouldSwapA) {
         fetchPromises.push(
-          fetchSingleSituation(gameState.usedSituationIds, currentDifficulty)
+          fetchSingleSituation(gameState.usedSituationIds)
         );
       }
       if (shouldSwapB) {
         fetchPromises.push(
-          fetchSingleSituation(gameState.usedSituationIds, currentDifficulty)
+          fetchSingleSituation(gameState.usedSituationIds)
         );
       }
       if (shouldSwapC) {
         fetchPromises.push(
-          fetchSingleSituation(gameState.usedSituationIds, currentDifficulty)
+          fetchSingleSituation(gameState.usedSituationIds)
         );
       }
 

@@ -169,7 +169,7 @@ export async function generateContinuation(
   };
 }
 
-export async function generateBothContinuations(
+async function generateBothContinuations(
   conversationA: Conversation,
   conversationB: Conversation,
   apiKey: string

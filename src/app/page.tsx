@@ -48,7 +48,9 @@ export default function HomePage() {
   const [stats, setStats] = useState<StoredGameData | null>(null);
   const [dailyPlayed, setDailyPlayed] = useState(false);
 
+  // Client-side initialization from localStorage (unavailable during SSR)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setStats(getStoredData());
     setDailyPlayed(hasDailyBeenPlayed());
   }, []);
