@@ -1,4 +1,2 @@
 HOST="user@yourserver.com"
 APP_DIR="/home/user/apps/1reply"
-PORT="3000"
-

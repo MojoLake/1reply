@@ -1,0 +1,14 @@
+module.exports = {
+  apps: [{
+    name: '1reply',
+    script: 'npm',
+    args: 'start',
+    cwd: '/home/user/apps/1reply',  // Update to match APP_DIR
+    env: {
+      NODE_ENV: 'production',
+      PORT: 3000,
+      GEMINI_API_KEY: 'your-api-key-here'
+    }
+  }]
+};
+
