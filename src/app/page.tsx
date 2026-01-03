@@ -4,7 +4,11 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { GameMode } from "@/lib/types";
-import { getStoredData, hasDailyBeenPlayed, StoredGameData } from "@/lib/storage";
+import {
+  getStoredData,
+  hasDailyBeenPlayed,
+  StoredGameData,
+} from "@/lib/storage";
 import { formatScore } from "@/lib/scoring";
 
 const modes: {
@@ -69,7 +73,7 @@ export default function HomePage() {
             transition={{ delay: 0.1 }}
             className="text-white text-xs sm:text-sm md:text-base font-mono mb-6 leading-tight"
           >
-{`
+            {`
   __  _____           _       
  /_ ||  __ \\         | |      
   | || |__) |___ _ __| |_   _ 
@@ -137,16 +141,20 @@ export default function HomePage() {
                 <span className="text-lg font-bold">{mode.icon}</span>
                 <h3 className="text-lg font-bold tracking-wide">{mode.name}</h3>
               </div>
-              <p className="text-sm text-gray-500 group-hover:text-gray-600">{mode.description}</p>
+              <p className="text-sm text-gray-500 group-hover:text-gray-600">
+                {mode.description}
+              </p>
 
               {/* High score */}
-              {stats && mode.id !== "daily" && stats.highScores[mode.id] > 0 && (
-                <div className="mt-3 text-xs text-gray-600 group-hover:text-gray-500">
-                  Best: {formatScore(stats.highScores[mode.id])} pts
-                  {stats.bestRounds[mode.id] > 0 &&
-                    ` | ${stats.bestRounds[mode.id]} rounds`}
-                </div>
-              )}
+              {stats &&
+                mode.id !== "daily" &&
+                stats.highScores[mode.id] > 0 && (
+                  <div className="mt-3 text-xs text-gray-600 group-hover:text-gray-500">
+                    Best: {formatScore(stats.highScores[mode.id])} pts
+                    {stats.bestRounds[mode.id] > 0 &&
+                      ` | ${stats.bestRounds[mode.id]} rounds`}
+                  </div>
+                )}
 
               {/* Daily specific */}
               {mode.id === "daily" && (
@@ -166,10 +174,18 @@ export default function HomePage() {
               )}
 
               {/* Corner decorations */}
-              <span className="absolute top-0 left-0 text-gray-700 group-hover:text-black text-xs">+</span>
-              <span className="absolute top-0 right-0 text-gray-700 group-hover:text-black text-xs">+</span>
-              <span className="absolute bottom-0 left-0 text-gray-700 group-hover:text-black text-xs">+</span>
-              <span className="absolute bottom-0 right-0 text-gray-700 group-hover:text-black text-xs">+</span>
+              <span className="absolute top-0 left-0 text-gray-700 group-hover:text-black text-xs">
+                +
+              </span>
+              <span className="absolute top-0 right-0 text-gray-700 group-hover:text-black text-xs">
+                +
+              </span>
+              <span className="absolute bottom-0 left-0 text-gray-700 group-hover:text-black text-xs">
+                +
+              </span>
+              <span className="absolute bottom-0 right-0 text-gray-700 group-hover:text-black text-xs">
+                +
+              </span>
             </motion.button>
           ))}
         </motion.div>
@@ -189,9 +205,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="relative py-6 text-center text-sm text-gray-600 font-mono">
-        <p>
-          Made with &lt;3 for wordplay enthusiasts
-        </p>
+        <p>Made with &lt;3 for wordplay enthusiasts</p>
       </footer>
     </div>
   );
