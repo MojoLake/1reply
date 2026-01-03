@@ -199,7 +199,7 @@ function parseJudgeResponse(
       A: clampScore(parsed.A),
       B: clampScore(parsed.B),
     };
-    
+
     if (expectC && parsed.C) {
       result.C = clampScore(parsed.C);
     }
@@ -274,7 +274,7 @@ export async function judgeReply(
     A: { ...neutralScore },
     B: { ...neutralScore },
   };
-  
+
   if (isExtremeMode) {
     result.C = { ...neutralScore };
   }

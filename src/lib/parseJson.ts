@@ -19,4 +19,3 @@ export function extractJsonFromResponse(response: string): string {
 
   return jsonStr;
 }
-
