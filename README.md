@@ -14,7 +14,7 @@ A word puzzle webapp where you participate in two simultaneous conversations and
 
 - **Classic**: No timer. Take your time to craft the perfect reply.
 - **Timer**: 20-35 seconds per round. Think fast!
-- **Daily Challenge**: Same seed for everyone, max 30 replies. Compare scores!
+- **Daily Challenge**: Same seed for everyone. Compare scores!
 - **Extreme**: Juggle 3 conversations at once. Triple the chaos!
 
 ## 🧠 Confusion System

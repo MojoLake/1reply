@@ -411,8 +411,8 @@ function GamePageContent() {
 
     const nextRound = gameState.round + 1;
 
-    // Check if daily mode is complete (max 30 replies)
-    if (mode === "daily" && nextRound > 30) {
+    // Check if max replies reached (30 for all modes)
+    if (nextRound > 30) {
       updateHighScore(mode, gameState.score, gameState.round);
       setGameState((prev) =>
         prev ? { ...prev, isGameOver: true, gameOverReason: "survived" } : prev

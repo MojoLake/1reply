@@ -127,7 +127,7 @@ confusion = clamp(confusion + delta, 0, 5)
 | ----------- | ----------------------------------------- |
 | **Classic** | Text-only, no timer. Pure puzzle mode.    |
 | **Timer**   | 20-40 seconds per round. Pressure mode.   |
-| **Daily**   | Shared seed, max 30 replies. Leaderboard. |
+| **Daily**   | Shared seed. Leaderboard. |
 | **Extreme** | Juggle 3 conversations at once!           |
 
 ---
