@@ -35,6 +35,29 @@
   - Prefer **rebase** to keep history linear.
   - If using PRs locally, use “squash merge” only when the branch history is noisy.
 
+### Pushing
+
+- Push to `main` is allowed.
+- Push **after each working commit** or small sequence of related working commits.
+- Do not push:
+  - Broken states.
+  - Temporary debug output.
+  - Experimental commits unless isolated on a branch.
+
+### Force pushes
+
+- Avoid `git push --force`.
+- `--force-with-lease` is allowed only after an interactive rebase of local, unpublished commits.
+
+### Synchronization
+
+- Before pushing:
+  - `git fetch`
+  - Ensure local `main` is not behind remote `main`.
+- If behind:
+  - `git rebase origin/main`
+  - Resolve conflicts locally before pushing.
+
 ### Hygiene
 
 - Before committing:
