@@ -99,7 +99,7 @@ export async function generateContinuation(
   maxRetries = 2
 ): Promise<ContinuationResult> {
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   const context = formatConversationForContinuation(conversation);
   const prompt = `${CONTINUATION_SYSTEM_PROMPT}\n\n${context}\n\nRespond as ${conversation.situation.personName}:`;

@@ -9,7 +9,10 @@ export const situations: ConversationSituation[] = [
     intent: "checking_in",
     personName: "Alex",
     personContext: "Your close friend from college",
-    facts: ["You haven't seen each other in 2 weeks", "Alex just got back from vacation"],
+    facts: [
+      "You haven't seen each other in 2 weeks",
+      "Alex just got back from vacation",
+    ],
     initialTranscript: [
       { role: "them", text: "Hey! Finally back from Bali 🌴" },
       { role: "them", text: "How have you been??" },
@@ -24,7 +27,10 @@ export const situations: ConversationSituation[] = [
     intent: "checking_in",
     personName: "Jordan",
     personContext: "Your gym buddy",
-    facts: ["You both go to the same gym", "Jordan missed the last few sessions"],
+    facts: [
+      "You both go to the same gym",
+      "Jordan missed the last few sessions",
+    ],
     initialTranscript: [
       { role: "them", text: "yo! missed you at the gym lately" },
       { role: "them", text: "everything good?" },
@@ -71,7 +77,10 @@ export const situations: ConversationSituation[] = [
     intent: "making_plans",
     personName: "Taylor",
     personContext: "Your friend who loves trying new restaurants",
-    facts: ["There's a new Thai place downtown", "You're both free this weekend"],
+    facts: [
+      "There's a new Thai place downtown",
+      "You're both free this weekend",
+    ],
     initialTranscript: [
       { role: "them", text: "That new Thai place opened!" },
       { role: "them", text: "Want to check it out Saturday?" },
@@ -118,7 +127,10 @@ export const situations: ConversationSituation[] = [
     intent: "rescheduling",
     personName: "David",
     personContext: "A client you're working with",
-    facts: ["You have a meeting scheduled for tomorrow", "David is in a different timezone"],
+    facts: [
+      "You have a meeting scheduled for tomorrow",
+      "David is in a different timezone",
+    ],
     initialTranscript: [
       { role: "them", text: "About our meeting tomorrow—" },
       { role: "them", text: "Any chance we could push it back an hour?" },
@@ -165,9 +177,15 @@ export const situations: ConversationSituation[] = [
     intent: "seeking_comfort",
     personName: "Morgan",
     personContext: "Your friend who just went through a breakup",
-    facts: ["Morgan broke up with their partner last week", "They were together for 2 years"],
+    facts: [
+      "Morgan broke up with their partner last week",
+      "They were together for 2 years",
+    ],
     initialTranscript: [
-      { role: "them", text: "I keep thinking about what I could have done differently" },
+      {
+        role: "them",
+        text: "I keep thinking about what I could have done differently",
+      },
       { role: "them", text: "Do you think it was my fault?" },
     ],
     allowedReplyLength: { min: 20, max: 300 },
@@ -200,7 +218,10 @@ export const situations: ConversationSituation[] = [
     facts: ["Jamie is moving next Saturday", "They need help with furniture"],
     initialTranscript: [
       { role: "them", text: "So I'm finally moving!" },
-      { role: "them", text: "Could really use some help with the heavy stuff next Saturday?" },
+      {
+        role: "them",
+        text: "Could really use some help with the heavy stuff next Saturday?",
+      },
     ],
     allowedReplyLength: { min: 15, max: 250 },
     difficultyTags: ["medium"],
@@ -229,7 +250,10 @@ export const situations: ConversationSituation[] = [
     intent: "testing_waters",
     personName: "Avery",
     personContext: "Someone you've been flirting with",
-    facts: ["You've known each other for a few months", "There's mutual attraction"],
+    facts: [
+      "You've known each other for a few months",
+      "There's mutual attraction",
+    ],
     initialTranscript: [
       { role: "them", text: "You know what I realized?" },
       { role: "them", text: "I always smile when I see your messages pop up" },
@@ -261,7 +285,10 @@ export const situations: ConversationSituation[] = [
     intent: "asking_for_money",
     personName: "Drew",
     personContext: "A friend who owes you money",
-    facts: ["Drew borrowed $200 last month", "They said they'd pay you back last week"],
+    facts: [
+      "Drew borrowed $200 last month",
+      "They said they'd pay you back last week",
+    ],
     initialTranscript: [
       { role: "them", text: "Hey so about that money..." },
       { role: "them", text: "Can I pay you back next month instead?" },
@@ -278,7 +305,10 @@ export const situations: ConversationSituation[] = [
     personContext: "Recruiter from a company you applied to",
     facts: ["You interviewed last week", "They're offering you the position"],
     initialTranscript: [
-      { role: "them", text: "Great news! We'd like to offer you the position." },
+      {
+        role: "them",
+        text: "Great news! We'd like to offer you the position.",
+      },
       { role: "them", text: "Are you still interested in joining our team?" },
     ],
     allowedReplyLength: { min: 20, max: 300 },
@@ -291,7 +321,10 @@ export const situations: ConversationSituation[] = [
     intent: "addressing_problem",
     personName: "Pat",
     personContext: "Your roommate",
-    facts: ["Pat has been leaving dishes in the sink", "This is the third time you've had to clean up"],
+    facts: [
+      "Pat has been leaving dishes in the sink",
+      "This is the third time you've had to clean up",
+    ],
     initialTranscript: [
       { role: "them", text: "Hey can we talk about the kitchen situation?" },
       { role: "them", text: "I feel like things have been a bit off lately" },
@@ -370,7 +403,10 @@ export const situations: ConversationSituation[] = [
     intent: "sharing",
     personName: "Grandma",
     personContext: "Your grandmother",
-    facts: ["She's known for her cooking", "You asked about her famous soup recipe"],
+    facts: [
+      "She's known for her cooking",
+      "You asked about her famous soup recipe",
+    ],
     initialTranscript: [
       { role: "them", text: "I found the recipe you asked about!" },
       { role: "them", text: "Want me to send it over?" },
@@ -415,7 +451,10 @@ export const situations: ConversationSituation[] = [
     intent: "celebrating",
     personName: "Kit",
     personContext: "Your workout partner",
-    facts: ["Kit has been training for months", "They just hit a personal record"],
+    facts: [
+      "Kit has been training for months",
+      "They just hit a personal record",
+    ],
     initialTranscript: [
       { role: "them", text: "I DID IT! New PR today! 💪" },
       { role: "them", text: "All that work finally paid off!" },
@@ -460,7 +499,10 @@ export const situations: ConversationSituation[] = [
     intent: "planning",
     personName: "Ash",
     personContext: "Friend helping plan a surprise party",
-    facts: ["It's for your mutual friend's birthday", "The party is this weekend"],
+    facts: [
+      "It's for your mutual friend's birthday",
+      "The party is this weekend",
+    ],
     initialTranscript: [
       { role: "them", text: "OK the venue is booked!" },
       { role: "them", text: "Can you handle the cake?" },
@@ -490,7 +532,10 @@ export const situations: ConversationSituation[] = [
     intent: "sharing_worry",
     personName: "Charlie",
     personContext: "Your friend who's been feeling unwell",
-    facts: ["Charlie has had a persistent cough", "They're considering seeing a doctor"],
+    facts: [
+      "Charlie has had a persistent cough",
+      "They're considering seeing a doctor",
+    ],
     initialTranscript: [
       { role: "them", text: "This cough won't go away 😷" },
       { role: "them", text: "Do you think I should see a doctor?" },
@@ -520,7 +565,10 @@ export const situations: ConversationSituation[] = [
     intent: "seeking_opinion",
     personName: "Parker",
     personContext: "Friend considering a career change",
-    facts: ["Parker is thinking of leaving tech for teaching", "It would mean a pay cut"],
+    facts: [
+      "Parker is thinking of leaving tech for teaching",
+      "It would mean a pay cut",
+    ],
     initialTranscript: [
       { role: "them", text: "I've been thinking about becoming a teacher" },
       { role: "them", text: "Crazy idea or worth pursuing?" },
@@ -537,7 +585,10 @@ export const situations: ConversationSituation[] = [
     personContext: "Friend planning their wedding",
     facts: ["The wedding is in 3 months", "Family drama is causing stress"],
     initialTranscript: [
-      { role: "them", text: "My in-laws are being impossible about the seating chart" },
+      {
+        role: "them",
+        text: "My in-laws are being impossible about the seating chart",
+      },
       { role: "them", text: "Why is wedding planning so stressful??" },
     ],
     allowedReplyLength: { min: 15, max: 250 },
@@ -550,7 +601,10 @@ export const situations: ConversationSituation[] = [
     intent: "sharing_news",
     personName: "Hayden",
     personContext: "Coworker who got promoted",
-    facts: ["Hayden just got promoted to team lead", "You work on the same team"],
+    facts: [
+      "Hayden just got promoted to team lead",
+      "You work on the same team",
+    ],
     initialTranscript: [
       { role: "them", text: "I got the promotion!!!" },
       { role: "them", text: "We should celebrate!" },
@@ -595,10 +649,16 @@ export const situations: ConversationSituation[] = [
     intent: "seeking_opinion",
     personName: "Phoenix",
     personContext: "Friend with a startup idea",
-    facts: ["Phoenix wants to start a business", "They want your honest feedback"],
+    facts: [
+      "Phoenix wants to start a business",
+      "They want your honest feedback",
+    ],
     initialTranscript: [
       { role: "them", text: "OK hear me out on this business idea" },
-      { role: "them", text: "App that connects people who hate cooking with people who love it" },
+      {
+        role: "them",
+        text: "App that connects people who hate cooking with people who love it",
+      },
     ],
     allowedReplyLength: { min: 15, max: 250 },
     difficultyTags: ["medium"],
@@ -612,7 +672,10 @@ export const situations: ConversationSituation[] = [
     personContext: "Friend who gets philosophical late at night",
     facts: ["It's 2 AM", "Kai is in a contemplative mood"],
     initialTranscript: [
-      { role: "them", text: "do you ever think about how wild it is that we exist" },
+      {
+        role: "them",
+        text: "do you ever think about how wild it is that we exist",
+      },
       { role: "them", text: "like what even IS consciousness" },
     ],
     allowedReplyLength: { min: 15, max: 250 },
@@ -640,7 +703,10 @@ export const situations: ConversationSituation[] = [
     intent: "seeking_feedback",
     personName: "Sage",
     personContext: "Friend who does art as a hobby",
-    facts: ["Sage just finished a painting", "They're nervous about showing it"],
+    facts: [
+      "Sage just finished a painting",
+      "They're nervous about showing it",
+    ],
     initialTranscript: [
       { role: "them", text: "I finally finished my painting" },
       { role: "them", text: "Be honest... what do you think?" },
@@ -700,10 +766,16 @@ export const situations: ConversationSituation[] = [
     intent: "confiding",
     personName: "Eden",
     personContext: "Your most trusted friend",
-    facts: ["Eden knows you well", "They seem to have something important to share"],
+    facts: [
+      "Eden knows you well",
+      "They seem to have something important to share",
+    ],
     initialTranscript: [
       { role: "them", text: "Can you keep a secret?" },
-      { role: "them", text: "I need to tell someone but you can't tell ANYONE" },
+      {
+        role: "them",
+        text: "I need to tell someone but you can't tell ANYONE",
+      },
     ],
     allowedReplyLength: { min: 15, max: 200 },
     difficultyTags: ["medium"],
@@ -715,7 +787,10 @@ export const situations: ConversationSituation[] = [
     intent: "seeking_advice",
     personName: "Avery",
     personContext: "Friend struggling with gift ideas",
-    facts: ["It's their partner's birthday soon", "They want something meaningful"],
+    facts: [
+      "It's their partner's birthday soon",
+      "They want something meaningful",
+    ],
     initialTranscript: [
       { role: "them", text: "Help! Birthday gift emergency" },
       { role: "them", text: "What do you get someone who has everything??" },
@@ -778,7 +853,10 @@ export const situations: ConversationSituation[] = [
     facts: ["It's morning", "Skyler had a bizarre dream"],
     initialTranscript: [
       { role: "them", text: "I had the WEIRDEST dream about you last night" },
-      { role: "them", text: "You were a talking dolphin? And we were solving crimes?" },
+      {
+        role: "them",
+        text: "You were a talking dolphin? And we were solving crimes?",
+      },
     ],
     allowedReplyLength: { min: 10, max: 200 },
     difficultyTags: ["easy"],
@@ -808,7 +886,10 @@ export const situations: ConversationSituation[] = [
     facts: ["You split the cost", "Taylor wants to cancel"],
     initialTranscript: [
       { role: "them", text: "Hey so about Netflix..." },
-      { role: "them", text: "I think I want to cancel. We never use it anymore right?" },
+      {
+        role: "them",
+        text: "I think I want to cancel. We never use it anymore right?",
+      },
     ],
     allowedReplyLength: { min: 15, max: 200 },
     difficultyTags: ["medium"],
@@ -850,7 +931,10 @@ export const situations: ConversationSituation[] = [
     intent: "apologizing",
     personName: "Jordan",
     personContext: "Friend whose birthday you may have forgotten",
-    facts: ["Their birthday was yesterday", "You're not sure if you messaged them"],
+    facts: [
+      "Their birthday was yesterday",
+      "You're not sure if you messaged them",
+    ],
     initialTranscript: [
       { role: "them", text: "Hey..." },
       { role: "them", text: "Noticed you didn't reach out yesterday" },
@@ -867,7 +951,10 @@ export const situations: ConversationSituation[] = [
     personContext: "Coworker frustrated with management",
     facts: ["Your boss made an unfair decision", "Alex is fed up"],
     initialTranscript: [
-      { role: "them", text: "I cannot BELIEVE what just happened in that meeting" },
+      {
+        role: "them",
+        text: "I cannot BELIEVE what just happened in that meeting",
+      },
       { role: "them", text: "How is this okay??" },
     ],
     allowedReplyLength: { min: 15, max: 250 },
@@ -925,10 +1012,19 @@ export const situations: ConversationSituation[] = [
     intent: "proposing",
     personName: "Dr. Singh",
     personContext: "A professional contact in your field",
-    facts: ["They work at a prestigious institution", "They want to collaborate"],
+    facts: [
+      "They work at a prestigious institution",
+      "They want to collaborate",
+    ],
     initialTranscript: [
-      { role: "them", text: "I've been following your work with great interest." },
-      { role: "them", text: "Would you be open to discussing a potential collaboration?" },
+      {
+        role: "them",
+        text: "I've been following your work with great interest.",
+      },
+      {
+        role: "them",
+        text: "Would you be open to discussing a potential collaboration?",
+      },
     ],
     allowedReplyLength: { min: 20, max: 300 },
     difficultyTags: ["hard"],
@@ -943,7 +1039,10 @@ export const situations: ConversationSituation[] = [
     facts: ["He got a new smart TV", "He can't find the Netflix app"],
     initialTranscript: [
       { role: "them", text: "This TV is driving me nuts" },
-      { role: "them", text: "Where is the Netflix?? I press all the buttons and nothing works" },
+      {
+        role: "them",
+        text: "Where is the Netflix?? I press all the buttons and nothing works",
+      },
     ],
     allowedReplyLength: { min: 15, max: 250 },
     difficultyTags: ["easy"],
@@ -955,7 +1054,10 @@ export const situations: ConversationSituation[] = [
     intent: "confessing",
     personName: "Jamie",
     personContext: "A close friend",
-    facts: ["You've been friends for years", "The conversation feels different"],
+    facts: [
+      "You've been friends for years",
+      "The conversation feels different",
+    ],
     initialTranscript: [
       { role: "them", text: "Can we talk about something?" },
       { role: "them", text: "I think I might have feelings for you..." },
@@ -970,10 +1072,16 @@ export const situations: ConversationSituation[] = [
     intent: "sharing_progress",
     personName: "Riley",
     personContext: "Friend working on a creative project",
-    facts: ["Riley has been writing a novel", "They just finished the first draft"],
+    facts: [
+      "Riley has been writing a novel",
+      "They just finished the first draft",
+    ],
     initialTranscript: [
       { role: "them", text: "I FINISHED THE FIRST DRAFT!!" },
-      { role: "them", text: "80,000 words!! I can't believe I actually did it" },
+      {
+        role: "them",
+        text: "80,000 words!! I can't believe I actually did it",
+      },
     ],
     allowedReplyLength: { min: 15, max: 200 },
     difficultyTags: ["easy"],
@@ -988,7 +1096,10 @@ export const situations: ConversationSituation[] = [
     facts: ["It's a normal day", "Kai is being mysterious"],
     initialTranscript: [
       { role: "them", text: "Quick question" },
-      { role: "them", text: "If you had to pick: fight 100 duck-sized horses or 1 horse-sized duck?" },
+      {
+        role: "them",
+        text: "If you had to pick: fight 100 duck-sized horses or 1 horse-sized duck?",
+      },
     ],
     allowedReplyLength: { min: 10, max: 200 },
     difficultyTags: ["easy"],
@@ -1011,4 +1122,3 @@ export const situations: ConversationSituation[] = [
 ];
 
 export default situations;
-
