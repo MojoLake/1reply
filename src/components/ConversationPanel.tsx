@@ -120,7 +120,7 @@ export default function ConversationPanel({
             </button>
             <button
               onClick={onContinueCurrent}
-              className="flex-1 px-3 py-2 text-sm border border-gray-600 text-gray-400 hover:border-gray-400 hover:text-gray-300 transition-all"
+              className="flex-1 px-3 py-2 text-sm border border-white text-white hover:bg-white hover:text-black transition-all"
             >
               CONTINUE
             </button>
