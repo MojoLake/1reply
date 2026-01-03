@@ -157,7 +157,8 @@ function GamePageContent() {
         });
 
         if (!res.ok) {
-          throw new Error("Failed to fetch continuations");
+          const errorData = await res.json();
+          throw new Error(errorData.error || "Failed to fetch continuations");
         }
 
         const data: ContinuationResponse = await res.json();
@@ -336,7 +337,11 @@ function GamePageContent() {
         }
       } catch (error) {
         console.error("Error judging reply:", error);
-        // On error, show feedback with neutral result
+        // Extract error message for user display
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        const isRateLimited = errorMessage.toLowerCase().includes("rate limit");
+        
+        // On error, show feedback with neutral result and the actual error
         const neutralScore = {
           coherence: 5,
           relevance: 5,
@@ -344,7 +349,9 @@ function GamePageContent() {
           directness: 5,
           contradiction: false,
           unsafe: false,
-          notes: ["Evaluation error - neutral score applied"],
+          notes: isRateLimited 
+            ? ["⚠️ " + errorMessage, "Neutral score applied - try again shortly"]
+            : ["⚠️ Error: " + errorMessage, "Neutral score applied"],
         };
         setLastResult({
           evaluation: {
