@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Conversation, JudgeResult, JudgeScores } from "./types";
 
 // Configuration for judge generation
-const JUDGE_MAX_TOKENS = 2048; // High limit to prevent mid-JSON cutoff
+const JUDGE_MAX_TOKENS = 4096; // High limit to prevent mid-JSON cutoff
 
 const JUDGE_SYSTEM_PROMPT_2 = `You are a strict evaluator for a word game. Your job is to evaluate a player's reply as the next message in TWO independent conversations.
 

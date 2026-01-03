@@ -78,9 +78,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (playerReply.length < 1 || playerReply.length > 500) {
+    if (playerReply.length < 1 || playerReply.length > 280) {
       return NextResponse.json(
-        { error: "Reply must be between 1 and 500 characters" },
+        { error: "Reply must be between 1 and 280 characters" },
         { status: 400 }
       );
     }

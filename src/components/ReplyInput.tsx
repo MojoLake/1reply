@@ -15,7 +15,7 @@ export default function ReplyInput({
   onSubmit,
   disabled = false,
   isLoading = false,
-  maxLength = 500,
+  maxLength = 280,
   timeRemaining,
 }: ReplyInputProps) {
   const [reply, setReply] = useState("");

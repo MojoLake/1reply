@@ -6,7 +6,7 @@ import {
 } from "./types";
 
 // Configuration for continuation generation
-const CONTINUATION_MAX_TOKENS = 1024; // Increased buffer to prevent mid-sentence cutoff
+const CONTINUATION_MAX_TOKENS = 2048; // High limit to ensure complete responses
 
 const CONTINUATION_SYSTEM_PROMPT = `You are roleplaying as a person in a text conversation. Your job is to respond naturally to the last message, staying in character.
 
