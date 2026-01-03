@@ -37,6 +37,7 @@ rsync -avz --delete \
   --exclude='.deploy.config' \
   --exclude='tsconfig.tsbuildinfo' \
   --exclude='*.example' \
+  --exclude='.next/cache' \
   .next \
   public \
   package.json \
