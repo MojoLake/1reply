@@ -3,7 +3,6 @@ module.exports = {
     name: '1reply',
     script: 'npm',
     args: 'start',
-    cwd: '/home/user/apps/1reply',  // Update to match APP_DIR
     env: {
       NODE_ENV: 'production',
       PORT: 3000,
@@ -11,4 +10,3 @@ module.exports = {
     }
   }]
 };
-
