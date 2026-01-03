@@ -38,7 +38,7 @@ export default function ConversationPanel({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: label === "A" ? 0 : label === "B" ? 0.1 : 0.2 }}
-      className="flex flex-col h-full bg-black border border-gray-700 overflow-hidden font-mono"
+      className="relative flex flex-col h-full bg-black border border-gray-700 overflow-hidden font-mono"
     >
       {/* Header with confusion meter */}
       <div className="px-4 py-3 border-b border-gray-700 bg-black">
