@@ -36,10 +36,10 @@ const modes: {
     icon: "[D]",
   },
   {
-    id: "endless",
-    name: "ENDLESS",
-    description: "How long can you keep both conversations going?",
-    icon: "[~]",
+    id: "extreme",
+    name: "EXTREME",
+    description: "Juggle 3 conversations at once. Triple the chaos!",
+    icon: "[!!!]",
   },
 ];
 
