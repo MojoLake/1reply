@@ -1,28 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateAllContinuations } from "@/lib/conversation";
 import { Conversation } from "@/lib/types";
-
-// Simple in-memory rate limiting (shared concept with judge)
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT = 30;
-const RATE_WINDOW = 60 * 1000;
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const record = rateLimitMap.get(ip);
-
-  if (!record || now > record.resetTime) {
-    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_WINDOW });
-    return true;
-  }
-
-  if (record.count >= RATE_LIMIT) {
-    return false;
-  }
-
-  record.count++;
-  return true;
-}
+import { checkRateLimit } from "@/lib/rateLimit";
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") || "anonymous";
@@ -73,4 +52,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

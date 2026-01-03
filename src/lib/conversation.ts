@@ -4,9 +4,13 @@ import {
   ContinuationResult,
   ContinuationResponse,
 } from "./types";
-
-// Configuration for continuation generation
-const CONTINUATION_MAX_TOKENS = 2048; // High limit to ensure complete responses
+import { extractJsonFromResponse } from "./parseJson";
+import {
+  GEMINI_MODEL,
+  CONTINUATION_TEMPERATURE,
+  CONTINUATION_MAX_TOKENS,
+  CONTINUATION_MAX_RETRIES,
+} from "./constants";
 
 const CONTINUATION_SYSTEM_PROMPT = `You are roleplaying as a person in a text conversation. Your job is to respond naturally to the last message, staying in character.
 
@@ -55,21 +59,7 @@ function parseContinuationResponse(
   rawResponse: string
 ): ContinuationResult | null {
   try {
-    // Try to extract JSON from the response
-    let jsonStr = rawResponse.trim();
-
-    // Look for JSON in code blocks
-    const codeBlockMatch = rawResponse.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (codeBlockMatch) {
-      jsonStr = codeBlockMatch[1].trim();
-    } else {
-      // Look for raw JSON object
-      const jsonMatch = rawResponse.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        jsonStr = jsonMatch[0];
-      }
-    }
-
+    const jsonStr = extractJsonFromResponse(rawResponse);
     const parsed = JSON.parse(jsonStr);
 
     if (typeof parsed.response === "string" && parsed.response.length > 0) {
@@ -96,10 +86,10 @@ function parseContinuationResponse(
 export async function generateContinuation(
   conversation: Conversation,
   apiKey: string,
-  maxRetries = 2
+  maxRetries = CONTINUATION_MAX_RETRIES
 ): Promise<ContinuationResult> {
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
   const context = formatConversationForContinuation(conversation);
   const prompt = `${CONTINUATION_SYSTEM_PROMPT}\n\n${context}\n\nRespond as ${conversation.situation.personName}:`;
@@ -114,7 +104,7 @@ export async function generateContinuation(
           },
         ],
         generationConfig: {
-          temperature: 0.7, // Higher for natural variation
+          temperature: CONTINUATION_TEMPERATURE,
           maxOutputTokens: CONTINUATION_MAX_TOKENS,
         },
       });
@@ -169,25 +159,6 @@ export async function generateContinuation(
   };
 }
 
-async function generateBothContinuations(
-  conversationA: Conversation,
-  conversationB: Conversation,
-  apiKey: string
-): Promise<ContinuationResponse> {
-  // Generate both continuations in parallel
-  const [resultA, resultB] = await Promise.all([
-    generateContinuation(conversationA, apiKey),
-    generateContinuation(conversationB, apiKey),
-  ]);
-
-  return {
-    responseA: resultA.response,
-    responseB: resultB.response,
-    endingA: resultA.isEnding,
-    endingB: resultB.isEnding,
-  };
-}
-
 export async function generateAllContinuations(
   conversationA: Conversation,
   conversationB: Conversation,
@@ -212,6 +183,16 @@ export async function generateAllContinuations(
     };
   }
 
-  // Fall back to two conversations
-  return generateBothContinuations(conversationA, conversationB, apiKey);
+  // Generate both continuations in parallel for standard mode
+  const [resultA, resultB] = await Promise.all([
+    generateContinuation(conversationA, apiKey),
+    generateContinuation(conversationB, apiKey),
+  ]);
+
+  return {
+    responseA: resultA.response,
+    responseB: resultB.response,
+    endingA: resultA.isEnding,
+    endingB: resultB.isEnding,
+  };
 }

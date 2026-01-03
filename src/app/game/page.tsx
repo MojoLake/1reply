@@ -13,6 +13,13 @@ import {
 } from "@/lib/types";
 import { getStoredData, updateHighScore } from "@/lib/storage";
 import { CONVERSATION_COMPLETION_BONUS } from "@/lib/scoring";
+import {
+  MAX_ROUNDS,
+  TIMER_INITIAL_SECONDS,
+  TIMER_MIN_SECONDS,
+  TIMER_DECREMENT_PER_ROUND,
+  NEUTRAL_SCORE,
+} from "@/lib/constants";
 import GameHeader from "@/components/GameHeader";
 import ConversationPanel from "@/components/ConversationPanel";
 import ReplyInput from "@/components/ReplyInput";
@@ -63,7 +70,7 @@ function GamePageContent() {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [lastResult, setLastResult] = useState<RoundResult | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<number | undefined>(
-    hasTimer ? 30 : undefined
+    hasTimer ? TIMER_INITIAL_SECONDS : undefined
   );
   const [highScore, setHighScore] = useState(0);
   const [completedThisRound, setCompletedThisRound] = useState<{
@@ -210,7 +217,7 @@ function GamePageContent() {
         completedConversations: 0,
       });
       setPhase("playing");
-      if (hasTimer) setTimeRemaining(30);
+      if (hasTimer) setTimeRemaining(TIMER_INITIAL_SECONDS);
     };
 
     initGame();
@@ -343,10 +350,10 @@ function GamePageContent() {
         
         // On error, show feedback with neutral result and the actual error
         const neutralScore = {
-          coherence: 5,
-          relevance: 5,
-          tone_match: 5,
-          directness: 5,
+          coherence: NEUTRAL_SCORE,
+          relevance: NEUTRAL_SCORE,
+          tone_match: NEUTRAL_SCORE,
+          directness: NEUTRAL_SCORE,
           contradiction: false,
           unsafe: false,
           notes: isRateLimited 
@@ -406,8 +413,8 @@ function GamePageContent() {
 
     const nextRound = gameState.round + 1;
 
-    // Check if max replies reached (30 for all modes)
-    if (nextRound > 30) {
+    // Check if max replies reached
+    if (nextRound > MAX_ROUNDS) {
       updateHighScore(mode, gameState.score, gameState.round);
       setGameState((prev) =>
         prev ? { ...prev, isGameOver: true, gameOverReason: "survived" } : prev
@@ -468,7 +475,7 @@ function GamePageContent() {
     // Clear pending continuations
     setPendingContinuations(null);
     
-    if (hasTimer) setTimeRemaining(Math.max(20, 35 - nextRound * 2));
+    if (hasTimer) setTimeRemaining(Math.max(TIMER_MIN_SECONDS, TIMER_INITIAL_SECONDS + 5 - nextRound * TIMER_DECREMENT_PER_ROUND));
     setPhase("playing");
   };
 

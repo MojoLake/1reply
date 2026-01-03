@@ -3,29 +3,8 @@ import { judgeReply } from "@/lib/judge";
 import { calculateConfusionDelta, clampConfusion } from "@/lib/confusion";
 import { calculateRoundScore } from "@/lib/scoring";
 import { Conversation, RoundResult } from "@/lib/types";
-import { MAX_REPLY_LENGTH } from "@/lib/constants";
-
-// Simple in-memory rate limiting
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT = 30; // requests per minute
-const RATE_WINDOW = 60 * 1000; // 1 minute
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const record = rateLimitMap.get(ip);
-
-  if (!record || now > record.resetTime) {
-    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_WINDOW });
-    return true;
-  }
-
-  if (record.count >= RATE_LIMIT) {
-    return false;
-  }
-
-  record.count++;
-  return true;
-}
+import { checkRateLimit } from "@/lib/rateLimit";
+import { MAX_REPLY_LENGTH, MAX_CONFUSION, JUDGE_MAX_RETRIES } from "@/lib/constants";
 
 export async function POST(request: NextRequest) {
   // Get client IP for rate limiting
@@ -92,7 +71,7 @@ export async function POST(request: NextRequest) {
       conversationB,
       playerReply,
       apiKey,
-      3,
+      JUDGE_MAX_RETRIES,
       conversationC
     );
 
@@ -109,10 +88,10 @@ export async function POST(request: NextRequest) {
       : undefined;
 
     // Check for game over
-    let gameOver = newConfusionA >= 5 || newConfusionB >= 5;
-    let gameOverReason: "A" | "B" | "C" | undefined = newConfusionA >= 5 ? "A" : newConfusionB >= 5 ? "B" : undefined;
+    let gameOver = newConfusionA >= MAX_CONFUSION || newConfusionB >= MAX_CONFUSION;
+    let gameOverReason: "A" | "B" | "C" | undefined = newConfusionA >= MAX_CONFUSION ? "A" : newConfusionB >= MAX_CONFUSION ? "B" : undefined;
     
-    if (isExtremeMode && newConfusionC !== undefined && newConfusionC >= 5) {
+    if (isExtremeMode && newConfusionC !== undefined && newConfusionC >= MAX_CONFUSION) {
       gameOver = true;
       if (!gameOverReason) gameOverReason = "C";
     }
@@ -140,4 +119,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
