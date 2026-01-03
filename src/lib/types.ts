@@ -14,7 +14,6 @@ export interface ConversationSituation {
   personContext: string;
   facts: string[];
   initialTranscript: Message[];
-  allowedReplyLength: { min: number; max: number };
   difficultyTags: ("easy" | "medium" | "hard")[];
 }
 

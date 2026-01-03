@@ -1,1 +1,6 @@
-3 Let's try this on a feature branch: have the "proceed" button next to the round complete button. And actually just get rid of the "Round complete" title that is stupid. 4. make it punish more. Eg. answering "asdfjk" when it doesn't make sense should immeditaly kill you.
+3 Let's try this on a feature branch: have the "proceed" button next to the round complete button. And actually just get rid of the "Round complete" title that is stupid.
+
+## Ideas
+
+- have users submit scenario ideas as challenges.
+-
