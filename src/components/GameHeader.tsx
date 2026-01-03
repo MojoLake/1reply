@@ -9,8 +9,6 @@ interface GameHeaderProps {
   score: number;
   mode: GameMode;
   difficulty: Difficulty;
-  hintsRemaining?: number;
-  onHint?: () => void;
   onQuit?: () => void;
 }
 
@@ -32,8 +30,6 @@ export default function GameHeader({
   score,
   mode,
   difficulty,
-  hintsRemaining = 0,
-  onHint,
   onQuit,
 }: GameHeaderProps) {
   return (
@@ -89,17 +85,6 @@ export default function GameHeader({
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
-          {onHint && hintsRemaining > 0 && (
-            <button
-              onClick={onHint}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-gray-600 text-gray-400 hover:border-white hover:text-white hover:bg-white hover:text-black transition-all"
-            >
-              <span>[?]</span>
-              <span className="font-medium">Hint</span>
-              <span className="text-xs opacity-70">({hintsRemaining})</span>
-            </button>
-          )}
-
           {onQuit && (
             <button
               onClick={onQuit}

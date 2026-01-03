@@ -10,7 +10,6 @@ interface ConversationPanelProps {
   label: "A" | "B" | "C";
   delta?: number;
   showDelta?: boolean;
-  showIntent?: boolean;
   isEnding?: boolean;
   onStartNew?: () => void;
   onContinueCurrent?: () => void;
@@ -21,7 +20,6 @@ export default function ConversationPanel({
   label,
   delta,
   showDelta = false,
-  showIntent = false,
   isEnding = false,
   onStartNew,
   onContinueCurrent,
@@ -57,15 +55,6 @@ export default function ConversationPanel({
       {/* Context */}
       <div className="px-4 py-2 border-b border-gray-800 bg-black">
         <p className="text-xs text-gray-500">&gt; {situation.personContext}</p>
-        {showIntent && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-xs text-gray-400 mt-1"
-          >
-            &gt; Intent: {situation.intent.replace(/_/g, " ")}
-          </motion.p>
-        )}
       </div>
 
       {/* Messages */}

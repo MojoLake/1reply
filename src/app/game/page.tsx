@@ -64,7 +64,6 @@ function GamePageContent() {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [currentDifficulty, setCurrentDifficulty] = useState<Difficulty>("easy");
   const [lastResult, setLastResult] = useState<RoundResult | null>(null);
-  const [showHint, setShowHint] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState<number | undefined>(
     hasTimer ? 30 : undefined
   );
@@ -213,7 +212,6 @@ function GamePageContent() {
         conversationA: createConversation(roundData.situationA),
         conversationB: createConversation(roundData.situationB),
         conversationC: situationC ? createConversation(situationC) : undefined,
-        hintsRemaining: 3,
         usedSituationIds: usedIds,
         isGameOver: false,
         completedConversations: 0,
@@ -409,7 +407,6 @@ function GamePageContent() {
     if (!gameState || !pendingContinuations) return;
 
     setPhase("loading");
-    setShowHint(false);
     setCompletedThisRound({ A: false, B: false, C: isExtremeMode ? false : undefined });
 
     const nextRound = gameState.round + 1;
@@ -563,16 +560,6 @@ function GamePageContent() {
     []
   );
 
-  // Handle hint
-  const handleHint = () => {
-    if (!gameState || gameState.hintsRemaining <= 0) return;
-
-    setShowHint(true);
-    setGameState((prev) =>
-      prev ? { ...prev, hintsRemaining: prev.hintsRemaining - 1 } : prev
-    );
-  };
-
   // Handle quit
   const handleQuit = () => {
     if (gameState) {
@@ -608,8 +595,6 @@ function GamePageContent() {
         score={gameState.score}
         mode={mode}
         difficulty={currentDifficulty}
-        hintsRemaining={gameState.hintsRemaining}
-        onHint={handleHint}
         onQuit={handleQuit}
       />
 
@@ -625,7 +610,6 @@ function GamePageContent() {
             label="A"
             delta={lastResult?.confusionDelta.A}
             showDelta={phase === "feedback"}
-            showIntent={showHint}
             isEnding={phase === "playing" && endingConversations.A}
             onStartNew={() => handleStartNewConversation("A")}
             onContinueCurrent={() => handleContinueCurrent("A")}
@@ -635,7 +619,6 @@ function GamePageContent() {
             label="B"
             delta={lastResult?.confusionDelta.B}
             showDelta={phase === "feedback"}
-            showIntent={showHint}
             isEnding={phase === "playing" && endingConversations.B}
             onStartNew={() => handleStartNewConversation("B")}
             onContinueCurrent={() => handleContinueCurrent("B")}
@@ -646,7 +629,6 @@ function GamePageContent() {
               label="C"
               delta={lastResult?.confusionDelta.C}
               showDelta={phase === "feedback"}
-              showIntent={showHint}
               isEnding={phase === "playing" && endingConversations.C}
               onStartNew={() => handleStartNewConversation("C")}
               onContinueCurrent={() => handleContinueCurrent("C")}

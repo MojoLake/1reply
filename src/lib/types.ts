@@ -78,7 +78,6 @@ export interface GameState {
   conversationA: Conversation;
   conversationB: Conversation;
   conversationC?: Conversation; // Only present in extreme mode
-  hintsRemaining: number;
   usedSituationIds: string[];
   isGameOver: boolean;
   gameOverReason?: "A" | "B" | "C";
