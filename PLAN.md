@@ -128,7 +128,7 @@ confusion = clamp(confusion + delta, 0, 5)
 | **Classic** | Text-only, no timer. Pure puzzle mode.    |
 | **Timer**   | 20-40 seconds per round. Pressure mode.   |
 | **Daily**   | Fixed 5 rounds, shared seed. Leaderboard. |
-| **Endless** | Play until game over. High score chase.   |
+| **Extreme** | Juggle 3 conversations at once!           |
 
 ---
 
@@ -474,7 +474,7 @@ function selectPair(difficulty, usedPairs) {
 
 1. [ ] Timer mode
 2. [ ] Daily mode with seed
-3. [ ] Endless mode
+3. [x] Extreme mode (3 conversations)
 4. [ ] Mode selection menu
 
 ### Phase 5: Content & Balance
