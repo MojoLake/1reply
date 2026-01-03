@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { selectSituationPair, getDifficultyForRound, getDailySituations, selectSingleSituation } from "@/lib/rounds";
+import { selectSituationPair, getDifficultyForRound, getDailyInitialPair, selectSingleSituation } from "@/lib/rounds";
 import { Difficulty } from "@/lib/types";
 
 export async function GET(request: NextRequest) {
@@ -35,24 +35,15 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    if (mode === "daily") {
-      const dailyRounds = getDailySituations();
-      const roundIndex = Math.min(round - 1, dailyRounds.length - 1);
-      const roundData = dailyRounds[roundIndex];
-
-      if (!roundData) {
-        return NextResponse.json(
-          { error: "No more daily rounds available" },
-          { status: 400 }
-        );
-      }
+    // Daily mode: use seeded initial pair for round 1, then standard difficulty scaling
+    if (mode === "daily" && round === 1) {
+      const roundData = getDailyInitialPair();
 
       return NextResponse.json({
         situationA: roundData.situationA,
         situationB: roundData.situationB,
         difficulty: roundData.difficulty,
         round,
-        totalDailyRounds: dailyRounds.length,
       });
     }
 

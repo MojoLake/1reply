@@ -147,35 +147,18 @@ function seededRandom(seed: number): () => number {
 }
 
 /**
- * Get situation pairs for daily mode (fixed 5 rounds)
+ * Get initial situation pair for daily mode (seeded for consistency)
  */
-export function getDailySituations(): RoundData[] {
+export function getDailyInitialPair(): RoundData {
   const seed = getDailySeed();
   const random = seededRandom(seed);
 
   const allSituations = [...situations].sort(() => random() - 0.5);
 
-  const rounds: RoundData[] = [];
-  const used: string[] = [];
+  // Pick first two situations from shuffled list
+  const situationA = allSituations[0];
+  const situationB = allSituations[1];
 
-  const difficulties: Difficulty[] = ["easy", "easy", "medium", "medium", "hard"];
-
-  for (let i = 0; i < 5; i++) {
-    const difficulty = difficulties[i];
-    const available = allSituations.filter(
-      (s) =>
-        !used.includes(s.id) &&
-        (s.difficultyTags.includes(difficulty) || i >= 3) // Allow any difficulty for later rounds
-    );
-
-    if (available.length >= 2) {
-      const situationA = available[0];
-      const situationB = available[1];
-      used.push(situationA.id, situationB.id);
-      rounds.push({ situationA, situationB, difficulty });
-    }
-  }
-
-  return rounds;
+  return { situationA, situationB, difficulty: "easy" };
 }
 

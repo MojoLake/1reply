@@ -411,11 +411,11 @@ function GamePageContent() {
 
     const nextRound = gameState.round + 1;
 
-    // Check if daily mode is complete (5 rounds)
-    if (mode === "daily" && nextRound > 5) {
+    // Check if daily mode is complete (max 30 replies)
+    if (mode === "daily" && nextRound > 30) {
       updateHighScore(mode, gameState.score, gameState.round);
       setGameState((prev) =>
-        prev ? { ...prev, isGameOver: true, gameOverReason: undefined } : prev
+        prev ? { ...prev, isGameOver: true, gameOverReason: "survived" } : prev
       );
       setPhase("gameover");
       return;

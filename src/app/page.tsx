@@ -32,7 +32,7 @@ const modes: {
   {
     id: "daily",
     name: "DAILY",
-    description: "5 rounds. Same seed for everyone. Compare scores!",
+    description: "Same seed for everyone. Max 30 replies. Compare scores!",
     icon: "[D]",
   },
   {
