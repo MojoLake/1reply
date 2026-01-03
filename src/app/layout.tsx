@@ -8,13 +8,6 @@ export const metadata: Metadata = {
     "Two conversations. One reply. Craft messages that work for both sides in this unique word puzzle game.",
   keywords: ["game", "word game", "puzzle", "conversation", "reply"],
   authors: [{ name: "1Reply" }],
-  icons: {
-    icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "any" },
-    ],
-    apple: "/apple-touch-icon.svg",
-  },
   openGraph: {
     title: "1Reply - Dual Conversation Game",
     description: "Two conversations. One reply. How long can you keep them going?",
