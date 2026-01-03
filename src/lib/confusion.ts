@@ -5,6 +5,7 @@ import {
   PASS_RELEVANCE_THRESHOLD,
   DIRECTNESS_BONUS_THRESHOLD,
   PARTIAL_PASS_THRESHOLD,
+  CATASTROPHIC_THRESHOLD,
 } from "./constants";
 
 /**
@@ -13,14 +14,20 @@ import {
  * pass = coherence >= threshold && relevance >= threshold && !contradiction && !unsafe
  * 
  * Delta mapping:
- * - If unsafe → +2
+ * - If gibberish (coherence <= 2 AND relevance <= 2) → +5 (instant death)
+ * - Else if unsafe → +2
  * - Else if contradiction → +2
  * - Else if pass && directness >= bonus threshold → -1 (reduce confusion!)
  * - Else if pass → 0
- * - Else if coherence >= partial && relevance >= partial → +1
- * - Else → +2
+ * - Else if coherence >= partial && relevance >= partial → +2
+ * - Else → +3
  */
 export function calculateConfusionDelta(scores: JudgeScores): number {
+  // Catastrophic failure: complete gibberish/nonsense = instant death
+  if (scores.coherence <= CATASTROPHIC_THRESHOLD && scores.relevance <= CATASTROPHIC_THRESHOLD) {
+    return MAX_CONFUSION;
+  }
+
   const pass =
     scores.coherence >= PASS_COHERENCE_THRESHOLD &&
     scores.relevance >= PASS_RELEVANCE_THRESHOLD &&
@@ -44,10 +51,10 @@ export function calculateConfusionDelta(scores: JudgeScores): number {
   }
 
   if (scores.coherence >= PARTIAL_PASS_THRESHOLD && scores.relevance >= PARTIAL_PASS_THRESHOLD) {
-    return 1;
+    return 2;
   }
 
-  return 2;
+  return 3;
 }
 
 /**

@@ -9,10 +9,11 @@ export const TIMER_MIN_SECONDS = 20;
 export const TIMER_DECREMENT_PER_ROUND = 2;
 
 // Scoring thresholds
-export const PASS_COHERENCE_THRESHOLD = 6;
-export const PASS_RELEVANCE_THRESHOLD = 6;
-export const DIRECTNESS_BONUS_THRESHOLD = 7;
-export const PARTIAL_PASS_THRESHOLD = 4;
+export const PASS_COHERENCE_THRESHOLD = 7;
+export const PASS_RELEVANCE_THRESHOLD = 7;
+export const DIRECTNESS_BONUS_THRESHOLD = 8;
+export const PARTIAL_PASS_THRESHOLD = 5;
+export const CATASTROPHIC_THRESHOLD = 2; // Scores at or below this in BOTH coherence AND relevance = instant death
 
 // Score multipliers
 export const COHERENCE_SCORE_MULTIPLIER = 10;
