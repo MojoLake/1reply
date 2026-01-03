@@ -232,6 +232,27 @@ function GamePageContent() {
       // Clear any completion status from previous round and ending flags (player chose to continue by replying)
       setCompletedThisRound({ A: false, B: false, C: isExtremeMode ? false : undefined });
       setEndingConversations({ A: false, B: false, C: isExtremeMode ? false : undefined });
+
+      // Immediately add the player's reply to all conversation transcripts for instant UI feedback
+      setGameState((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          conversationA: {
+            ...prev.conversationA,
+            transcript: [...prev.conversationA.transcript, { role: "player" as const, text: reply }],
+          },
+          conversationB: {
+            ...prev.conversationB,
+            transcript: [...prev.conversationB.transcript, { role: "player" as const, text: reply }],
+          },
+          conversationC: prev.conversationC ? {
+            ...prev.conversationC,
+            transcript: [...prev.conversationC.transcript, { role: "player" as const, text: reply }],
+          } : undefined,
+        };
+      });
+
       setPhase("judging");
 
       try {
@@ -258,44 +279,26 @@ function GamePageContent() {
         const result: RoundResult = await res.json();
         setLastResult(result);
 
-        // Update game state with new confusion levels and reply
+        // Update game state with new confusion levels (transcript already updated above)
         setGameState((prev) => {
           if (!prev) return prev;
 
-          const newA = {
-            ...prev.conversationA,
-            confusion: result.newConfusionA,
-            transcript: [
-              ...prev.conversationA.transcript,
-              { role: "player" as const, text: reply },
-            ],
-          };
-
-          const newB = {
-            ...prev.conversationB,
-            confusion: result.newConfusionB,
-            transcript: [
-              ...prev.conversationB.transcript,
-              { role: "player" as const, text: reply },
-            ],
-          };
-
-          const newC = prev.conversationC && result.newConfusionC !== undefined
-            ? {
-                ...prev.conversationC,
-                confusion: result.newConfusionC,
-                transcript: [
-                  ...prev.conversationC.transcript,
-                  { role: "player" as const, text: reply },
-                ],
-              }
-            : prev.conversationC;
-
           return {
             ...prev,
-            conversationA: newA,
-            conversationB: newB,
-            conversationC: newC,
+            conversationA: {
+              ...prev.conversationA,
+              confusion: result.newConfusionA,
+            },
+            conversationB: {
+              ...prev.conversationB,
+              confusion: result.newConfusionB,
+            },
+            conversationC: prev.conversationC && result.newConfusionC !== undefined
+              ? {
+                  ...prev.conversationC,
+                  confusion: result.newConfusionC,
+                }
+              : prev.conversationC,
             score: prev.score + result.scoreGained,
             isGameOver: result.gameOver,
             gameOverReason: result.gameOverReason,
