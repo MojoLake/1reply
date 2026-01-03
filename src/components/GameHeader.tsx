@@ -1,14 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { GameMode, Difficulty } from "@/lib/types";
+import { GameMode } from "@/lib/types";
 import { formatScore } from "@/lib/scoring";
 
 interface GameHeaderProps {
   round: number;
   score: number;
   mode: GameMode;
-  difficulty: Difficulty;
   onQuit?: () => void;
 }
 
@@ -19,17 +18,10 @@ const modeLabels: Record<GameMode, string> = {
   extreme: "EXTREME",
 };
 
-const difficultyLabels: Record<Difficulty, string> = {
-  easy: "[E]",
-  medium: "[M]",
-  hard: "[H]",
-};
-
 export default function GameHeader({
   round,
   score,
   mode,
-  difficulty,
   onQuit,
 }: GameHeaderProps) {
   return (
@@ -49,7 +41,7 @@ export default function GameHeader({
           </span>
         </div>
 
-        {/* Center: Round and difficulty */}
+        {/* Center: Round and score */}
         <div className="flex items-center gap-6">
           <div className="text-center">
             <div className="text-xs text-gray-600 uppercase tracking-wider">Round</div>
@@ -61,13 +53,6 @@ export default function GameHeader({
             >
               {round}
             </motion.div>
-          </div>
-
-          <div className="text-center">
-            <div className="text-xs text-gray-600 uppercase tracking-wider">Diff</div>
-            <div className="text-sm font-medium text-white">
-              {difficultyLabels[difficulty]}
-            </div>
           </div>
 
           <div className="text-center">

@@ -1,57 +1,16 @@
-import { ConversationSituation, Difficulty, RoundData } from "./types";
+import { ConversationSituation, RoundData } from "./types";
 import situations from "@/data/situations";
 
 /**
- * Get difficulty for a given round number
+ * Select a pair of situations for the game start
  */
-export function getDifficultyForRound(round: number): Difficulty {
-  if (round <= 2) return "easy";
-  if (round <= 5) return "medium";
-  return "hard";
-}
+export function selectSituationPair(usedSituationIds: string[]): RoundData {
+  // Filter available situations (exclude already used ones)
+  let pool = situations.filter((s) => !usedSituationIds.includes(s.id));
 
-/**
- * Select a pair of situations for a round
- */
-export function selectSituationPair(
-  difficulty: Difficulty,
-  usedSituationIds: string[]
-): RoundData {
-  // Filter available situations
-  const available = situations.filter(
-    (s) =>
-      !usedSituationIds.includes(s.id) &&
-      s.difficultyTags.includes(difficulty)
-  );
-
-  // If not enough situations at this difficulty, include lower difficulties
-  let pool = [...available];
+  // If not enough situations, recycle from all
   if (pool.length < 2) {
-    const fallbackDifficulties: Difficulty[] =
-      difficulty === "hard"
-        ? ["medium", "easy"]
-        : difficulty === "medium"
-        ? ["easy", "hard"]
-        : ["medium", "hard"];
-
-    for (const d of fallbackDifficulties) {
-      const more = situations.filter(
-        (s) =>
-          !usedSituationIds.includes(s.id) &&
-          s.difficultyTags.includes(d) &&
-          !pool.includes(s)
-      );
-      pool = [...pool, ...more];
-      if (pool.length >= 2) break;
-    }
-  }
-
-  // If still not enough, reset and use all situations
-  if (pool.length < 2) {
-    pool = situations.filter((s) => s.difficultyTags.includes(difficulty));
-    if (pool.length < 2) {
-      pool = [...situations];
-    }
+    pool = [...situations];
   }
 
   // Shuffle and pick two
@@ -71,7 +30,6 @@ export function selectSituationPair(
   return {
     situationA,
     situationB,
-    difficulty,
   };
 }
 
@@ -79,39 +37,12 @@ export function selectSituationPair(
  * Select a single situation (for conversation swapping when one completes)
  */
 export function selectSingleSituation(
-  difficulty: Difficulty,
   usedSituationIds: string[]
 ): ConversationSituation | null {
-  // Filter available situations
-  const available = situations.filter(
-    (s) =>
-      !usedSituationIds.includes(s.id) &&
-      s.difficultyTags.includes(difficulty)
-  );
+  // Filter available situations (exclude already used ones)
+  let pool = situations.filter((s) => !usedSituationIds.includes(s.id));
 
-  // If no situations at this difficulty, include other difficulties
-  let pool = [...available];
-  if (pool.length === 0) {
-    const fallbackDifficulties: Difficulty[] =
-      difficulty === "hard"
-        ? ["medium", "easy"]
-        : difficulty === "medium"
-        ? ["easy", "hard"]
-        : ["medium", "hard"];
-
-    for (const d of fallbackDifficulties) {
-      const more = situations.filter(
-        (s) =>
-          !usedSituationIds.includes(s.id) &&
-          s.difficultyTags.includes(d) &&
-          !pool.includes(s)
-      );
-      pool = [...pool, ...more];
-      if (pool.length > 0) break;
-    }
-  }
-
-  // If still empty, recycle from all situations
+  // If empty, recycle from all situations
   if (pool.length === 0) {
     pool = [...situations];
   }
@@ -159,6 +90,5 @@ export function getDailyInitialPair(): RoundData {
   const situationA = allSituations[0];
   const situationB = allSituations[1];
 
-  return { situationA, situationB, difficulty: "easy" };
+  return { situationA, situationB };
 }
-

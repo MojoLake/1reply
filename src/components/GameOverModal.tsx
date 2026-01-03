@@ -8,7 +8,7 @@ interface GameOverModalProps {
   score: number;
   rounds: number;
   mode: GameMode;
-  reason?: "A" | "B" | "C";
+  reason?: "A" | "B" | "C" | "survived";
   highScore?: number;
   onPlayAgain: () => void;
   onMainMenu: () => void;
@@ -56,7 +56,12 @@ export default function GameOverModal({
             transition={{ type: "spring", delay: 0.2 }}
             className="text-white text-xs mb-4 leading-tight"
           >
-{reason ? `
+{reason === "survived" ? `
+  +-----------------+
+  |    SURVIVED!    |
+  |      :D         |
+  +-----------------+
+` : reason ? `
   +-----------------+
   |   GAME  OVER    |
   |      >:(        |
@@ -68,7 +73,11 @@ export default function GameOverModal({
   +-----------------+
 `}
           </motion.pre>
-          {reason && (
+          {reason === "survived" ? (
+            <p className="text-sm text-gray-500">
+              You made it through all 30 rounds!
+            </p>
+          ) : reason && (
             <p className="text-sm text-gray-500">
               Conversation [{reason}] became too confused
             </p>

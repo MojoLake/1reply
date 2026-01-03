@@ -108,7 +108,7 @@ src/
 ## 🎨 Features
 
 - ✅ 60+ unique conversation scenarios
-- ✅ Difficulty scaling (easy → medium → hard)
+- ✅ Conversation swapping when chats end naturally
 - ✅ Real-time confusion tracking
 - ✅ AI-powered reply evaluation
 - ✅ Score tracking with local storage

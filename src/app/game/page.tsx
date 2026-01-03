@@ -9,7 +9,6 @@ import {
   Conversation,
   ConversationSituation,
   RoundResult,
-  Difficulty,
   ContinuationResponse,
 } from "@/lib/types";
 import { getStoredData, updateHighScore } from "@/lib/storage";
@@ -62,7 +61,6 @@ function GamePageContent() {
 
   const [phase, setPhase] = useState<GamePhase>("loading");
   const [gameState, setGameState] = useState<GameState | null>(null);
-  const [currentDifficulty, setCurrentDifficulty] = useState<Difficulty>("easy");
   const [lastResult, setLastResult] = useState<RoundResult | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<number | undefined>(
     hasTimer ? 30 : undefined
@@ -94,27 +92,25 @@ function GamePageContent() {
     }
   }, [mode]);
 
-  // Fetch initial round
-  const fetchRound = useCallback(
-    async (roundNumber: number, usedIds: string[]) => {
+  // Fetch initial situations for game start
+  const fetchInitialSituations = useCallback(
+    async () => {
       try {
         const params = new URLSearchParams({
-          round: roundNumber.toString(),
           mode,
-          usedIds: usedIds.join(","),
+          usedIds: "",
         });
 
         const res = await fetch(`/api/round?${params}`);
-        if (!res.ok) throw new Error("Failed to fetch round");
+        if (!res.ok) throw new Error("Failed to fetch situations");
 
         const data = await res.json();
         return data as {
           situationA: ConversationSituation;
           situationB: ConversationSituation;
-          difficulty: Difficulty;
         };
       } catch (error) {
-        console.error("Error fetching round:", error);
+        console.error("Error fetching situations:", error);
         return null;
       }
     },
@@ -126,7 +122,6 @@ function GamePageContent() {
     async (usedIds: string[]): Promise<ConversationSituation | null> => {
       try {
         const params = new URLSearchParams({
-          round: "1", // doesn't matter, we just need one situation
           mode,
           usedIds: usedIds.join(","),
           single: "true",
@@ -136,7 +131,7 @@ function GamePageContent() {
         if (!res.ok) return null;
 
         const data = await res.json();
-        // Return situationA from the pair
+        // Return situationA from the response
         return data.situationA as ConversationSituation;
       } catch (error) {
         console.error("Error fetching single situation:", error);
@@ -186,17 +181,15 @@ function GamePageContent() {
   // Initialize game
   useEffect(() => {
     const initGame = async () => {
-      const roundData = await fetchRound(1, []);
-      if (!roundData) {
+      const initialData = await fetchInitialSituations();
+      if (!initialData) {
         router.push("/");
         return;
       }
 
-      setCurrentDifficulty(roundData.difficulty);
-      
       // For extreme mode, fetch a third situation
       let situationC: ConversationSituation | null = null;
-      const usedIds = [roundData.situationA.id, roundData.situationB.id];
+      const usedIds = [initialData.situationA.id, initialData.situationB.id];
       
       if (isExtremeMode) {
         situationC = await fetchSingleSituation(usedIds);
@@ -209,8 +202,8 @@ function GamePageContent() {
         mode,
         round: 1,
         score: 0,
-        conversationA: createConversation(roundData.situationA),
-        conversationB: createConversation(roundData.situationB),
+        conversationA: createConversation(initialData.situationA),
+        conversationB: createConversation(initialData.situationB),
         conversationC: situationC ? createConversation(situationC) : undefined,
         usedSituationIds: usedIds,
         isGameOver: false,
@@ -221,7 +214,7 @@ function GamePageContent() {
     };
 
     initGame();
-  }, [fetchRound, fetchSingleSituation, mode, router, hasTimer, isExtremeMode]);
+  }, [fetchInitialSituations, fetchSingleSituation, mode, router, hasTimer, isExtremeMode]);
 
   // Handle reply submission
   const handleSubmitReply = useCallback(
@@ -406,10 +399,9 @@ function GamePageContent() {
   }, [hasTimer, phase, timeRemaining]);
 
   // Handle continue to next round - always continue all conversations
-  const handleContinue = async () => {
+  const handleContinue = () => {
     if (!gameState || !pendingContinuations) return;
 
-    setPhase("loading");
     setCompletedThisRound({ A: false, B: false, C: isExtremeMode ? false : undefined });
 
     const nextRound = gameState.round + 1;
@@ -426,19 +418,6 @@ function GamePageContent() {
 
     const continuations = pendingContinuations;
 
-    // Always fetch round data to update difficulty
-    const roundData = await fetchRound(nextRound, gameState.usedSituationIds);
-
-    if (!roundData) {
-      // If can't fetch new round, end game
-      setGameState((prev) =>
-        prev ? { ...prev, isGameOver: true } : prev
-      );
-      setPhase("gameover");
-      return;
-    }
-
-    setCurrentDifficulty(roundData.difficulty);
     setGameState((prev) => {
       if (!prev) return prev;
 
@@ -597,13 +576,12 @@ function GamePageContent() {
         round={gameState.round}
         score={gameState.score}
         mode={mode}
-        difficulty={currentDifficulty}
         onQuit={handleQuit}
       />
 
       <main className="flex-1 flex flex-col p-4 max-w-7xl mx-auto w-full">
         {/* Conversations */}
-        <div className={`flex-1 grid grid-cols-1 gap-4 mb-4 ${
+        <div className={`flex-1 min-h-0 max-h-[60vh] grid grid-cols-1 gap-4 mb-4 ${
           isExtremeMode 
             ? "lg:grid-cols-3" 
             : "lg:grid-cols-2"

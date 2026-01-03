@@ -68,6 +68,8 @@ confusion = clamp(confusion + delta, 0, 5)
 
 ## Game Flow
 
+A **round** is a single exchange: you send a reply, the other people respond. The same two conversations continue throughout the game until one becomes too confused or ends naturally.
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                     START GAME                          │
@@ -75,8 +77,8 @@ confusion = clamp(confusion + delta, 0, 5)
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────┐
-│     Load Round: Select 2 conversation situations        │
-│     (based on difficulty)                               │
+│     Select 2 conversation situations (random pair)      │
+│     These conversations continue throughout the game    │
 └─────────────────────────────────────────────────────────┘
                             │
                             ▼
@@ -87,7 +89,7 @@ confusion = clamp(confusion + delta, 0, 5)
                             │
                             ▼
 ┌─────────────────────────────────────────────────────────┐
-│     Player types ONE reply                              │
+│     Player types ONE reply (sent to both)               │
 │     (optional: timer countdown)                         │
 └─────────────────────────────────────────────────────────┘
                             │
@@ -113,22 +115,24 @@ confusion = clamp(confusion + delta, 0, 5)
               │                           │
               ▼                           ▼
     ┌─────────────────┐         ┌─────────────────┐
-    │ Append reply to │         │    GAME OVER    │
-    │ both transcripts│         │  Show stats     │
+    │ LLM continues   │         │    GAME OVER    │
+    │ both convos     │         │  Show stats     │
     │ Next round      │         │  Share option   │
     └─────────────────┘         └─────────────────┘
 ```
+
+**Conversation Swapping:** If a conversation ends naturally (e.g., goodbyes), the player can start a new conversation with a fresh situation (bonus points!) or continue the current one.
 
 ---
 
 ## Game Modes
 
-| Mode        | Description                               |
-| ----------- | ----------------------------------------- |
-| **Classic** | Text-only, no timer. Pure puzzle mode.    |
-| **Timer**   | 20-40 seconds per round. Pressure mode.   |
-| **Daily**   | Shared seed. Leaderboard. |
-| **Extreme** | Juggle 3 conversations at once!           |
+| Mode        | Description                             |
+| ----------- | --------------------------------------- |
+| **Classic** | Text-only, no timer. Pure puzzle mode.  |
+| **Timer**   | 20-40 seconds per round. Pressure mode. |
+| **Daily**   | Shared seed. Leaderboard.               |
+| **Extreme** | Juggle 3 conversations at once!         |
 
 ---
 
@@ -221,45 +225,38 @@ Output JSON only. No explanation outside JSON.
 
 ### Seed Library Structure
 
-60+ conversation situations stored in JSON:
+60+ conversation situations stored in TypeScript:
 
-```json
+```typescript
 {
-  "id": "work-deadline",
-  "topic": "work",
-  "tone": "stressed",
-  "intent": "asking_for_update",
-  "facts": [
+  id: "work-deadline",
+  topic: "work",
+  tone: "stressed",
+  intent: "asking_for_update",
+  personName: "Patricia",
+  personContext: "Your project manager",
+  facts: [
     "Project is due Friday",
-    "Speaker is the manager",
-    "Team has 3 members"
+    "You're working on the frontend"
   ],
-  "initial_transcript": [
-    { "role": "them", "text": "Hey, how's the project coming along?" },
-    { "role": "them", "text": "The client is asking for an update." }
+  initialTranscript: [
+    { role: "them", text: "Hey, how's the project coming along?" },
+    { role: "them", text: "The client is asking for an update." }
   ],
-  "allowed_reply_length": { "min": 10, "max": 200 },
-  "difficulty_tags": ["medium"]
+  allowedReplyLength: { min: 10, max: 200 },
+  difficultyTags: ["medium"]  // For future use / categorization
 }
 ```
 
-### Difficulty Scaling
+### Situation Pairing
 
-| Difficulty | Pairing Strategy                                                    |
-| ---------- | ------------------------------------------------------------------- |
-| **Easy**   | Shared or compatible intent (e.g., both asking "how are you?")      |
-| **Medium** | Different topics, overlapping response space (e.g., work + hobby)   |
-| **Hard**   | Divergent intents requiring abstraction (e.g., breakup + job offer) |
+At game start, two situations are randomly selected. The game tries to pick situations with **different intents** to create an interesting challenge. The inherent difficulty comes from how different the two situations are from each other.
 
-### Round Builder Logic
-
-```javascript
-function selectPair(difficulty, usedPairs) {
-  // Filter by difficulty
-  // Ensure no repeat pairs in session
-  // Easy: same intent category
-  // Medium: different topics, similar tone
-  // Hard: conflicting intents
+```typescript
+function selectSituationPair(usedSituationIds: string[]): RoundData {
+  // Filter out already-used situations
+  // Shuffle and pick two
+  // Try to pick situations with different intents
 }
 ```
 
@@ -373,8 +370,10 @@ function selectPair(difficulty, usedPairs) {
 ### GET /api/round
 
 ```typescript
-// Query params: difficulty, usedSituations[]
-// Returns: { conversationA, conversationB, roundNumber }
+// Query params: mode, usedIds, single (optional)
+// Returns: { situationA, situationB }
+// Used at game start to get initial conversation pair
+// Also used with single=true to get a new situation for swapping
 ```
 
 ### POST /api/judge
@@ -384,10 +383,12 @@ function selectPair(difficulty, usedPairs) {
 // Returns: { evaluation, confusionDeltaA, confusionDeltaB, score }
 ```
 
-### GET /api/daily
+### POST /api/continue
 
 ```typescript
-// Returns: Today's seeded game configuration
+// Body: { conversationA, conversationB }
+// Returns: { responseA, responseB, endingA, endingB }
+// LLM generates the next message for each conversation
 ```
 
 ### POST /api/leaderboard
@@ -480,9 +481,9 @@ function selectPair(difficulty, usedPairs) {
 ### Phase 5: Content & Balance
 
 1. [ ] Expand to 60+ situations
-2. [ ] Difficulty balancing
-3. [ ] Playtest and tune confusion thresholds
-4. [ ] Add variety to conversation topics
+2. [ ] Playtest and tune confusion thresholds
+3. [ ] Add variety to conversation topics
+4. [ ] Curate situation pairs for interesting challenges
 
 ### Phase 6: Polish & Launch
 

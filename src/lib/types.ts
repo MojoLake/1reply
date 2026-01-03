@@ -80,17 +80,14 @@ export interface GameState {
   conversationC?: Conversation; // Only present in extreme mode
   usedSituationIds: string[];
   isGameOver: boolean;
-  gameOverReason?: "A" | "B" | "C";
+  gameOverReason?: "A" | "B" | "C" | "survived"; // "survived" when player completes all 30 rounds
   completedConversations: number; // count of successfully completed conversations
 }
 
 export type GameMode = "classic" | "timer" | "daily" | "extreme";
 
-export type Difficulty = "easy" | "medium" | "hard";
-
 export interface RoundData {
   situationA: ConversationSituation;
   situationB: ConversationSituation;
-  difficulty: Difficulty;
 }
 
