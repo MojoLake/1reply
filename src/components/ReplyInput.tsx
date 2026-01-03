@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
+import { MAX_REPLY_LENGTH } from "@/lib/constants";
 
 interface ReplyInputProps {
   onSubmit: (reply: string) => void;
@@ -15,7 +16,7 @@ export default function ReplyInput({
   onSubmit,
   disabled = false,
   isLoading = false,
-  maxLength = 280,
+  maxLength = MAX_REPLY_LENGTH,
   timeRemaining,
 }: ReplyInputProps) {
   const [reply, setReply] = useState("");

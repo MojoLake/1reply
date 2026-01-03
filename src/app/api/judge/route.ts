@@ -3,6 +3,7 @@ import { judgeReply } from "@/lib/judge";
 import { calculateConfusionDelta, clampConfusion } from "@/lib/confusion";
 import { calculateRoundScore } from "@/lib/scoring";
 import { Conversation, RoundResult } from "@/lib/types";
+import { MAX_REPLY_LENGTH } from "@/lib/constants";
 
 // Simple in-memory rate limiting
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -78,9 +79,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (playerReply.length < 1 || playerReply.length > 280) {
+    if (playerReply.length < 1 || playerReply.length > MAX_REPLY_LENGTH) {
       return NextResponse.json(
-        { error: "Reply must be between 1 and 280 characters" },
+        { error: `Reply must be between 1 and ${MAX_REPLY_LENGTH} characters` },
         { status: 400 }
       );
     }
