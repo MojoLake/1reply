@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Conversation } from "@/lib/types";
 import { CONVERSATION_COMPLETION_BONUS } from "@/lib/scoring";
@@ -25,6 +26,12 @@ export default function ConversationPanel({
   onContinueCurrent,
 }: ConversationPanelProps) {
   const { situation, transcript, confusion } = conversation;
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to bottom when transcript changes
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [transcript]);
 
   return (
     <motion.div
@@ -88,6 +95,7 @@ export default function ConversationPanel({
             </div>
           </motion.div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Wrapping up message */}
