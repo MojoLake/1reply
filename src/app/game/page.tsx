@@ -551,6 +551,18 @@ function GamePageContent() {
     [gameState, fetchSingleSituation]
   );
 
+  // Handle continuing current conversation (dismisses the ending prompt)
+  const handleContinueCurrent = useCallback(
+    (label: "A" | "B" | "C") => {
+      // Just clear the ending flag - player chose to continue this conversation
+      setEndingConversations((prev) => ({
+        ...prev,
+        [label]: false,
+      }));
+    },
+    []
+  );
+
   // Handle hint
   const handleHint = () => {
     if (!gameState || gameState.hintsRemaining <= 0) return;
@@ -616,6 +628,7 @@ function GamePageContent() {
             showIntent={showHint}
             isEnding={phase === "playing" && endingConversations.A}
             onStartNew={() => handleStartNewConversation("A")}
+            onContinueCurrent={() => handleContinueCurrent("A")}
           />
           <ConversationPanel
             conversation={gameState.conversationB}
@@ -625,6 +638,7 @@ function GamePageContent() {
             showIntent={showHint}
             isEnding={phase === "playing" && endingConversations.B}
             onStartNew={() => handleStartNewConversation("B")}
+            onContinueCurrent={() => handleContinueCurrent("B")}
           />
           {isExtremeMode && gameState.conversationC && (
             <ConversationPanel
@@ -635,6 +649,7 @@ function GamePageContent() {
               showIntent={showHint}
               isEnding={phase === "playing" && endingConversations.C}
               onStartNew={() => handleStartNewConversation("C")}
+              onContinueCurrent={() => handleContinueCurrent("C")}
             />
           )}
         </div>

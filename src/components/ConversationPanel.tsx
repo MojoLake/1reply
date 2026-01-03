@@ -13,6 +13,7 @@ interface ConversationPanelProps {
   showIntent?: boolean;
   isEnding?: boolean;
   onStartNew?: () => void;
+  onContinueCurrent?: () => void;
 }
 
 export default function ConversationPanel({
@@ -23,6 +24,7 @@ export default function ConversationPanel({
   showIntent = false,
   isEnding = false,
   onStartNew,
+  onContinueCurrent,
 }: ConversationPanelProps) {
   const { situation, transcript, confusion } = conversation;
 
@@ -100,7 +102,7 @@ export default function ConversationPanel({
       </div>
 
       {/* Wrapping up message */}
-      {isEnding && onStartNew && (
+      {isEnding && onStartNew && onContinueCurrent && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -109,12 +111,20 @@ export default function ConversationPanel({
           <p className="text-xs text-gray-400 mb-2">
             This conversation seems to be wrapping up.
           </p>
-          <button
-            onClick={onStartNew}
-            className="w-full px-3 py-2 text-sm border border-gray-600 text-gray-300 hover:border-white hover:text-white hover:bg-white/10 transition-all"
-          >
-            START NEW +{CONVERSATION_COMPLETION_BONUS}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={onStartNew}
+              className="flex-1 px-3 py-2 text-sm border border-white text-white hover:bg-white hover:text-black transition-all"
+            >
+              START NEW +{CONVERSATION_COMPLETION_BONUS}
+            </button>
+            <button
+              onClick={onContinueCurrent}
+              className="flex-1 px-3 py-2 text-sm border border-gray-600 text-gray-400 hover:border-gray-400 hover:text-gray-300 transition-all"
+            >
+              CONTINUE
+            </button>
+          </div>
         </motion.div>
       )}
 
