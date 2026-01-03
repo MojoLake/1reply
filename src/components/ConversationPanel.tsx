@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Conversation } from "@/lib/types";
+import { CONVERSATION_COMPLETION_BONUS } from "@/lib/scoring";
 import ConfusionMeter from "./ConfusionMeter";
 
 interface ConversationPanelProps {
@@ -10,6 +11,8 @@ interface ConversationPanelProps {
   delta?: number;
   showDelta?: boolean;
   showIntent?: boolean;
+  isEnding?: boolean;
+  onStartNew?: () => void;
 }
 
 export default function ConversationPanel({
@@ -18,6 +21,8 @@ export default function ConversationPanel({
   delta,
   showDelta = false,
   showIntent = false,
+  isEnding = false,
+  onStartNew,
 }: ConversationPanelProps) {
   const { situation, transcript, confusion } = conversation;
 
@@ -93,6 +98,25 @@ export default function ConversationPanel({
           </motion.div>
         ))}
       </div>
+
+      {/* Wrapping up message */}
+      {isEnding && onStartNew && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="px-4 py-3 border-t border-gray-700 bg-gray-900/50"
+        >
+          <p className="text-xs text-gray-400 mb-2">
+            This conversation seems to be wrapping up.
+          </p>
+          <button
+            onClick={onStartNew}
+            className="w-full px-3 py-2 text-sm border border-gray-600 text-gray-300 hover:border-white hover:text-white hover:bg-white/10 transition-all"
+          >
+            START NEW +{CONVERSATION_COMPLETION_BONUS}
+          </button>
+        </motion.div>
+      )}
 
       {/* Corner decorations */}
       <div className="absolute top-0 left-0 text-gray-700 text-xs select-none">+</div>

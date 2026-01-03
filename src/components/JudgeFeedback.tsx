@@ -5,15 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { JudgeResult, ConfusionDelta } from "@/lib/types";
 import { CONVERSATION_COMPLETION_BONUS } from "@/lib/scoring";
 
-export type ConversationChoice = "continue" | "new";
-
 interface JudgeFeedbackProps {
   result: JudgeResult;
   confusionDelta: ConfusionDelta;
   scoreGained: number;
-  onContinue: (choices: { A: ConversationChoice; B: ConversationChoice; C?: ConversationChoice }) => void;
+  onContinue: () => void;
   completedConversations?: { A: boolean; B: boolean; C?: boolean };
-  endingConversations: { A: boolean; B: boolean; C?: boolean };
   isExtremeMode?: boolean;
 }
 
@@ -27,46 +24,6 @@ function ScoreBar({ label, value }: { label: string; value: number }) {
       <span className="text-xs text-gray-500 w-20">{label}</span>
       <span className="text-gray-400 text-sm">[{bar}]</span>
       <span className="text-xs text-gray-300 w-6 text-right">{value}</span>
-    </div>
-  );
-}
-
-function ConversationChoiceSelector({
-  label,
-  choice,
-  onChoose,
-}: {
-  label: "A" | "B" | "C";
-  choice: ConversationChoice | null;
-  onChoose: (choice: ConversationChoice) => void;
-}) {
-  return (
-    <div className="bg-black p-3 border border-gray-700 font-mono">
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-300">[{label}]</span>
-        <div className="flex gap-2">
-          <button
-            onClick={() => onChoose("new")}
-            className={`px-3 py-1.5 text-sm transition-all border ${
-              choice === "new"
-                ? "bg-white text-black border-white"
-                : "bg-black text-gray-400 border-gray-600 hover:border-white hover:text-white"
-            }`}
-          >
-            NEW (+{CONVERSATION_COMPLETION_BONUS})
-          </button>
-          <button
-            onClick={() => onChoose("continue")}
-            className={`px-3 py-1.5 text-sm transition-all border ${
-              choice === "continue"
-                ? "bg-white text-black border-white"
-                : "bg-black text-gray-400 border-gray-600 hover:border-white hover:text-white"
-            }`}
-          >
-            CONTINUE
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
@@ -170,13 +127,8 @@ export default function JudgeFeedback({
   scoreGained,
   onContinue,
   completedConversations,
-  endingConversations,
   isExtremeMode,
 }: JudgeFeedbackProps) {
-  const [choiceA, setChoiceA] = useState<ConversationChoice | null>(null);
-  const [choiceB, setChoiceB] = useState<ConversationChoice | null>(null);
-  const [choiceC, setChoiceC] = useState<ConversationChoice | null>(null);
-  
   const hasCompletions =
     completedConversations?.A || completedConversations?.B || completedConversations?.C;
   const completionCount =
@@ -184,34 +136,6 @@ export default function JudgeFeedback({
     (completedConversations?.B ? 1 : 0) + 
     (completedConversations?.C ? 1 : 0);
   const completionBonus = completionCount * CONVERSATION_COMPLETION_BONUS;
-  
-  const hasAnyEnding = endingConversations.A || endingConversations.B || (isExtremeMode && endingConversations.C);
-  
-  // Count how many conversations are ending
-  const endingCount = 
-    (endingConversations.A ? 1 : 0) + 
-    (endingConversations.B ? 1 : 0) + 
-    (isExtremeMode && endingConversations.C ? 1 : 0);
-  
-  // Calculate potential bonus from current choices
-  const potentialBonus = 
-    (choiceA === "new" ? CONVERSATION_COMPLETION_BONUS : 0) +
-    (choiceB === "new" ? CONVERSATION_COMPLETION_BONUS : 0) +
-    (choiceC === "new" ? CONVERSATION_COMPLETION_BONUS : 0);
-  
-  // Check if user can proceed
-  const canProceed = 
-    (!endingConversations.A || choiceA !== null) &&
-    (!endingConversations.B || choiceB !== null) &&
-    (!isExtremeMode || !endingConversations.C || choiceC !== null);
-  
-  const handleProceed = () => {
-    onContinue({
-      A: endingConversations.A ? (choiceA || "continue") : "continue",
-      B: endingConversations.B ? (choiceB || "continue") : "continue",
-      C: isExtremeMode ? (endingConversations.C ? (choiceC || "continue") : "continue") : undefined,
-    });
-  };
 
   return (
     <motion.div
@@ -232,82 +156,9 @@ export default function JudgeFeedback({
         </motion.div>
       </div>
 
-      {/* Conversation Ending Choice UI */}
+      {/* Conversation Completion Celebration (for already completed) */}
       <AnimatePresence>
-        {hasAnyEnding && (
-          <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ type: "spring", delay: 0.3 }}
-            className="mb-6 p-4 border border-gray-500 bg-black"
-          >
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <span className="text-sm font-bold text-gray-300">
-                [!] CONVERSATION{endingCount > 1 ? "S" : ""} ENDING
-              </span>
-            </div>
-            <p className="text-sm text-gray-500 text-center mb-4">
-              {endingCount === 3
-                ? "All three conversations are wrapping up."
-                : endingCount === 2
-                ? "Two conversations are wrapping up."
-                : endingConversations.A
-                ? "Conversation A is wrapping up."
-                : endingConversations.B
-                ? "Conversation B is wrapping up."
-                : "Conversation C is wrapping up."}{" "}
-              Choose what to do:
-            </p>
-            
-            <div className="space-y-3">
-              {endingConversations.A && (
-                <ConversationChoiceSelector
-                  label="A"
-                  choice={choiceA}
-                  onChoose={setChoiceA}
-                />
-              )}
-              {endingConversations.B && (
-                <ConversationChoiceSelector
-                  label="B"
-                  choice={choiceB}
-                  onChoose={setChoiceB}
-                />
-              )}
-              {isExtremeMode && endingConversations.C && (
-                <ConversationChoiceSelector
-                  label="C"
-                  choice={choiceC}
-                  onChoose={setChoiceC}
-                />
-              )}
-            </div>
-            
-            {potentialBonus > 0 && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", delay: 0.5 }}
-                className="mt-4 text-center"
-              >
-                <span className="inline-block px-3 py-1 border border-gray-500">
-                  <span className="text-white font-bold">
-                    +{potentialBonus}
-                  </span>
-                  <span className="text-gray-500 ml-2 text-sm">
-                    completion bonus
-                  </span>
-                </span>
-              </motion.div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Previous Conversation Completion Celebration (for already completed) */}
-      <AnimatePresence>
-        {hasCompletions && !hasAnyEnding && (
+        {hasCompletions && (
           <motion.div
             initial={{ opacity: 0, y: -20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -362,19 +213,12 @@ export default function JudgeFeedback({
       </div>
 
       <motion.button
-        whileHover={canProceed ? { scale: 1.02 } : {}}
-        whileTap={canProceed ? { scale: 0.98 } : {}}
-        onClick={handleProceed}
-        disabled={!canProceed}
-        className={`w-full py-3 font-semibold transition-all border ${
-          canProceed
-            ? "border-white text-white hover:bg-white hover:text-black"
-            : "border-gray-700 text-gray-600 cursor-not-allowed"
-        }`}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        onClick={onContinue}
+        className="w-full py-3 font-semibold transition-all border border-white text-white hover:bg-white hover:text-black"
       >
-        {hasAnyEnding && !canProceed
-          ? `[ CHOOSE ACTION FOR ENDING CONVERSATION${endingCount > 1 ? "S" : ""} ]`
-          : "[ PROCEED ]"}
+        [ PROCEED ]
       </motion.button>
     </motion.div>
   );
