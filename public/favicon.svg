@@ -1,21 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <!-- Background -->
+  <!-- Solid black background -->
   <rect width="32" height="32" fill="#000"/>
   
-  <!-- Left chat bubble (conversation A) -->
-  <path d="M4 8 h10 a2 2 0 0 1 2 2 v6 a2 2 0 0 1 -2 2 h-6 l-3 3 v-3 h-1 a2 2 0 0 1 -2 -2 v-6 a2 2 0 0 1 2 -2 z" 
-        fill="none" stroke="#fff" stroke-width="1.5"/>
+  <!-- Two minimal chat bubble shapes - left -->
+  <rect x="2" y="5" width="13" height="10" rx="2" fill="#fff" opacity="0.3"/>
   
-  <!-- Right chat bubble (conversation B) -->
-  <path d="M18 14 h10 a2 2 0 0 1 2 2 v6 a2 2 0 0 1 -2 2 h-1 v3 l-3 -3 h-6 a2 2 0 0 1 -2 -2 v-6 a2 2 0 0 1 2 -2 z" 
-        fill="none" stroke="#fff" stroke-width="1.5"/>
+  <!-- Two minimal chat bubble shapes - right -->
+  <rect x="17" y="9" width="13" height="10" rx="2" fill="#fff" opacity="0.3"/>
   
-  <!-- The "1" - representing the single reply -->
-  <text x="16" y="22" 
-        font-family="monospace" 
-        font-size="12" 
-        font-weight="bold"
+  <!-- Bold centered "1" -->
+  <text x="16" y="23" 
+        font-family="Arial Black, Helvetica, sans-serif" 
+        font-size="20" 
+        font-weight="900"
         fill="#fff" 
         text-anchor="middle">1</text>
 </svg>
-
