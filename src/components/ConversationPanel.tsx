@@ -82,7 +82,7 @@ export default function ConversationPanel({
       </div>
 
       {/* Messages */}
-      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-3">
         {transcript.map((msg, idx) => (
           <motion.div
             key={idx}
