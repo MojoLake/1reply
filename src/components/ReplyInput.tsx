@@ -51,7 +51,7 @@ export default function ReplyInput({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full font-mono"
+      className="w-full font-mono fixed bottom-0 left-0 right-0 z-50 bg-black p-2 md:relative md:bottom-auto md:left-auto md:right-auto md:z-auto md:bg-transparent md:p-0"
     >
       {/* Timer display */}
       {timeRemaining !== undefined && (
