@@ -104,12 +104,12 @@ export default function ReplyInput({
           </div>
         </div>
 
-        {/* Mobile: vertical send button */}
+        {/* Mobile: send button with arrow icon */}
         <motion.button
-          whileTap={{ scale: disabled || isLoading ? 1 : 0.98 }}
+          whileTap={{ scale: disabled || isLoading ? 1 : 0.95 }}
           onClick={handleSubmit}
           disabled={disabled || isLoading || !reply.trim() || isOverLimit}
-          className={`md:hidden flex items-center justify-center w-12 font-semibold text-sm transition-all border ${
+          className={`md:hidden flex items-center justify-center w-12 transition-all border ${
             disabled || isLoading || !reply.trim() || isOverLimit
               ? "border-gray-700 text-gray-600 cursor-not-allowed"
               : "border-white text-white active:bg-white active:text-black"
@@ -119,11 +119,18 @@ export default function ReplyInput({
             <motion.span
               animate={{ opacity: [1, 0.3, 1] }}
               transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
+              className="text-lg"
             >
-              ...
+              ···
             </motion.span>
           ) : (
-            <span className="[writing-mode:vertical-rl] rotate-180">SEND</span>
+            <svg
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
           )}
         </motion.button>
       </div>
