@@ -28,11 +28,14 @@ export default function ConversationPanel({
   hideHeader = false,
 }: ConversationPanelProps) {
   const { situation, transcript, confusion } = conversation;
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom when transcript changes
+  // Scroll to bottom when transcript changes (only within container, not viewport)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
   }, [transcript]);
 
   return (
@@ -79,7 +82,7 @@ export default function ConversationPanel({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3">
         {transcript.map((msg, idx) => (
           <motion.div
             key={idx}
@@ -109,7 +112,6 @@ export default function ConversationPanel({
             </div>
           </motion.div>
         ))}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Wrapping up message */}
