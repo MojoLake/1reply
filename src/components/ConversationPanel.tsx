@@ -66,6 +66,17 @@ export default function ConversationPanel({
       {/* Context - always visible */}
       <div className="px-3 py-2 border-b border-gray-800 bg-black">
         <p className="text-xs text-gray-500">&gt; {situation.personContext}</p>
+        {/* Show confusion bar when header is hidden (tabbed view) */}
+        {hideHeader && (
+          <div className="mt-1.5">
+            <ConfusionMeter
+              confusion={confusion}
+              delta={delta}
+              showDelta={showDelta}
+              barOnly
+            />
+          </div>
+        )}
       </div>
 
       {/* Messages */}
