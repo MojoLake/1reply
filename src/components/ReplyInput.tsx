@@ -109,7 +109,7 @@ export default function ReplyInput({
           whileTap={{ scale: disabled || isLoading ? 1 : 0.95 }}
           onClick={handleSubmit}
           disabled={disabled || isLoading || !reply.trim() || isOverLimit}
-          className={`md:hidden flex items-center justify-center w-12 transition-all border ${
+          className={`md:hidden flex items-center justify-center w-12 self-stretch transition-all border ${
             disabled || isLoading || !reply.trim() || isOverLimit
               ? "border-gray-700 text-gray-600 cursor-not-allowed"
               : "border-white text-white active:bg-white active:text-black"
