@@ -43,25 +43,6 @@ export default function ReplyInput({
     }
   };
 
-  // Mobile keyboard scroll fix: control scroll-into-view on focus
-  const handleFocus = () => {
-    // Small delay to let keyboard animation start
-    setTimeout(() => {
-      textareaRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-      });
-    }, 300);
-  };
-
-  // Mobile keyboard scroll fix: reset scroll position on blur
-  const handleBlur = () => {
-    // Small delay to let keyboard close
-    setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }, 100);
-  };
-
   const charCount = reply.length;
   const isNearLimit = charCount > maxLength * 0.8;
   const isOverLimit = charCount > maxLength;
@@ -90,7 +71,7 @@ export default function ReplyInput({
       )}
 
       {/* Mobile: side-by-side layout / Desktop: stacked layout */}
-      <div className="flex items-stretch gap-2 md:block">
+      <div className="flex gap-2 md:block">
         <div className="relative flex-1">
           {/* Terminal prompt indicator */}
           <div className="absolute left-3 top-4 text-gray-500 select-none">&gt;</div>
@@ -99,11 +80,9 @@ export default function ReplyInput({
             value={reply}
             onChange={(e) => setReply(e.target.value.slice(0, maxLength))}
             onKeyDown={handleKeyDown}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
             disabled={disabled || isLoading}
             placeholder="Type a reply that works for both conversations..."
-            className={`w-full h-full pl-8 pr-5 py-4 bg-black border text-white placeholder-gray-600 resize-none focus:outline-none transition-colors ${
+            className={`w-full pl-8 pr-5 py-4 bg-black border text-white placeholder-gray-600 resize-none focus:outline-none transition-colors ${
               disabled || isLoading
                 ? "border-gray-800 opacity-60 cursor-not-allowed"
                 : "border-gray-700 focus:border-white"
@@ -130,7 +109,7 @@ export default function ReplyInput({
           whileTap={{ scale: disabled || isLoading ? 1 : 0.95 }}
           onClick={handleSubmit}
           disabled={disabled || isLoading || !reply.trim() || isOverLimit}
-          className={`md:hidden flex items-center justify-center w-12 transition-all border ${
+          className={`md:hidden flex items-center justify-center w-12 self-stretch transition-all border ${
             disabled || isLoading || !reply.trim() || isOverLimit
               ? "border-gray-700 text-gray-600 cursor-not-allowed"
               : "border-white text-white active:bg-white active:text-black"
