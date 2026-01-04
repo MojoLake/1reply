@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { Conversation } from "@/lib/types";
-import { getConfusionColor, getConfusionFace } from "@/lib/confusion";
 import ConversationPanel from "./ConversationPanel";
 
 interface TabConversation {
@@ -41,8 +40,6 @@ export default function MobileConversationTabs({
       <div className="flex border-b border-gray-700 bg-black shrink-0">
         {conversations.map((conv, index) => {
           const isActive = activeTab === index;
-          const colorClass = getConfusionColor(conv.conversation.confusion);
-          const face = getConfusionFace(conv.conversation.confusion);
           
           return (
             <button
@@ -56,10 +53,9 @@ export default function MobileConversationTabs({
             >
               <div className="flex items-center justify-center gap-1.5">
                 <span className="text-xs text-gray-600">[{conv.label}]</span>
-                <span className="truncate max-w-[60px]">
+                <span className="truncate max-w-[80px]">
                   {conv.conversation.situation.personName}
                 </span>
-                <span className={`text-xs ${colorClass}`}>{face}</span>
                 {/* Delta indicator on inactive tabs */}
                 {!isActive && showDelta && conv.delta !== undefined && conv.delta !== 0 && (
                   <span
