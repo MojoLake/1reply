@@ -1218,12 +1218,12 @@ export const situations: ConversationSituation[] = [
     id: "hairdresser-chat",
     topic: "social",
     tone: "casual",
-    intent: "small_talk",
+    intent: "sharing_gossip",
     personName: "Keisha",
     personContext: "Your hairdresser who you see every month",
     facts: [
       "She's been doing your hair for 3 years",
-      "She's always up for gossip",
+      "She has a wild story about a client to tell you",
     ],
     initialTranscript: [
       {
