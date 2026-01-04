@@ -108,6 +108,7 @@ export default function MobileConversationTabs({
               isEnding={conversations[activeTab].isEnding}
               onStartNew={conversations[activeTab].onStartNew}
               onContinueCurrent={conversations[activeTab].onContinueCurrent}
+              hideHeader
             />
           </motion.div>
         </AnimatePresence>
