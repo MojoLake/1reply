@@ -39,7 +39,7 @@ function createConversation(situation: ConversationSituation): Conversation {
 
 function LoadingSpinner() {
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center font-mono">
+    <div className="min-h-dvh bg-black flex items-center justify-center font-mono">
       <motion.div
         animate={{ opacity: [1, 0.3, 1] }}
         transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
@@ -566,7 +566,7 @@ function GamePageContent() {
   // Loading state
   if (phase === "loading" || !gameState) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center font-mono">
+      <div className="min-h-dvh bg-black flex items-center justify-center font-mono">
         <motion.div
           animate={{ opacity: [1, 0.3, 1] }}
           transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
@@ -579,7 +579,7 @@ function GamePageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-black flex flex-col">
+    <div className="min-h-dvh bg-black flex flex-col">
       <GameHeader
         round={gameState.round}
         score={gameState.score}
