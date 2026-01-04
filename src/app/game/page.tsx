@@ -22,6 +22,7 @@ import {
 } from "@/lib/constants";
 import GameHeader from "@/components/GameHeader";
 import ConversationPanel from "@/components/ConversationPanel";
+import MobileConversationTabs from "@/components/MobileConversationTabs";
 import ReplyInput from "@/components/ReplyInput";
 import JudgeFeedback from "@/components/JudgeFeedback";
 import GameOverModal from "@/components/GameOverModal";
@@ -586,9 +587,46 @@ function GamePageContent() {
         onQuit={handleQuit}
       />
 
-      <main className="flex-1 flex flex-col p-4 max-w-7xl mx-auto w-full">
-        {/* Conversations */}
-        <div className={`flex-1 min-h-0 max-h-[60vh] grid grid-cols-1 gap-4 mb-4 ${
+      <main className="flex-1 flex flex-col p-2 md:p-4 max-w-7xl mx-auto w-full">
+        {/* Mobile: Tabbed conversations */}
+        <div className="md:hidden flex-1 min-h-0 mb-2">
+          <MobileConversationTabs
+            conversations={[
+              {
+                label: "A",
+                conversation: gameState.conversationA,
+                delta: lastResult?.confusionDelta.A,
+                isEnding: phase === "playing" && endingConversations.A,
+                onStartNew: () => handleStartNewConversation("A"),
+                onContinueCurrent: () => handleContinueCurrent("A"),
+              },
+              {
+                label: "B",
+                conversation: gameState.conversationB,
+                delta: lastResult?.confusionDelta.B,
+                isEnding: phase === "playing" && endingConversations.B,
+                onStartNew: () => handleStartNewConversation("B"),
+                onContinueCurrent: () => handleContinueCurrent("B"),
+              },
+              ...(isExtremeMode && gameState.conversationC
+                ? [
+                    {
+                      label: "C" as const,
+                      conversation: gameState.conversationC,
+                      delta: lastResult?.confusionDelta.C,
+                      isEnding: phase === "playing" && endingConversations.C,
+                      onStartNew: () => handleStartNewConversation("C"),
+                      onContinueCurrent: () => handleContinueCurrent("C"),
+                    },
+                  ]
+                : []),
+            ]}
+            showDelta={phase === "feedback"}
+          />
+        </div>
+
+        {/* Desktop: Grid layout */}
+        <div className={`hidden md:grid flex-1 min-h-0 max-h-[60vh] grid-cols-1 gap-4 mb-4 ${
           isExtremeMode 
             ? "lg:grid-cols-3" 
             : "lg:grid-cols-2"
