@@ -70,39 +70,66 @@ export default function ReplyInput({
         </div>
       )}
 
-      <div className="relative">
-        {/* Terminal prompt indicator */}
-        <div className="absolute left-3 top-4 text-gray-500 select-none">&gt;</div>
-        <textarea
-          ref={textareaRef}
-          value={reply}
-          onChange={(e) => setReply(e.target.value.slice(0, maxLength))}
-          onKeyDown={handleKeyDown}
-          disabled={disabled || isLoading}
-          placeholder="Type a reply that works for both conversations..."
-          className={`w-full pl-8 pr-5 py-4 bg-black border text-white placeholder-gray-600 resize-none focus:outline-none transition-colors ${
-            disabled || isLoading
-              ? "border-gray-800 opacity-60 cursor-not-allowed"
-              : "border-gray-700 focus:border-white"
-          }`}
-          rows={3}
-        />
+      {/* Mobile: side-by-side layout / Desktop: stacked layout */}
+      <div className="flex gap-2 md:block">
+        <div className="relative flex-1">
+          {/* Terminal prompt indicator */}
+          <div className="absolute left-3 top-4 text-gray-500 select-none">&gt;</div>
+          <textarea
+            ref={textareaRef}
+            value={reply}
+            onChange={(e) => setReply(e.target.value.slice(0, maxLength))}
+            onKeyDown={handleKeyDown}
+            disabled={disabled || isLoading}
+            placeholder="Type a reply that works for both conversations..."
+            className={`w-full pl-8 pr-5 py-4 bg-black border text-white placeholder-gray-600 resize-none focus:outline-none transition-colors ${
+              disabled || isLoading
+                ? "border-gray-800 opacity-60 cursor-not-allowed"
+                : "border-gray-700 focus:border-white"
+            }`}
+            rows={3}
+          />
 
-        {/* Character count */}
-        <div
-          className={`absolute bottom-3 right-3 text-xs ${
-            isOverLimit
-              ? "text-white"
-              : isNearLimit
-              ? "text-gray-400"
-              : "text-gray-600"
+          {/* Character count */}
+          <div
+            className={`absolute bottom-3 right-3 text-xs ${
+              isOverLimit
+                ? "text-white"
+                : isNearLimit
+                ? "text-gray-400"
+                : "text-gray-600"
+            }`}
+          >
+            {charCount}/{maxLength}
+          </div>
+        </div>
+
+        {/* Mobile: vertical send button */}
+        <motion.button
+          whileTap={{ scale: disabled || isLoading ? 1 : 0.98 }}
+          onClick={handleSubmit}
+          disabled={disabled || isLoading || !reply.trim() || isOverLimit}
+          className={`md:hidden flex items-center justify-center w-12 font-semibold text-sm transition-all border ${
+            disabled || isLoading || !reply.trim() || isOverLimit
+              ? "border-gray-700 text-gray-600 cursor-not-allowed"
+              : "border-white text-white active:bg-white active:text-black"
           }`}
         >
-          {charCount}/{maxLength}
-        </div>
+          {isLoading ? (
+            <motion.span
+              animate={{ opacity: [1, 0.3, 1] }}
+              transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
+            >
+              ...
+            </motion.span>
+          ) : (
+            <span className="[writing-mode:vertical-rl] rotate-180">SEND</span>
+          )}
+        </motion.button>
       </div>
 
-      <div className="flex justify-center mt-4">
+      {/* Desktop: centered send button below */}
+      <div className="hidden md:flex justify-center mt-4">
         <motion.button
           whileHover={{ scale: disabled || isLoading ? 1 : 1.02 }}
           whileTap={{ scale: disabled || isLoading ? 1 : 0.98 }}
