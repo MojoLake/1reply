@@ -85,20 +85,20 @@ export default function MobileConversationTabs({
 
       {/* Swipeable content area */}
       <motion.div
-        className="flex-1 overflow-hidden relative"
+        className="flex-1 min-h-0 overflow-hidden"
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.2}
         onDragEnd={handleDragEnd}
       >
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -50 }}
-            transition={{ duration: 0.15 }}
-            className="absolute inset-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.1 }}
+            className="h-full"
           >
             <ConversationPanel
               conversation={conversations[activeTab].conversation}

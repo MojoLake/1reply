@@ -589,7 +589,7 @@ function GamePageContent() {
 
       <main className="flex-1 flex flex-col p-2 md:p-4 max-w-7xl mx-auto w-full">
         {/* Mobile: Tabbed conversations */}
-        <div className="md:hidden flex-1 min-h-0 mb-2">
+        <div className="md:hidden flex-1 min-h-0 mb-2 overflow-hidden">
           <MobileConversationTabs
             conversations={[
               {
