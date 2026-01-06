@@ -10,7 +10,7 @@ export const situations: ConversationSituation[] = [
     personName: "Alex",
     personContext: "Your close friend from college",
     facts: [
-      "You haven't seen each other in 2 weeks",
+      "The player and Alex haven't seen each other in 2 weeks",
       "Alex just got back from vacation",
     ],
     initialTranscript: [
@@ -27,7 +27,7 @@ export const situations: ConversationSituation[] = [
     personName: "Jordan",
     personContext: "Your gym buddy",
     facts: [
-      "You both go to the same gym",
+      "The player and Jordan both go to the same gym",
       "Jordan missed the last few sessions",
     ],
     initialTranscript: [
@@ -43,7 +43,7 @@ export const situations: ConversationSituation[] = [
     intent: "small_talk",
     personName: "Sam",
     personContext: "Your coworker on the same team",
-    facts: ["It's Monday morning", "You both work remotely"],
+    facts: ["It's Monday morning", "The player and Sam both work remotely"],
     initialTranscript: [
       { role: "them", text: "Monday again 😩" },
       { role: "them", text: "How was your weekend?" },
@@ -57,7 +57,10 @@ export const situations: ConversationSituation[] = [
     intent: "friendly_chat",
     personName: "Mrs. Chen",
     personContext: "Your friendly neighbor",
-    facts: ["She lives next door", "You've been neighbors for 2 years"],
+    facts: [
+      "Mrs. Chen lives next door",
+      "The player and Mrs. Chen have been neighbors for 2 years",
+    ],
     initialTranscript: [
       { role: "them", text: "Oh hello dear!" },
       { role: "them", text: "Lovely weather we're having, isn't it?" },
@@ -75,7 +78,7 @@ export const situations: ConversationSituation[] = [
     personContext: "Your friend who loves trying new restaurants",
     facts: [
       "There's a new Thai place downtown",
-      "You're both free this weekend",
+      "The player and Taylor are both free this weekend",
     ],
     initialTranscript: [
       { role: "them", text: "That new Thai place opened!" },
@@ -90,7 +93,10 @@ export const situations: ConversationSituation[] = [
     intent: "making_plans",
     personName: "Casey",
     personContext: "Your roommate",
-    facts: ["You share an apartment", "Netflix subscription is shared"],
+    facts: [
+      "The player and Casey share an apartment",
+      "Netflix subscription is shared",
+    ],
     initialTranscript: [
       { role: "them", text: "movie night tonight?" },
       { role: "them", text: "I heard that new sci-fi one is good" },
@@ -106,7 +112,10 @@ export const situations: ConversationSituation[] = [
     intent: "asking_for_update",
     personName: "Patricia",
     personContext: "Your project manager",
-    facts: ["Project deadline is Friday", "You're working on the frontend"],
+    facts: [
+      "Project deadline is Friday",
+      "The player is working on the frontend",
+    ],
     initialTranscript: [
       { role: "them", text: "Hi, quick check-in on the project." },
       { role: "them", text: "How's progress looking for Friday?" },
@@ -121,7 +130,7 @@ export const situations: ConversationSituation[] = [
     personName: "David",
     personContext: "A client you're working with",
     facts: [
-      "You have a meeting scheduled for tomorrow",
+      "The player and David have a meeting scheduled for tomorrow",
       "David is in a different timezone",
     ],
     initialTranscript: [
@@ -137,7 +146,7 @@ export const situations: ConversationSituation[] = [
     intent: "requesting_feedback",
     personName: "Michelle",
     personContext: "Your senior colleague",
-    facts: ["You recently submitted a proposal", "Michelle reviewed it"],
+    facts: ["The player recently submitted a proposal", "Michelle reviewed it"],
     initialTranscript: [
       { role: "them", text: "I looked over your proposal." },
       { role: "them", text: "Do you have time to discuss some thoughts?" },
@@ -153,7 +162,7 @@ export const situations: ConversationSituation[] = [
     intent: "venting",
     personName: "Riley",
     personContext: "Your close friend going through a tough time",
-    facts: ["Riley just had a bad day at work", "They're feeling overwhelmed"],
+    facts: ["Riley just had a bad day at work", "Riley is feeling overwhelmed"],
     initialTranscript: [
       { role: "them", text: "I can't do this anymore" },
       { role: "them", text: "Everything is just too much right now" },
@@ -168,8 +177,8 @@ export const situations: ConversationSituation[] = [
     personName: "Morgan",
     personContext: "Your friend who just went through a breakup",
     facts: [
-      "Morgan broke up with their partner last week",
-      "They were together for 2 years",
+      "Morgan broke up with Morgan's partner last week",
+      "Morgan and Morgan's partner were together for 2 years",
     ],
     initialTranscript: [
       {
@@ -189,7 +198,7 @@ export const situations: ConversationSituation[] = [
     intent: "asking_favor",
     personName: "Chris",
     personContext: "Your sibling",
-    facts: ["Chris's car is in the shop", "You have a spare car"],
+    facts: ["Chris's car is in the shop", "The player has a spare car"],
     initialTranscript: [
       { role: "them", text: "Hey so my car broke down 😭" },
       { role: "them", text: "Any chance I could borrow yours this weekend?" },
@@ -203,7 +212,7 @@ export const situations: ConversationSituation[] = [
     intent: "asking_favor",
     personName: "Jamie",
     personContext: "A friend moving to a new apartment",
-    facts: ["Jamie is moving next Saturday", "They need help with furniture"],
+    facts: ["Jamie is moving next Saturday", "Jamie needs help with furniture"],
     initialTranscript: [
       { role: "them", text: "So I'm finally moving!" },
       {
@@ -222,7 +231,7 @@ export const situations: ConversationSituation[] = [
     intent: "showing_interest",
     personName: "Robin",
     personContext: "Someone you went on a first date with",
-    facts: ["You had dinner last night", "It went well"],
+    facts: ["The player and Robin had dinner last night", "It went well"],
     initialTranscript: [
       { role: "them", text: "I had a really great time last night 😊" },
       { role: "them", text: "Would love to do it again sometime" },
@@ -237,7 +246,7 @@ export const situations: ConversationSituation[] = [
     personName: "Avery",
     personContext: "Someone you've been flirting with",
     facts: [
-      "You've known each other for a few months",
+      "The player and Avery have known each other for a few months",
       "There's mutual attraction",
     ],
     initialTranscript: [
@@ -255,7 +264,10 @@ export const situations: ConversationSituation[] = [
     intent: "expecting_yes",
     personName: "Quinn",
     personContext: "A friend who's been planning their birthday party",
-    facts: ["Quinn's birthday party is this Friday", "You already have plans"],
+    facts: [
+      "Quinn's birthday party is this Friday",
+      "The player already has other plans",
+    ],
     initialTranscript: [
       { role: "them", text: "You're coming to my party Friday right??" },
       { role: "them", text: "It's going to be so fun!" },
@@ -270,8 +282,8 @@ export const situations: ConversationSituation[] = [
     personName: "Drew",
     personContext: "A friend who owes you money",
     facts: [
-      "Drew borrowed $200 last month",
-      "They said they'd pay you back last week",
+      "Drew borrowed $200 from the player last month",
+      "Drew said they'd pay the player back last week",
     ],
     initialTranscript: [
       { role: "them", text: "Hey so about that money..." },
@@ -286,7 +298,10 @@ export const situations: ConversationSituation[] = [
     intent: "delivering_good_news",
     personName: "HR Manager",
     personContext: "Recruiter from a company you applied to",
-    facts: ["You interviewed last week", "They're offering you the position"],
+    facts: [
+      "The player interviewed last week",
+      "The company is offering the player the position",
+    ],
     initialTranscript: [
       {
         role: "them",
@@ -305,7 +320,7 @@ export const situations: ConversationSituation[] = [
     personContext: "Your roommate",
     facts: [
       "Pat has been leaving dishes in the sink",
-      "This is the third time you've had to clean up",
+      "This is the third time the player has had to clean up after Pat",
     ],
     initialTranscript: [
       { role: "them", text: "Hey can we talk about the kitchen situation?" },
@@ -322,7 +337,10 @@ export const situations: ConversationSituation[] = [
     intent: "making_demands",
     personName: "Mom",
     personContext: "Your mother",
-    facts: ["She wants to visit next month", "You're very busy with work"],
+    facts: [
+      "Mom wants to visit next month",
+      "The player is very busy with work",
+    ],
     initialTranscript: [
       { role: "them", text: "I'm booking flights to come see you next month" },
       { role: "them", text: "You'll make time for your mother, won't you?" },
@@ -336,7 +354,10 @@ export const situations: ConversationSituation[] = [
     intent: "resolving_conflict",
     personName: "Love",
     personContext: "Your partner",
-    facts: ["You had an argument last night", "Neither of you has apologized"],
+    facts: [
+      "The player and Love had an argument last night",
+      "Neither has apologized",
+    ],
     initialTranscript: [
       { role: "them", text: "I've been thinking about last night" },
       { role: "them", text: "Can we talk about it?" },
@@ -352,7 +373,10 @@ export const situations: ConversationSituation[] = [
     intent: "asking_for_help",
     personName: "Uncle Bob",
     personContext: "Your uncle who isn't tech-savvy",
-    facts: ["He got a new phone", "He can't figure out how to set it up"],
+    facts: [
+      "Uncle Bob got a new phone",
+      "Uncle Bob can't figure out how to set it up",
+    ],
     initialTranscript: [
       { role: "them", text: "This darn phone is driving me crazy!" },
       { role: "them", text: "How do I get my emails on this thing?" },
@@ -366,7 +390,10 @@ export const situations: ConversationSituation[] = [
     intent: "sharing_news",
     personName: "Sage",
     personContext: "Your friend who loves animals",
-    facts: ["Sage just adopted a puppy", "It's a golden retriever"],
+    facts: [
+      "Sage just adopted a puppy",
+      "The puppy is a golden retriever named Luna",
+    ],
     initialTranscript: [
       { role: "them", text: "I DID IT!! 🐕" },
       { role: "them", text: "Meet Luna! She's coming home tomorrow!" },
@@ -381,8 +408,8 @@ export const situations: ConversationSituation[] = [
     personName: "Grandma",
     personContext: "Your grandmother",
     facts: [
-      "She's known for her cooking",
-      "You asked about her famous soup recipe",
+      "Grandma is known for her cooking",
+      "The player asked about her famous soup recipe",
     ],
     initialTranscript: [
       { role: "them", text: "I found the recipe you asked about!" },
@@ -397,7 +424,10 @@ export const situations: ConversationSituation[] = [
     intent: "inviting",
     personName: "Blake",
     personContext: "Your friend with similar music taste",
-    facts: ["Your favorite band is coming to town", "Blake has two tickets"],
+    facts: [
+      "The player's favorite band is coming to town",
+      "Blake has two tickets",
+    ],
     initialTranscript: [
       { role: "them", text: "GUESS WHO GOT TICKETS?! 🎸" },
       { role: "them", text: "You're coming with me right??" },
@@ -411,7 +441,10 @@ export const situations: ConversationSituation[] = [
     intent: "recommending",
     personName: "Ellis",
     personContext: "Your book club friend",
-    facts: ["You both love thrillers", "Ellis just finished a new book"],
+    facts: [
+      "The player and Ellis both love thrillers",
+      "Ellis just finished a new book",
+    ],
     initialTranscript: [
       { role: "them", text: "Just finished the most insane book" },
       { role: "them", text: "You HAVE to read it" },
@@ -427,7 +460,7 @@ export const situations: ConversationSituation[] = [
     personContext: "Your workout partner",
     facts: [
       "Kit has been training for months",
-      "They just hit a personal record",
+      "Kit just hit a personal record",
     ],
     initialTranscript: [
       { role: "them", text: "I DID IT! New PR today! 💪" },
@@ -442,7 +475,7 @@ export const situations: ConversationSituation[] = [
     intent: "seeking_advice",
     personName: "River",
     personContext: "A friend planning a trip to a place you've visited",
-    facts: ["River is going to Japan", "You went there last year"],
+    facts: ["River is going to Japan", "The player went there last year"],
     initialTranscript: [
       { role: "them", text: "Planning my Japan trip finally!" },
       { role: "them", text: "Any must-see spots you'd recommend?" },
@@ -456,7 +489,7 @@ export const situations: ConversationSituation[] = [
     intent: "seeking_advice",
     personName: "Finley",
     personContext: "Your friend preparing for a big interview",
-    facts: ["The interview is tomorrow", "It's for their dream job"],
+    facts: ["Finley's interview is tomorrow", "It's for Finley's dream job"],
     initialTranscript: [
       { role: "them", text: "Interview is tomorrow and I'm freaking out" },
       { role: "them", text: "Any last minute tips??" },
@@ -470,10 +503,7 @@ export const situations: ConversationSituation[] = [
     intent: "planning",
     personName: "Ash",
     personContext: "Friend helping plan a surprise party",
-    facts: [
-      "It's for your mutual friend's birthday",
-      "The party is this weekend",
-    ],
+    facts: ["It's for a mutual friend's birthday", "The party is this weekend"],
     initialTranscript: [
       { role: "them", text: "OK the venue is booked!" },
       { role: "them", text: "Can you handle the cake?" },
@@ -487,7 +517,7 @@ export const situations: ConversationSituation[] = [
     intent: "sharing_excitement",
     personName: "Rowan",
     personContext: "A friend who picks up new hobbies often",
-    facts: ["Rowan just started learning guitar", "They're very enthusiastic"],
+    facts: ["Rowan just started learning guitar", "Rowan is very enthusiastic"],
     initialTranscript: [
       { role: "them", text: "I bought a guitar!! 🎸" },
       { role: "them", text: "I'm gonna be a rock star, just you wait" },
@@ -503,7 +533,7 @@ export const situations: ConversationSituation[] = [
     personContext: "Your friend who's been feeling unwell",
     facts: [
       "Charlie has had a persistent cough",
-      "They're considering seeing a doctor",
+      "Charlie is considering seeing a doctor",
     ],
     initialTranscript: [
       { role: "them", text: "This cough won't go away 😷" },
@@ -518,7 +548,10 @@ export const situations: ConversationSituation[] = [
     intent: "venting",
     personName: "Skyler",
     personContext: "Friend looking for an apartment",
-    facts: ["Rent prices are high", "Skyler has been searching for weeks"],
+    facts: [
+      "Rent prices are high in the area",
+      "Skyler has been searching for weeks",
+    ],
     initialTranscript: [
       { role: "them", text: "This apartment search is killing me" },
       { role: "them", text: "Everything is either too expensive or a dump" },
@@ -568,7 +601,7 @@ export const situations: ConversationSituation[] = [
     personContext: "Coworker who got promoted",
     facts: [
       "Hayden just got promoted to team lead",
-      "You work on the same team",
+      "The player and Hayden work on the same team",
     ],
     initialTranscript: [
       { role: "them", text: "I got the promotion!!!" },
@@ -583,7 +616,7 @@ export const situations: ConversationSituation[] = [
     intent: "venting",
     personName: "Reese",
     personContext: "Coworker who had a tough performance review",
-    facts: ["Reese's review didn't go well", "They feel undervalued"],
+    facts: ["Reese's review didn't go well", "Reese feels undervalued"],
     initialTranscript: [
       { role: "them", text: "My review was brutal" },
       { role: "them", text: "They don't appreciate anything I do" },
@@ -613,7 +646,7 @@ export const situations: ConversationSituation[] = [
     personContext: "Friend with a startup idea",
     facts: [
       "Phoenix wants to start a business",
-      "They want your honest feedback",
+      "Phoenix wants the player's honest feedback",
     ],
     initialTranscript: [
       { role: "them", text: "OK hear me out on this business idea" },
@@ -648,7 +681,10 @@ export const situations: ConversationSituation[] = [
     intent: "confessing",
     personName: "Dakota",
     personContext: "Friend who was on a diet",
-    facts: ["Dakota was trying to eat healthier", "They gave in to temptation"],
+    facts: [
+      "Dakota was trying to eat healthier",
+      "Dakota gave in to temptation",
+    ],
     initialTranscript: [
       { role: "them", text: "So... the diet lasted 3 days" },
       { role: "them", text: "Pizza is just too good 🍕" },
@@ -663,8 +699,8 @@ export const situations: ConversationSituation[] = [
     personName: "Sage",
     personContext: "Friend who does art as a hobby",
     facts: [
-      "Sage just finished a painting",
-      "They're nervous about showing it",
+      "Sage just finished a painting and sent a photo to the player",
+      "Sage is nervous about showing it",
     ],
     initialTranscript: [
       { role: "them", text: "I finally finished my painting" },
@@ -679,7 +715,10 @@ export const situations: ConversationSituation[] = [
     intent: "trash_talking",
     personName: "Logan",
     personContext: "Friend with opposing sports allegiance",
-    facts: ["Your teams play each other tonight", "There's a friendly bet"],
+    facts: [
+      "The player's and Logan's teams play each other tonight",
+      "There's a friendly bet",
+    ],
     initialTranscript: [
       { role: "them", text: "Your team is going DOWN tonight" },
       { role: "them", text: "Ready to pay up? 😏" },
@@ -693,7 +732,10 @@ export const situations: ConversationSituation[] = [
     intent: "inviting",
     personName: "Jaden",
     personContext: "Online gaming friend",
-    facts: ["You play the same game", "A new update just dropped"],
+    facts: [
+      "The player and Jaden play the same game",
+      "A new update just dropped",
+    ],
     initialTranscript: [
       { role: "them", text: "NEW UPDATE IS LIVE!!" },
       { role: "them", text: "You logging on tonight??" },
@@ -722,8 +764,8 @@ export const situations: ConversationSituation[] = [
     personName: "Eden",
     personContext: "Your most trusted friend",
     facts: [
-      "Eden knows you well",
-      "They seem to have something important to share",
+      "Eden knows the player well",
+      "Eden seems to have something important to share",
     ],
     initialTranscript: [
       { role: "them", text: "Can you keep a secret?" },
@@ -742,8 +784,8 @@ export const situations: ConversationSituation[] = [
     personName: "Avery",
     personContext: "Friend struggling with gift ideas",
     facts: [
-      "It's their partner's birthday soon",
-      "They want something meaningful",
+      "It's Avery's partner's birthday soon",
+      "Avery wants something meaningful",
     ],
     initialTranscript: [
       { role: "them", text: "Help! Birthday gift emergency" },
@@ -758,7 +800,10 @@ export const situations: ConversationSituation[] = [
     intent: "small_talk",
     personName: "Cameron",
     personContext: "Acquaintance from the building",
-    facts: ["It's been raining for days", "You bumped into each other"],
+    facts: [
+      "It's been raining for days",
+      "The player and Cameron bumped into each other",
+    ],
     initialTranscript: [
       { role: "them", text: "Will this rain ever stop??" },
       { role: "them", text: "I'm so over it" },
@@ -786,7 +831,10 @@ export const situations: ConversationSituation[] = [
     intent: "asking_for_help",
     personName: "Jamie",
     personContext: "Your younger cousin in college",
-    facts: ["They're taking a class you aced", "An assignment is due tomorrow"],
+    facts: [
+      "Jamie is taking a class the player aced",
+      "An assignment is due tomorrow",
+    ],
     initialTranscript: [
       { role: "them", text: "SOS!! 🆘" },
       { role: "them", text: "Can you help me understand this calc problem??" },
@@ -817,7 +865,7 @@ export const situations: ConversationSituation[] = [
     intent: "seeking_advice",
     personName: "Blake",
     personContext: "Friend looking for date night spot",
-    facts: ["They have a date this weekend", "Budget is moderate"],
+    facts: ["Blake has a date this weekend", "Budget is moderate"],
     initialTranscript: [
       { role: "them", text: "Date night this weekend!" },
       { role: "them", text: "Know any good spots? Not too fancy but nice" },
@@ -831,7 +879,7 @@ export const situations: ConversationSituation[] = [
     intent: "informing",
     personName: "Taylor",
     personContext: "Friend you share a streaming subscription with",
-    facts: ["You split the cost", "Taylor wants to cancel"],
+    facts: ["The player and Taylor split the cost", "Taylor wants to cancel"],
     initialTranscript: [
       { role: "them", text: "Hey so about Netflix..." },
       {
@@ -848,7 +896,7 @@ export const situations: ConversationSituation[] = [
     intent: "seeking_validation",
     personName: "Quinn",
     personContext: "Friend deciding which photo to post",
-    facts: ["They took several photos", "Can't decide which is best"],
+    facts: ["Quinn took several photos", "Quinn can't decide which is best"],
     initialTranscript: [
       { role: "them", text: "[sent 3 photos]" },
       { role: "them", text: "Which one should I post?? I can't decide" },
@@ -862,7 +910,7 @@ export const situations: ConversationSituation[] = [
     intent: "seeking_advice",
     personName: "Sage",
     personContext: "Neighbor who just started gardening",
-    facts: ["They planted tomatoes", "Something is eating the leaves"],
+    facts: ["Sage planted tomatoes", "Something is eating the leaves"],
     initialTranscript: [
       { role: "them", text: "My tomato plants are being attacked!" },
       { role: "them", text: "Any idea what's eating them??" },
@@ -877,8 +925,8 @@ export const situations: ConversationSituation[] = [
     personName: "Jordan",
     personContext: "Friend whose birthday you may have forgotten",
     facts: [
-      "Their birthday was yesterday",
-      "You're not sure if you messaged them",
+      "Jordan's birthday was yesterday",
+      "The player is not sure if they messaged Jordan",
     ],
     initialTranscript: [
       { role: "them", text: "Hey..." },
@@ -893,7 +941,7 @@ export const situations: ConversationSituation[] = [
     intent: "venting",
     personName: "Alex",
     personContext: "Coworker frustrated with management",
-    facts: ["Your boss made an unfair decision", "Alex is fed up"],
+    facts: ["The player's boss made an unfair decision", "Alex is fed up"],
     initialTranscript: [
       {
         role: "them",
@@ -910,7 +958,10 @@ export const situations: ConversationSituation[] = [
     intent: "recommending",
     personName: "Casey",
     personContext: "Friend who always finds good podcasts",
-    facts: ["Casey discovered something new", "It's related to your interests"],
+    facts: [
+      "Casey discovered something new",
+      "It's related to the player's interests",
+    ],
     initialTranscript: [
       { role: "them", text: "OK you NEED to listen to this podcast" },
       { role: "them", text: "It's exactly the kind of thing you'd love" },
@@ -938,7 +989,7 @@ export const situations: ConversationSituation[] = [
     intent: "sharing",
     personName: "Drew",
     personContext: "Friend who loves sharing stories",
-    facts: ["Drew ran into their ex", "It was very awkward"],
+    facts: ["Drew ran into Drew's ex", "It was very awkward"],
     initialTranscript: [
       { role: "them", text: "You'll never guess who I ran into at Target" },
       { role: "them", text: "Most awkward 5 minutes of my life 💀" },
@@ -953,8 +1004,8 @@ export const situations: ConversationSituation[] = [
     personName: "Dr. Singh",
     personContext: "A professional contact in your field",
     facts: [
-      "They work at a prestigious institution",
-      "They want to collaborate",
+      "Dr. Singh works at a prestigious institution",
+      "Dr. Singh wants to collaborate with the player",
     ],
     initialTranscript: [
       {
@@ -975,7 +1026,7 @@ export const situations: ConversationSituation[] = [
     intent: "asking_for_help",
     personName: "Dad",
     personContext: "Your father who struggles with technology",
-    facts: ["He got a new smart TV", "He can't find the Netflix app"],
+    facts: ["Dad got a new smart TV", "Dad can't find the Netflix app"],
     initialTranscript: [
       { role: "them", text: "This TV is driving me nuts" },
       {
@@ -993,7 +1044,7 @@ export const situations: ConversationSituation[] = [
     personName: "Jamie",
     personContext: "A close friend",
     facts: [
-      "You've been friends for years",
+      "The player and Jamie have been friends for years",
       "The conversation feels different",
     ],
     initialTranscript: [
@@ -1011,7 +1062,7 @@ export const situations: ConversationSituation[] = [
     personContext: "Friend working on a creative project",
     facts: [
       "Riley has been writing a novel",
-      "They just finished the first draft",
+      "Riley just finished the first draft",
     ],
     initialTranscript: [
       { role: "them", text: "I FINISHED THE FIRST DRAFT!!" },
@@ -1046,7 +1097,7 @@ export const situations: ConversationSituation[] = [
     intent: "reconnecting",
     personName: "Phoenix",
     personContext: "Friend you haven't talked to in months",
-    facts: ["Last message was 3 months ago", "They're reaching out now"],
+    facts: ["The last message was 3 months ago", "Phoenix is reaching out now"],
     initialTranscript: [
       { role: "them", text: "Hey stranger! 👋" },
       { role: "them", text: "I know it's been forever... how are you??" },
@@ -1062,7 +1113,10 @@ export const situations: ConversationSituation[] = [
     intent: "sharing",
     personName: "Grandpa Joe",
     personContext: "Your grandfather who loves telling stories",
-    facts: ["He's 78 years old", "He found old photos from the 1970s"],
+    facts: [
+      "Grandpa Joe is 78 years old",
+      "Grandpa Joe found old photos from the 1970s",
+    ],
     initialTranscript: [
       { role: "them", text: "You won't believe what I found in the attic!" },
       { role: "them", text: "Photos from when I met your grandmother 💕" },
@@ -1077,8 +1131,8 @@ export const situations: ConversationSituation[] = [
     personName: "Jessica",
     personContext: "Your younger sister",
     facts: [
-      "She's in her senior year of high school",
-      "She's fighting with her best friend",
+      "Jessica is in her senior year of high school",
+      "Jessica is fighting with her best friend Sarah",
     ],
     initialTranscript: [
       { role: "them", text: "I literally cannot deal with Sarah anymore" },
@@ -1097,8 +1151,8 @@ export const situations: ConversationSituation[] = [
     personName: "Marcus",
     personContext: "Your older brother",
     facts: [
-      "He's thinking about proposing to his girlfriend",
-      "They've been together 4 years",
+      "Marcus is thinking about proposing to his girlfriend",
+      "Marcus and his girlfriend have been together 4 years",
     ],
     initialTranscript: [
       { role: "them", text: "Can I ask you something serious?" },
@@ -1114,8 +1168,8 @@ export const situations: ConversationSituation[] = [
     personName: "Aunt Linda",
     personContext: "Your aunt who knows everyone's business",
     facts: [
-      "She just came back from a family gathering",
-      "She has 'news' to share",
+      "Aunt Linda just came back from a family gathering",
+      "Aunt Linda has 'news' to share",
     ],
     initialTranscript: [
       {
@@ -1134,8 +1188,8 @@ export const situations: ConversationSituation[] = [
     personName: "Dr. Williams",
     personContext: "Your former professor who's become a mentor",
     facts: [
-      "She helped you get your first job",
-      "You haven't spoken in a few months",
+      "Dr. Williams helped the player get their first job",
+      "The player and Dr. Williams haven't spoken in a few months",
     ],
     initialTranscript: [
       { role: "them", text: "I was just thinking about you!" },
@@ -1150,7 +1204,10 @@ export const situations: ConversationSituation[] = [
     intent: "reconnecting",
     personName: "Nathan",
     personContext: "Your ex from 2 years ago",
-    facts: ["The breakup was mutual", "You haven't spoken since"],
+    facts: [
+      "The breakup was mutual",
+      "The player and Nathan haven't spoken since",
+    ],
     initialTranscript: [
       { role: "them", text: "Hey, I know this is random" },
       { role: "them", text: "But I've been thinking about you lately" },
@@ -1165,8 +1222,8 @@ export const situations: ConversationSituation[] = [
     personName: "Maria",
     personContext: "Your best friend from elementary school",
     facts: [
-      "You haven't seen each other in 10 years",
-      "She found you on social media",
+      "The player and Maria haven't seen each other in 10 years",
+      "Maria found the player on social media",
     ],
     initialTranscript: [
       { role: "them", text: "OMG IS THIS REALLY YOU??" },
@@ -1185,8 +1242,8 @@ export const situations: ConversationSituation[] = [
     personName: "Priya",
     personContext: "New hire on your team starting Monday",
     facts: [
-      "She's relocating from another city",
-      "Your manager asked you to help her onboard",
+      "Priya is relocating from another city",
+      "The player's manager asked the player to help Priya onboard",
     ],
     initialTranscript: [
       {
@@ -1205,8 +1262,8 @@ export const situations: ConversationSituation[] = [
     personName: "Mr. Thompson",
     personContext: "Your upstairs neighbor",
     facts: [
-      "He's complained about noise before",
-      "You had friends over last night",
+      "Mr. Thompson has complained about noise before",
+      "The player had friends over last night",
     ],
     initialTranscript: [
       { role: "them", text: "We need to talk about last night." },
@@ -1222,8 +1279,8 @@ export const situations: ConversationSituation[] = [
     personName: "Keisha",
     personContext: "Your hairdresser who you see every month",
     facts: [
-      "She's been doing your hair for 3 years",
-      "She has a wild story about a client to tell you",
+      "Keisha has been doing the player's hair for 3 years",
+      "Keisha has a wild story about a client to tell",
     ],
     initialTranscript: [
       {
@@ -1241,7 +1298,10 @@ export const situations: ConversationSituation[] = [
     intent: "checking_in",
     personName: "Dr. Martinez",
     personContext: "Your therapist",
-    facts: ["You had a session yesterday", "She gave you homework to practice"],
+    facts: [
+      "The player had a session yesterday",
+      "Dr. Martinez gave the player homework to practice",
+    ],
     initialTranscript: [
       { role: "them", text: "Just checking in after our session" },
       { role: "them", text: "How did the breathing exercises go?" },
@@ -1256,8 +1316,8 @@ export const situations: ConversationSituation[] = [
     personName: "Trevor",
     personContext: "Your dog walker",
     facts: [
-      "He walks your dog while you're at work",
-      "Your dog has been acting weird",
+      "Trevor walks the player's dog Max while the player is at work",
+      "Max has been acting weird",
     ],
     initialTranscript: [
       { role: "them", text: "Hey! Just wanted to give you a heads up" },
@@ -1296,8 +1356,8 @@ export const situations: ConversationSituation[] = [
     personName: "Darnell",
     personContext: "Your personal trainer",
     facts: [
-      "You've been training together for 6 months",
-      "You just hit a major goal",
+      "The player and Darnell have been training together for 6 months",
+      "The player just hit a major goal",
     ],
     initialTranscript: [
       { role: "them", text: "YOOOO I just saw your numbers from today!!" },
@@ -1312,7 +1372,7 @@ export const situations: ConversationSituation[] = [
     intent: "asking_for_help",
     personName: "Kevin",
     personContext: "The summer intern on your team",
-    facts: ["He's 20 years old", "He's nervous about making mistakes"],
+    facts: ["Kevin is 20 years old", "Kevin is nervous about making mistakes"],
     initialTranscript: [
       { role: "them", text: "Hey sorry to bother you" },
       {
@@ -1330,8 +1390,8 @@ export const situations: ConversationSituation[] = [
     personName: "Sophia",
     personContext: "Someone you matched with on a dating app",
     facts: [
-      "You've been chatting for a few days",
-      "She seems genuinely interested",
+      "The player and Sophia have been chatting for a few days",
+      "Sophia seems genuinely interested",
     ],
     initialTranscript: [
       { role: "them", text: "Okay real talk" },
@@ -1369,7 +1429,7 @@ export const situations: ConversationSituation[] = [
     intent: "inviting",
     personName: "Amanda",
     personContext: "Your friend who's expecting",
-    facts: ["She's due in 3 months", "She's planning her baby shower"],
+    facts: ["Amanda is due in 3 months", "Amanda is planning her baby shower"],
     initialTranscript: [
       {
         role: "them",
@@ -1387,8 +1447,8 @@ export const situations: ConversationSituation[] = [
     personName: "Denise",
     personContext: "Your work friend",
     facts: [
-      "You both noticed a coworker has been extra friendly to you",
-      "She's teasing you about it",
+      "The player and Denise both noticed James has been extra friendly to the player",
+      "Denise is teasing the player about it",
     ],
     initialTranscript: [
       {
@@ -1406,7 +1466,7 @@ export const situations: ConversationSituation[] = [
     intent: "asking_favor",
     personName: "Mr. Okonkwo",
     personContext: "Your 82-year-old neighbor",
-    facts: ["He lives alone", "His family lives far away"],
+    facts: ["Mr. Okonkwo lives alone", "Mr. Okonkwo's family lives far away"],
     initialTranscript: [
       { role: "them", text: "Hello dear, I hope I'm not bothering you" },
       {
@@ -1423,7 +1483,10 @@ export const situations: ConversationSituation[] = [
     intent: "selling",
     personName: "Brittany",
     personContext: "Old friend from high school",
-    facts: ["You haven't talked in years", "She recently started a 'business'"],
+    facts: [
+      "The player and Brittany haven't talked in years",
+      "Brittany recently started a 'business'",
+    ],
     initialTranscript: [
       { role: "them", text: "Hey babe!! It's been SO long!" },
       {
@@ -1440,7 +1503,7 @@ export const situations: ConversationSituation[] = [
     intent: "asking_permission",
     personName: "Emma",
     personContext: "Your 16-year-old niece",
-    facts: ["Her parents are strict", "She wants to go to a concert"],
+    facts: ["Emma's parents are strict", "Emma wants to go to a concert"],
     initialTranscript: [
       { role: "them", text: "So hypothetically..." },
       {
@@ -1457,7 +1520,7 @@ export const situations: ConversationSituation[] = [
     intent: "informing",
     personName: "Dr. Patel",
     personContext: "Your primary care doctor",
-    facts: ["You had blood work done last week", "Results are in"],
+    facts: ["The player had blood work done last week", "Results are in"],
     initialTranscript: [
       { role: "them", text: "Your lab results came back" },
       {
@@ -1474,7 +1537,10 @@ export const situations: ConversationSituation[] = [
     intent: "friendly_chat",
     personName: "Leo",
     personContext: "Your favorite barista at the local coffee shop",
-    facts: ["He knows your order by heart", "You chat every morning"],
+    facts: [
+      "Leo knows the player's order by heart",
+      "The player and Leo chat every morning",
+    ],
     initialTranscript: [
       { role: "them", text: "The usual today? ☕" },
       {
@@ -1508,7 +1574,7 @@ export const situations: ConversationSituation[] = [
     intent: "rescheduling",
     personName: "Rosa",
     personContext: "Your house cleaner",
-    facts: ["She comes every two weeks", "She needs to reschedule"],
+    facts: ["Rosa comes every two weeks", "Rosa needs to reschedule"],
     initialTranscript: [
       { role: "them", text: "Hello, I hope you're well" },
       {
@@ -1525,7 +1591,10 @@ export const situations: ConversationSituation[] = [
     intent: "sharing_news",
     personName: "Uncle Steve",
     personContext: "Your uncle",
-    facts: ["He's been married 25 years", "He's confiding in you"],
+    facts: [
+      "Uncle Steve has been married 25 years",
+      "Uncle Steve is confiding in the player",
+    ],
     initialTranscript: [
       {
         role: "them",
@@ -1542,7 +1611,10 @@ export const situations: ConversationSituation[] = [
     intent: "informing",
     personName: "Tony",
     personContext: "Your car mechanic",
-    facts: ["Your car is in for repairs", "He found additional problems"],
+    facts: [
+      "The player's car is in for repairs",
+      "Tony found additional problems",
+    ],
     initialTranscript: [
       { role: "them", text: "Got some news about your car" },
       {
@@ -1559,7 +1631,7 @@ export const situations: ConversationSituation[] = [
     intent: "planning",
     personName: "Grace",
     personContext: "Your book club organizer",
-    facts: ["Book club meets monthly", "It's your turn to host"],
+    facts: ["Book club meets monthly", "It's the player's turn to host"],
     initialTranscript: [
       {
         role: "them",
@@ -1576,7 +1648,10 @@ export const situations: ConversationSituation[] = [
     intent: "coordinating",
     personName: "Michael",
     personContext: "Your co-parent",
-    facts: ["You share custody of your kids", "There's a scheduling conflict"],
+    facts: [
+      "The player and Michael share custody of their kids",
+      "There's a scheduling conflict",
+    ],
     initialTranscript: [
       { role: "them", text: "About next weekend" },
       { role: "them", text: "I have a work trip. Can you take the kids?" },
@@ -1590,7 +1665,10 @@ export const situations: ConversationSituation[] = [
     intent: "making_plans",
     personName: "Derek",
     personContext: "Your college roommate",
-    facts: ["He lives across the country now", "He's visiting your city"],
+    facts: [
+      "Derek lives across the country now",
+      "Derek is visiting the player's city",
+    ],
     initialTranscript: [
       { role: "them", text: "BRO I'm gonna be in town next month!!" },
       { role: "them", text: "We HAVE to hang out. It's been way too long" },
@@ -1604,7 +1682,10 @@ export const situations: ConversationSituation[] = [
     intent: "asking_favor",
     personName: "Helen",
     personContext: "Volunteer coordinator at the local shelter",
-    facts: ["You've volunteered there before", "They're short-staffed"],
+    facts: [
+      "The player has volunteered there before",
+      "The shelter is short-staffed",
+    ],
     initialTranscript: [
       { role: "them", text: "Hi there! We're in a bit of a bind" },
       {
@@ -1622,8 +1703,8 @@ export const situations: ConversationSituation[] = [
     personName: "Mom",
     personContext: "Your mother",
     facts: [
-      "She had a doctor's appointment today",
-      "She doesn't like to worry you",
+      "Mom had a doctor's appointment today",
+      "Mom doesn't like to worry the player",
     ],
     initialTranscript: [
       { role: "them", text: "Doctor wants to run some more tests" },
@@ -1641,7 +1722,10 @@ export const situations: ConversationSituation[] = [
     intent: "asking_permission",
     personName: "Hannah",
     personContext: "Your roommate",
-    facts: ["Her boyfriend has been over a lot", "She wants him to stay more"],
+    facts: [
+      "Hannah's boyfriend Jake has been over a lot",
+      "Hannah wants Jake to stay more",
+    ],
     initialTranscript: [
       {
         role: "them",
@@ -1661,7 +1745,10 @@ export const situations: ConversationSituation[] = [
     intent: "proposing",
     personName: "Brandon",
     personContext: "A fitness influencer you follow",
-    facts: ["He has 50k followers", "He DMed you out of nowhere"],
+    facts: [
+      "Brandon has 50k followers",
+      "Brandon DMed the player out of nowhere",
+    ],
     initialTranscript: [
       { role: "them", text: "Hey! Love your profile" },
       {
@@ -1680,7 +1767,7 @@ export const situations: ConversationSituation[] = [
     personContext: "Your child's teacher",
     facts: [
       "Parent-teacher conferences are coming up",
-      "She wants to discuss your child's progress",
+      "Ms. Johnson wants to discuss Tyler's progress",
     ],
     initialTranscript: [
       {
@@ -1698,7 +1785,7 @@ export const situations: ConversationSituation[] = [
     intent: "planning",
     personName: "Zach",
     personContext: "Your adventurous friend",
-    facts: ["He loves spontaneous trips", "He has next week off"],
+    facts: ["Zach loves spontaneous trips", "Zach has next week off"],
     initialTranscript: [
       { role: "them", text: "Road trip next week??" },
       { role: "them", text: "I found cheap flights to Vegas 👀" },
@@ -1712,7 +1799,10 @@ export const situations: ConversationSituation[] = [
     intent: "inviting",
     personName: "Jennifer",
     personContext: "Your college friend",
-    facts: ["She's getting married next summer", "You're on the guest list"],
+    facts: [
+      "Jennifer is getting married next summer",
+      "The player is on the guest list",
+    ],
     initialTranscript: [
       { role: "them", text: "Save the date!! 💒" },
       { role: "them", text: "June 15th, and you better be there!" },
@@ -1726,7 +1816,7 @@ export const situations: ConversationSituation[] = [
     intent: "venting",
     personName: "Daniel",
     personContext: "Your close friend",
-    facts: ["He works in tech", "His company just did layoffs"],
+    facts: ["Daniel works in tech", "Daniel's company just did layoffs"],
     initialTranscript: [
       { role: "them", text: "I got laid off today" },
       { role: "them", text: "After 5 years. Just like that." },
@@ -1741,8 +1831,8 @@ export const situations: ConversationSituation[] = [
     personName: "Olivia",
     personContext: "Your friend who's always wanted a cat",
     facts: [
-      "She finally got approved for her apartment to have pets",
-      "She's at the shelter now",
+      "Olivia finally got approved for her apartment to have pets",
+      "Olivia is at the shelter now",
     ],
     initialTranscript: [
       { role: "them", text: "I'M AT THE SHELTER RIGHT NOW 🐱" },
@@ -1761,8 +1851,8 @@ export const situations: ConversationSituation[] = [
     personName: "Matt",
     personContext: "Your competitive older brother",
     facts: [
-      "You both play the same mobile game",
-      "He just beat your high score",
+      "The player and Matt both play the same mobile game",
+      "Matt just beat the player's high score",
     ],
     initialTranscript: [
       { role: "them", text: "Check the leaderboard 😎" },
@@ -1777,7 +1867,7 @@ export const situations: ConversationSituation[] = [
     intent: "confiding",
     personName: "Rachel",
     personContext: "Your work friend",
-    facts: ["She's been unhappy at work", "She just got another offer"],
+    facts: ["Rachel has been unhappy at work", "Rachel just got another offer"],
     initialTranscript: [
       { role: "them", text: "Can you keep this between us for now?" },
       { role: "them", text: "I'm putting in my two weeks tomorrow" },
@@ -1791,7 +1881,10 @@ export const situations: ConversationSituation[] = [
     intent: "sharing_news",
     personName: "Dad",
     personContext: "Your father",
-    facts: ["He's been working for 40 years", "He finally decided to retire"],
+    facts: [
+      "Dad has been working for 40 years",
+      "Dad finally decided to retire",
+    ],
     initialTranscript: [
       { role: "them", text: "Big news!" },
       {
@@ -1809,8 +1902,8 @@ export const situations: ConversationSituation[] = [
     personName: "Lauren",
     personContext: "Your close friend",
     facts: [
-      "She's been trying to have a baby for years",
-      "She just found out she's pregnant",
+      "Lauren has been trying to have a baby for years",
+      "Lauren just found out she's pregnant",
     ],
     initialTranscript: [
       { role: "them", text: "I have to tell someone or I'm going to explode" },
@@ -1829,8 +1922,8 @@ export const situations: ConversationSituation[] = [
     personName: "Alex",
     personContext: "Online friend you've never met in person",
     facts: [
-      "You've been friends for 3 years",
-      "They're traveling to your city",
+      "The player and Alex have been friends for 3 years",
+      "Alex is traveling to the player's city",
     ],
     initialTranscript: [
       { role: "them", text: "OKAY SO" },
@@ -1850,7 +1943,7 @@ export const situations: ConversationSituation[] = [
     personContext: "Your neighbor across the hall",
     facts: [
       "Packages sometimes get delivered to wrong apartments",
-      "She has one of yours",
+      "Sarah has one of the player's packages",
     ],
     initialTranscript: [
       { role: "them", text: "Hey! I think I got your package by mistake" },
@@ -1868,7 +1961,7 @@ export const situations: ConversationSituation[] = [
     intent: "making_plans",
     personName: "Tanya",
     personContext: "Someone you always see at the same gym class",
-    facts: ["You've chatted a few times", "She wants to be actual friends"],
+    facts: ["The player and Tanya have chatted a few times", "Tanya wants to be actual friends"],
     initialTranscript: [
       { role: "them", text: "Hey gym buddy!" },
       {
@@ -1885,7 +1978,7 @@ export const situations: ConversationSituation[] = [
     intent: "informing",
     personName: "Claims Department",
     personContext: "Your insurance company",
-    facts: ["You filed a claim last week", "They need more information"],
+    facts: ["The player filed a claim last week", "The Claims Department needs more information"],
     initialTranscript: [
       { role: "them", text: "Regarding your recent claim #4829183" },
       {
@@ -1902,7 +1995,7 @@ export const situations: ConversationSituation[] = [
     intent: "reconnecting",
     personName: "James",
     personContext: "Your former boss from 3 years ago",
-    facts: ["You left on good terms", "He's at a new company now"],
+    facts: ["The player left on good terms", "James is at a new company now"],
     initialTranscript: [
       { role: "them", text: "Hi! Hope you're doing well" },
       {
@@ -1920,8 +2013,8 @@ export const situations: ConversationSituation[] = [
     personName: "Chris",
     personContext: "Your close friend",
     facts: [
-      "He's been struggling lately",
-      "He's opening up for the first time",
+      "Chris has been struggling lately",
+      "Chris is opening up for the first time",
     ],
     initialTranscript: [
       { role: "them", text: "I think I need help" },
@@ -1939,7 +2032,7 @@ export const situations: ConversationSituation[] = [
     intent: "inviting",
     personName: "Nicole",
     personContext: "Your friend who's a runner",
-    facts: ["She's training for a marathon", "She wants a running buddy"],
+    facts: ["Nicole is training for a marathon", "Nicole wants a running buddy"],
     initialTranscript: [
       { role: "them", text: "I signed up for the marathon!!" },
       {
@@ -1958,7 +2051,7 @@ export const situations: ConversationSituation[] = [
     personContext: "Your friend from Japan",
     facts: [
       "There's a Japanese cultural festival this weekend",
-      "She's performing",
+      "Yuki is performing",
     ],
     initialTranscript: [
       { role: "them", text: "The Japan Festival is this Sunday!" },
@@ -1976,7 +2069,7 @@ export const situations: ConversationSituation[] = [
     intent: "seeking_advice",
     personName: "Melissa",
     personContext: "Your friend considering grad school",
-    facts: ["She got into her top choice", "But it would mean a lot of debt"],
+    facts: ["Melissa got into her top choice", "But it would mean a lot of debt"],
     initialTranscript: [
       { role: "them", text: "I got into Columbia but..." },
       { role: "them", text: "$80k in loans. Is it worth it??" },
@@ -1990,7 +2083,7 @@ export const situations: ConversationSituation[] = [
     intent: "sharing",
     personName: "Tony",
     personContext: "Your friend who lives in LA",
-    facts: ["He just saw someone famous", "He's freaking out"],
+    facts: ["Tony just saw someone famous", "Tony is freaking out"],
     initialTranscript: [
       { role: "them", text: "DUDE" },
       {
@@ -2008,8 +2101,8 @@ export const situations: ConversationSituation[] = [
     personName: "Realtor Linda",
     personContext: "Real estate agent helping you find a place",
     facts: [
-      "You've been looking for apartments",
-      "She found something that might work",
+      "The player has been looking for apartments",
+      "Realtor Linda found something that might work",
     ],
     initialTranscript: [
       {
@@ -2030,7 +2123,7 @@ export const situations: ConversationSituation[] = [
     intent: "reconnecting",
     personName: "Jake",
     personContext: "Someone who bullied you in middle school",
-    facts: ["It's been 15 years", "He's reaching out to apologize"],
+    facts: ["It's been 15 years", "Jake is reaching out to apologize"],
     initialTranscript: [
       { role: "them", text: "Hey, I know this is weird and out of nowhere" },
       {
@@ -2048,8 +2141,8 @@ export const situations: ConversationSituation[] = [
     personName: "Ashley",
     personContext: "Your friend who's vegan",
     facts: [
-      "She's hosting a potluck",
-      "She wants to know what you're bringing",
+      "Ashley is hosting a potluck",
+      "Ashley wants to know what the player is bringing",
     ],
     initialTranscript: [
       { role: "them", text: "Potluck Saturday! What are you bringing?" },
@@ -2068,8 +2161,8 @@ export const situations: ConversationSituation[] = [
     personName: "Vanessa",
     personContext: "Your friend who's been distant lately",
     facts: [
-      "You got a promotion recently",
-      "She's been acting different since",
+      "The player got a promotion recently",
+      "Vanessa has been acting different since",
     ],
     initialTranscript: [
       { role: "them", text: "Can I be honest with you?" },
@@ -2087,7 +2180,7 @@ export const situations: ConversationSituation[] = [
     intent: "inviting",
     personName: "Brandon",
     personContext: "Your friend who loves puzzles",
-    facts: ["A new escape room opened", "He's putting together a team"],
+    facts: ["A new escape room opened", "Brandon is putting together a team"],
     initialTranscript: [
       { role: "them", text: "New escape room just opened. Horror theme 👻" },
       { role: "them", text: "You in? Need one more for the team!" },
@@ -2101,7 +2194,7 @@ export const situations: ConversationSituation[] = [
     intent: "informing",
     personName: "Brian",
     personContext: "Your brother",
-    facts: ["He was in a minor car accident", "He's okay but shaken up"],
+    facts: ["Brian was in a minor car accident", "Brian is okay but shaken up"],
     initialTranscript: [
       { role: "them", text: "Hey I'm okay but" },
       {
@@ -2119,8 +2212,8 @@ export const situations: ConversationSituation[] = [
     personName: "Tom",
     personContext: "Your friend who's newly single",
     facts: [
-      "He hasn't dated in 5 years",
-      "He's nervous about getting back out there",
+      "Tom hasn't dated in 5 years",
+      "Tom is nervous about getting back out there",
     ],
     initialTranscript: [
       { role: "them", text: "How do people even date now??" },
@@ -2138,7 +2231,7 @@ export const situations: ConversationSituation[] = [
     intent: "planning",
     personName: "Linda",
     personContext: "Your coworker organizing a party",
-    facts: ["Your boss is retiring", "They're planning a surprise party"],
+    facts: ["The player's boss is retiring", "Linda and coworkers are planning a surprise party"],
     initialTranscript: [
       {
         role: "them",
@@ -2155,7 +2248,7 @@ export const situations: ConversationSituation[] = [
     intent: "seeking_advice",
     personName: "Dad",
     personContext: "Your father",
-    facts: ["He got a suspicious call", "Someone claimed to be from the IRS"],
+    facts: ["Dad got a suspicious call", "Someone claimed to be from the IRS"],
     initialTranscript: [
       { role: "them", text: "Someone called claiming I owe back taxes" },
       {
@@ -2172,7 +2265,7 @@ export const situations: ConversationSituation[] = [
     intent: "asking_favor",
     personName: "Megan",
     personContext: "Your best friend since childhood",
-    facts: ["She's getting married", "She's asking you to be in the wedding"],
+    facts: ["Megan is getting married", "Megan is asking the player to be in the wedding"],
     initialTranscript: [
       { role: "them", text: "So I have an important question..." },
       { role: "them", text: "Will you be my maid of honor?? 💕👰" },
@@ -2186,7 +2279,7 @@ export const situations: ConversationSituation[] = [
     intent: "seeking_advice",
     personName: "Jason",
     personContext: "Your friend who just got a cat",
-    facts: ["He's a first-time pet owner", "The cat is acting strange"],
+    facts: ["Jason is a first-time pet owner", "The cat is acting strange"],
     initialTranscript: [
       { role: "them", text: "Is it normal for cats to just stare at walls??" },
       {
@@ -2203,7 +2296,7 @@ export const situations: ConversationSituation[] = [
     intent: "addressing_problem",
     personName: "Steve",
     personContext: "A coworker who's been overstepping",
-    facts: ["He keeps taking credit for your work", "You need to address it"],
+    facts: ["Steve keeps taking credit for the player's work", "The player needs to address it"],
     initialTranscript: [
       {
         role: "them",
@@ -2220,7 +2313,7 @@ export const situations: ConversationSituation[] = [
     intent: "proposing",
     personName: "Carlos",
     personContext: "Someone you met at a language meetup",
-    facts: ["He's learning English", "You're learning Spanish"],
+    facts: ["Carlos is learning English", "The player is learning Spanish"],
     initialTranscript: [
       { role: "them", text: "Hola! It was nice meeting you yesterday" },
       {
@@ -2237,7 +2330,7 @@ export const situations: ConversationSituation[] = [
     intent: "recommending",
     personName: "Kyle",
     personContext: "Your cousin who's really into crypto",
-    facts: ["He's made some money trading", "He wants you to invest too"],
+    facts: ["Kyle has made some money trading", "Kyle wants the player to invest too"],
     initialTranscript: [
       { role: "them", text: "Bro you NEED to get into crypto" },
       { role: "them", text: "I just 10x'd my investment. I can show you how" },
@@ -2251,7 +2344,7 @@ export const situations: ConversationSituation[] = [
     intent: "inviting",
     personName: "Lisa",
     personContext: "Your coworker who loves karaoke",
-    facts: ["Team is going out tonight", "She wants you to join"],
+    facts: ["Team is going out tonight", "Lisa wants the player to join"],
     initialTranscript: [
       { role: "them", text: "KARAOKE TONIGHT!!! 🎤" },
       { role: "them", text: "The whole team is going. You're coming right??" },
@@ -2265,7 +2358,7 @@ export const situations: ConversationSituation[] = [
     intent: "checking_in",
     personName: "Emily",
     personContext: "Friend whose wedding is coming up",
-    facts: ["RSVPs are due soon", "You haven't responded yet"],
+    facts: ["RSVPs are due soon", "The player hasn't responded yet"],
     initialTranscript: [
       {
         role: "them",
@@ -2282,7 +2375,7 @@ export const situations: ConversationSituation[] = [
     intent: "sharing_news",
     personName: "Mark",
     personContext: "Your friend in recovery",
-    facts: ["He's been sober for a year", "Today is his anniversary"],
+    facts: ["Mark has been sober for a year", "Today is Mark's anniversary"],
     initialTranscript: [
       { role: "them", text: "One year sober today" },
       {
@@ -2299,7 +2392,7 @@ export const situations: ConversationSituation[] = [
     intent: "inviting",
     personName: "Jessica",
     personContext: "Your friend who just bought a house",
-    facts: ["She closed last month", "She's throwing a housewarming party"],
+    facts: ["Jessica closed last month", "Jessica is throwing a housewarming party"],
     initialTranscript: [
       { role: "them", text: "It's official - I'M A HOMEOWNER! 🏠" },
       {
@@ -2316,7 +2409,7 @@ export const situations: ConversationSituation[] = [
     intent: "seeking_comfort",
     personName: "Amy",
     personContext: "Your friend who was dating someone",
-    facts: ["She really liked this person", "They stopped responding"],
+    facts: ["Amy really liked this person", "The person stopped responding"],
     initialTranscript: [
       { role: "them", text: "He completely ghosted me" },
       {
@@ -2333,7 +2426,7 @@ export const situations: ConversationSituation[] = [
     intent: "sharing",
     personName: "Tim",
     personContext: "Your friend who's not handy",
-    facts: ["He tried to fix something himself", "It went poorly"],
+    facts: ["Tim tried to fix something himself", "It went poorly"],
     initialTranscript: [
       { role: "them", text: "So I tried to fix the leaky faucet myself..." },
       {
@@ -2350,7 +2443,7 @@ export const situations: ConversationSituation[] = [
     intent: "seeking_advice",
     personName: "Dad",
     personContext: "Your father who's been widowed for 3 years",
-    facts: ["He met someone new", "He's nervous about telling you"],
+    facts: ["Dad met someone new", "Dad is nervous about telling the player"],
     initialTranscript: [
       { role: "them", text: "I need to tell you something" },
       {
@@ -2367,7 +2460,7 @@ export const situations: ConversationSituation[] = [
     intent: "making_plans",
     personName: "Priya",
     personContext: "Your friend who lives overseas",
-    facts: ["Time zones make it hard to connect", "She wants to catch up"],
+    facts: ["Time zones make it hard to connect", "Priya wants to catch up"],
     initialTranscript: [
       { role: "them", text: "When are you free for a video call??" },
       {
@@ -2384,7 +2477,7 @@ export const situations: ConversationSituation[] = [
     intent: "informing",
     personName: "Unknown Number",
     personContext: "Someone who left a note on your car",
-    facts: ["Your car was hit in a parking lot", "They left their number"],
+    facts: ["The player's car was hit in a parking lot", "The person left their number"],
     initialTranscript: [
       { role: "them", text: "Hi I'm the one who left the note on your car" },
       {
@@ -2403,7 +2496,7 @@ export const situations: ConversationSituation[] = [
     personContext: "Your online gaming friend",
     facts: [
       "There's a tournament this weekend",
-      "Your team needs one more player",
+      "The player's team needs one more player",
     ],
     initialTranscript: [
       { role: "them", text: "Tournament this weekend!!" },
@@ -2421,7 +2514,7 @@ export const situations: ConversationSituation[] = [
     intent: "confiding",
     personName: "Sarah",
     personContext: "Your close friend trying to have a baby",
-    facts: ["She's been trying for 2 years", "IVF hasn't worked yet"],
+    facts: ["Sarah has been trying for 2 years", "IVF hasn't worked yet"],
     initialTranscript: [
       { role: "them", text: "Another negative test" },
       { role: "them", text: "I don't know how much more of this I can take" },
@@ -2437,7 +2530,7 @@ export const situations: ConversationSituation[] = [
     personContext: "High school friend organizing a reunion",
     facts: [
       "It's been 10 years since graduation",
-      "He's trying to get the old group together",
+      "Mike is trying to get the old group together",
     ],
     initialTranscript: [
       { role: "them", text: "10 year reunion!! We gotta do something" },
@@ -2452,7 +2545,7 @@ export const situations: ConversationSituation[] = [
     intent: "complaining",
     personName: "Karen",
     personContext: "Your neighbor down the street",
-    facts: ["Her dog barks constantly", "You've been losing sleep"],
+    facts: ["Karen's dog barks constantly", "The player has been losing sleep"],
     initialTranscript: [
       { role: "them", text: "I noticed you've been giving me looks lately" },
       { role: "them", text: "Is there something you want to say?" },
@@ -2466,7 +2559,7 @@ export const situations: ConversationSituation[] = [
     intent: "inviting",
     personName: "Nina",
     personContext: "Your foodie friend",
-    facts: ["She found a pasta-making class", "She wants a partner"],
+    facts: ["Nina found a pasta-making class", "Nina wants a partner"],
     initialTranscript: [
       { role: "them", text: "Pasta making class next week!" },
       { role: "them", text: "Want to be my partner? 🍝" },
@@ -2481,8 +2574,8 @@ export const situations: ConversationSituation[] = [
     personName: "Sister",
     personContext: "Your sister",
     facts: [
-      "Her phone was stolen",
-      "She's using a friend's phone to contact you",
+      "Sister's phone was stolen",
+      "Sister is using a friend's phone to contact the player",
     ],
     initialTranscript: [
       { role: "them", text: "It's me, using friend's phone" },
@@ -2500,7 +2593,7 @@ export const situations: ConversationSituation[] = [
     intent: "confiding",
     personName: "Tyler",
     personContext: "Your close friend since college",
-    facts: ["He seems nervous about something", "He's finally ready to share"],
+    facts: ["Tyler seems nervous about something", "Tyler is finally ready to share"],
     initialTranscript: [
       {
         role: "them",
@@ -2521,8 +2614,8 @@ export const situations: ConversationSituation[] = [
     personName: "Jen",
     personContext: "Your friend who's negotiating a raise",
     facts: [
-      "She's been at her company for 3 years",
-      "She's underpaid compared to market",
+      "Jen has been at her company for 3 years",
+      "Jen is underpaid compared to market",
     ],
     initialTranscript: [
       { role: "them", text: "Meeting with my boss tomorrow about a raise 😬" },
@@ -2537,7 +2630,7 @@ export const situations: ConversationSituation[] = [
     intent: "inviting",
     personName: "Omar",
     personContext: "Acquaintance who's into astronomy",
-    facts: ["There's a meteor shower tonight", "He has a good viewing spot"],
+    facts: ["There's a meteor shower tonight", "Omar has a good viewing spot"],
     initialTranscript: [
       { role: "them", text: "METEOR SHOWER TONIGHT! 🌠" },
       {
@@ -2555,7 +2648,7 @@ export const situations: ConversationSituation[] = [
     personName: "Anna",
     personContext: "Coworker you've been flirting with",
     facts: [
-      "You've been chatting more outside work",
+      "The player and Anna have been chatting more outside work",
       "There's obvious chemistry",
     ],
     initialTranscript: [
@@ -2571,7 +2664,7 @@ export const situations: ConversationSituation[] = [
     intent: "proposing",
     personName: "Dave",
     personContext: "Your friend from your college band",
-    facts: ["You were in a garage band together", "He wants to jam again"],
+    facts: ["The player and Dave were in a garage band together", "Dave wants to jam again"],
     initialTranscript: [
       { role: "them", text: "Dude I found our old setlist!!" },
       {
@@ -2589,8 +2682,8 @@ export const situations: ConversationSituation[] = [
     personName: "Claire",
     personContext: "Your friend who noticed you've been struggling",
     facts: [
-      "You've been going through a hard time",
-      "She cares about your wellbeing",
+      "The player has been going through a hard time",
+      "Claire cares about the player's wellbeing",
     ],
     initialTranscript: [
       { role: "them", text: "Hey, I hope this doesn't overstep..." },
