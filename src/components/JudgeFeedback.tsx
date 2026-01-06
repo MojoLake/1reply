@@ -12,6 +12,8 @@ interface JudgeFeedbackProps {
   onContinue: () => void;
   completedConversations?: { A: boolean; B: boolean; C?: boolean };
   isExtremeMode?: boolean;
+  isGameOver?: boolean;
+  gameOverReason?: "A" | "B" | "C";
 }
 
 function ScoreBar({ label, value }: { label: string; value: number }) {
@@ -128,6 +130,8 @@ export default function JudgeFeedback({
   onContinue,
   completedConversations,
   isExtremeMode,
+  isGameOver,
+  gameOverReason,
 }: JudgeFeedbackProps) {
   const hasCompletions =
     completedConversations?.A || completedConversations?.B || completedConversations?.C;
@@ -144,7 +148,14 @@ export default function JudgeFeedback({
       className="w-full max-w-2xl mx-auto p-6 bg-black border border-gray-600 font-mono"
     >
       <div className="text-center mb-6">
-        <h2 className="text-xl font-bold text-white mb-2">ROUND COMPLETE</h2>
+        <h2 className="text-xl font-bold text-white mb-2">
+          {isGameOver ? "FINAL ROUND" : "ROUND COMPLETE"}
+        </h2>
+        {isGameOver && gameOverReason && (
+          <p className="text-sm text-gray-500 mb-2">
+            Conversation [{gameOverReason}] became too confused
+          </p>
+        )}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -218,7 +229,7 @@ export default function JudgeFeedback({
         onClick={onContinue}
         className="w-full py-3 font-semibold transition-all border border-white text-white hover:bg-white hover:text-black"
       >
-        [ PROCEED ]
+        {isGameOver ? "[ VIEW FINAL MESSAGES ]" : "[ PROCEED ]"}
       </motion.button>
     </motion.div>
   );

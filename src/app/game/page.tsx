@@ -306,43 +306,43 @@ function GamePageContent() {
           };
         });
 
+        // Update high score immediately if game over
         if (result.gameOver) {
           const finalScore = gameState.score + result.scoreGained;
           updateHighScore(mode, finalScore, gameState.round);
-          setPhase("gameover");
-        } else {
-          // Fetch continuations to detect if conversations are ending
-          // We need to create updated conversations with the player's reply
-          const updatedConvA = {
-            ...gameState.conversationA,
-            confusion: result.newConfusionA,
-            transcript: [
-              ...gameState.conversationA.transcript,
-              { role: "player" as const, text: reply },
-            ],
-          };
-          const updatedConvB = {
-            ...gameState.conversationB,
-            confusion: result.newConfusionB,
-            transcript: [
-              ...gameState.conversationB.transcript,
-              { role: "player" as const, text: reply },
-            ],
-          };
-          const updatedConvC = gameState.conversationC && result.newConfusionC !== undefined
-            ? {
-                ...gameState.conversationC,
-                confusion: result.newConfusionC,
-                transcript: [
-                  ...gameState.conversationC.transcript,
-                  { role: "player" as const, text: reply },
-                ],
-              }
-            : undefined;
-          const continuations = await fetchContinuations(updatedConvA, updatedConvB, updatedConvC);
-          setPendingContinuations(continuations);
-          setPhase("feedback");
         }
+
+        // Always fetch continuations and show feedback (even on game over)
+        // This lets players see the NPC responses and analysis before the game over modal
+        const updatedConvA = {
+          ...gameState.conversationA,
+          confusion: result.newConfusionA,
+          transcript: [
+            ...gameState.conversationA.transcript,
+            { role: "player" as const, text: reply },
+          ],
+        };
+        const updatedConvB = {
+          ...gameState.conversationB,
+          confusion: result.newConfusionB,
+          transcript: [
+            ...gameState.conversationB.transcript,
+            { role: "player" as const, text: reply },
+          ],
+        };
+        const updatedConvC = gameState.conversationC && result.newConfusionC !== undefined
+          ? {
+              ...gameState.conversationC,
+              confusion: result.newConfusionC,
+              transcript: [
+                ...gameState.conversationC.transcript,
+                { role: "player" as const, text: reply },
+              ],
+            }
+          : undefined;
+        const continuations = await fetchContinuations(updatedConvA, updatedConvB, updatedConvC);
+        setPendingContinuations(continuations);
+        setPhase("feedback");
       } catch (error) {
         console.error("Error judging reply:", error);
         // Extract error message for user display
@@ -410,22 +410,9 @@ function GamePageContent() {
   const handleContinue = () => {
     if (!gameState || !pendingContinuations) return;
 
-    setCompletedThisRound({ A: false, B: false, C: isExtremeMode ? false : undefined });
-
-    const nextRound = gameState.round + 1;
-
-    // Check if max replies reached
-    if (nextRound > MAX_ROUNDS) {
-      updateHighScore(mode, gameState.score, gameState.round);
-      setGameState((prev) =>
-        prev ? { ...prev, isGameOver: true, gameOverReason: "survived" } : prev
-      );
-      setPhase("gameover");
-      return;
-    }
-
     const continuations = pendingContinuations;
 
+    // Apply continuations to show NPC responses in all cases
     setGameState((prev) => {
       if (!prev) return prev;
 
@@ -457,14 +444,48 @@ function GamePageContent() {
         };
       }
 
+      // If game is over, don't increment round
+      if (prev.isGameOver) {
+        return {
+          ...prev,
+          conversationA: newConvA,
+          conversationB: newConvB,
+          conversationC: newConvC,
+        };
+      }
+
+      // Otherwise increment round as normal
       return {
         ...prev,
-        round: nextRound,
+        round: prev.round + 1,
         conversationA: newConvA,
         conversationB: newConvB,
         conversationC: newConvC,
       };
     });
+
+    // Clear pending continuations
+    setPendingContinuations(null);
+
+    // If game was over, transition to gameover phase now that NPC responses are visible
+    if (gameState.isGameOver) {
+      setPhase("gameover");
+      return;
+    }
+
+    setCompletedThisRound({ A: false, B: false, C: isExtremeMode ? false : undefined });
+
+    const nextRound = gameState.round + 1;
+
+    // Check if max replies reached
+    if (nextRound > MAX_ROUNDS) {
+      updateHighScore(mode, gameState.score, gameState.round);
+      setGameState((prev) =>
+        prev ? { ...prev, isGameOver: true, gameOverReason: "survived" } : prev
+      );
+      setPhase("gameover");
+      return;
+    }
 
     // Store ending flags for display in playing phase
     setEndingConversations({
@@ -473,9 +494,6 @@ function GamePageContent() {
       C: isExtremeMode ? pendingContinuations.endingC : undefined,
     });
 
-    // Clear pending continuations
-    setPendingContinuations(null);
-    
     if (hasTimer) setTimeRemaining(Math.max(TIMER_MIN_SECONDS, TIMER_INITIAL_SECONDS + 5 - nextRound * TIMER_DECREMENT_PER_ROUND));
     setPhase("playing");
   };
@@ -713,6 +731,8 @@ function GamePageContent() {
                 onContinue={handleContinue}
                 completedConversations={completedThisRound}
                 isExtremeMode={isExtremeMode}
+                isGameOver={gameState.isGameOver}
+                gameOverReason={gameState.gameOverReason as "A" | "B" | "C" | undefined}
               />
             </motion.div>
           )}
