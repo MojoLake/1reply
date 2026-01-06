@@ -83,6 +83,7 @@ export default function MobileConversationTabs({
       <motion.div
         className="flex-1 min-h-0 overflow-hidden"
         drag="x"
+        dragDirectionLock
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.2}
         onDragEnd={handleDragEnd}
