@@ -85,6 +85,7 @@ function GamePageContent() {
     B: boolean;
     C?: boolean;
   }>({ A: false, B: false });
+  const [gameOverStartMinimized, setGameOverStartMinimized] = useState(false);
 
   // Refs for timer handling
   const submitRef = useRef<((reply: string) => Promise<void>) | null>(null);
@@ -468,7 +469,9 @@ function GamePageContent() {
     setPendingContinuations(null);
 
     // If game was over, transition to gameover phase now that NPC responses are visible
+    // Start with modal minimized so player can see the final messages in conversations
     if (gameState.isGameOver) {
+      setGameOverStartMinimized(true);
       setPhase("gameover");
       return;
     }
@@ -477,12 +480,13 @@ function GamePageContent() {
 
     const nextRound = gameState.round + 1;
 
-    // Check if max replies reached
+    // Check if max replies reached - survived! Show full modal (not minimized)
     if (nextRound > MAX_ROUNDS) {
       updateHighScore(mode, gameState.score, gameState.round);
       setGameState((prev) =>
         prev ? { ...prev, isGameOver: true, gameOverReason: "survived" } : prev
       );
+      setGameOverStartMinimized(false);
       setPhase("gameover");
       return;
     }
@@ -750,6 +754,7 @@ function GamePageContent() {
             highScore={highScore}
             onPlayAgain={handlePlayAgain}
             onMainMenu={() => router.push("/")}
+            startMinimized={gameOverStartMinimized}
           />
         )}
       </AnimatePresence>

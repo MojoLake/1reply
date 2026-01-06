@@ -13,6 +13,7 @@ interface GameOverModalProps {
   highScore?: number;
   onPlayAgain: () => void;
   onMainMenu: () => void;
+  startMinimized?: boolean;
 }
 
 export default function GameOverModal({
@@ -23,8 +24,9 @@ export default function GameOverModal({
   highScore,
   onPlayAgain,
   onMainMenu,
+  startMinimized = false,
 }: GameOverModalProps) {
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(startMinimized);
   const isNewHighScore = highScore !== undefined && score > highScore;
 
   const handleShare = () => {
