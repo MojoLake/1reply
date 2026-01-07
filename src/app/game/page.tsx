@@ -108,6 +108,7 @@ function GamePageContent() {
         const params = new URLSearchParams({
           mode,
           usedIds: "",
+          usedPairIds: "",
         });
 
         const res = await fetch(`/api/round?${params}`);
@@ -115,8 +116,10 @@ function GamePageContent() {
 
         const data = await res.json();
         return data as {
+          pairId: string;
           situationA: ConversationSituation;
           situationB: ConversationSituation;
+          situationC?: ConversationSituation;
         };
       } catch (error) {
         console.error("Error fetching situations:", error);
@@ -196,15 +199,18 @@ function GamePageContent() {
         return;
       }
 
-      // For extreme mode, fetch a third situation
-      let situationC: ConversationSituation | null = null;
+      // Collect used situation IDs
       const usedIds = [initialData.situationA.id, initialData.situationB.id];
       
-      if (isExtremeMode) {
+      // For extreme mode: use the trio's situationC if available, otherwise fetch a third
+      let situationC: ConversationSituation | null | undefined = initialData.situationC;
+      
+      if (isExtremeMode && !situationC) {
         situationC = await fetchSingleSituation(usedIds);
-        if (situationC) {
-          usedIds.push(situationC.id);
-        }
+      }
+      
+      if (situationC) {
+        usedIds.push(situationC.id);
       }
       
       setGameState({
@@ -215,6 +221,7 @@ function GamePageContent() {
         conversationB: createConversation(initialData.situationB),
         conversationC: situationC ? createConversation(situationC) : undefined,
         usedSituationIds: usedIds,
+        usedPairIds: [initialData.pairId],
         isGameOver: false,
         completedConversations: 0,
       });

@@ -1,35 +1,99 @@
-import { ConversationSituation, RoundData } from "./types";
+import { ConversationSituation, GameMode, RoundData, SituationPair } from "./types";
 import situations from "@/data/situations";
+import pairs from "@/data/pairs";
 
 /**
- * Select a pair of situations for the game start
+ * Create a map of situation IDs to situations for fast lookup
  */
-export function selectSituationPair(usedSituationIds: string[]): RoundData {
-  // Filter available situations (exclude already used ones)
-  let pool = situations.filter((s) => !usedSituationIds.includes(s.id));
+const situationMap = new Map<string, ConversationSituation>(
+  situations.map((s) => [s.id, s])
+);
 
-  // If not enough situations, recycle from all
-  if (pool.length < 2) {
-    pool = [...situations];
+/**
+ * Filter pairs by mode (exclude trios for non-extreme modes)
+ */
+function filterPairsByMode(allPairs: SituationPair[], mode: GameMode): SituationPair[] {
+  if (mode === "extreme") {
+    return allPairs; // Include trios
+  }
+  // For non-extreme modes, only include pairs (2 situations)
+  return allPairs.filter((p) => p.situationIds.length === 2);
+}
+
+/**
+ * Convert a SituationPair to RoundData by looking up the actual situations
+ */
+function pairToRoundData(pair: SituationPair): RoundData | null {
+  const situationA = situationMap.get(pair.situationIds[0]);
+  const situationB = situationMap.get(pair.situationIds[1]);
+  const situationC = pair.situationIds.length === 3
+    ? situationMap.get(pair.situationIds[2])
+    : undefined;
+
+  if (!situationA || !situationB) {
+    console.warn(`Pair ${pair.id} references missing situations`);
+    return null;
   }
 
-  // Shuffle and pick two
-  const shuffled = pool.sort(() => Math.random() - 0.5);
-
-  // Try to pick situations with different intents for more challenge
-  const situationA = shuffled[0];
-  let situationB = shuffled.find(
-    (s) => s.id !== situationA.id && s.intent !== situationA.intent
-  );
-
-  // If can't find different intent, just pick the next one
-  if (!situationB) {
-    situationB = shuffled.find((s) => s.id !== situationA.id) || shuffled[1];
+  if (pair.situationIds.length === 3 && !situationC) {
+    console.warn(`Trio ${pair.id} references missing third situation`);
+    return null;
   }
 
   return {
+    pairId: pair.id,
     situationA,
     situationB,
+    situationC,
+  };
+}
+
+/**
+ * Select a curated pair of situations for the game
+ */
+export function selectSituationPair(
+  usedPairIds: string[],
+  mode: GameMode = "classic"
+): RoundData {
+  // Filter pairs by mode and exclude already used ones
+  const availablePairs = filterPairsByMode(pairs, mode).filter(
+    (p) => !usedPairIds.includes(p.id)
+  );
+
+  // If no pairs left, recycle from all pairs for this mode
+  const pool = availablePairs.length > 0
+    ? availablePairs
+    : filterPairsByMode(pairs, mode);
+
+  // Shuffle and pick one
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  const selectedPair = shuffled[0];
+
+  const roundData = pairToRoundData(selectedPair);
+  if (roundData) {
+    return roundData;
+  }
+
+  // Fallback: try other pairs
+  for (const pair of shuffled.slice(1)) {
+    const data = pairToRoundData(pair);
+    if (data) return data;
+  }
+
+  // Ultimate fallback: random selection from situations (shouldn't happen)
+  console.error("No valid pairs found, falling back to random selection");
+  return selectRandomFallback();
+}
+
+/**
+ * Fallback random selection (only used if all curated pairs are invalid)
+ */
+function selectRandomFallback(): RoundData {
+  const shuffled = [...situations].sort(() => Math.random() - 0.5);
+  return {
+    pairId: "fallback-random",
+    situationA: shuffled[0],
+    situationB: shuffled[1],
   };
 }
 
@@ -84,11 +148,21 @@ export function getDailyInitialPair(): RoundData {
   const seed = getDailySeed();
   const random = seededRandom(seed);
 
+  // Filter to pairs only (daily mode doesn't use trios)
+  const dailyPairs = filterPairsByMode(pairs, "daily");
+  const shuffled = [...dailyPairs].sort(() => random() - 0.5);
+  const selectedPair = shuffled[0];
+
+  const roundData = pairToRoundData(selectedPair);
+  if (roundData) {
+    return roundData;
+  }
+
+  // Fallback to random situations
   const allSituations = [...situations].sort(() => random() - 0.5);
-
-  // Pick first two situations from shuffled list
-  const situationA = allSituations[0];
-  const situationB = allSituations[1];
-
-  return { situationA, situationB };
+  return {
+    pairId: "daily-fallback",
+    situationA: allSituations[0],
+    situationB: allSituations[1],
+  };
 }

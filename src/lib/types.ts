@@ -17,6 +17,13 @@ export interface ConversationSituation {
   difficultyTags: ("easy" | "medium" | "hard")[];
 }
 
+export interface SituationPair {
+  id: string;
+  situationIds: [string, string] | [string, string, string]; // pairs or trios (trios for extreme mode)
+  difficulty: "easy" | "medium" | "hard";
+  theme?: string; // e.g., "work-life clash", "double booking", "emotional whiplash"
+}
+
 export interface Conversation {
   situation: ConversationSituation;
   transcript: Message[];
@@ -78,6 +85,7 @@ export interface GameState {
   conversationB: Conversation;
   conversationC?: Conversation; // Only present in extreme mode
   usedSituationIds: string[];
+  usedPairIds: string[];
   isGameOver: boolean;
   gameOverReason?: "A" | "B" | "C" | "survived"; // "survived" when player completes all 30 rounds
   completedConversations: number; // count of successfully completed conversations
@@ -86,7 +94,9 @@ export interface GameState {
 export type GameMode = "classic" | "timer" | "daily" | "extreme";
 
 export interface RoundData {
+  pairId: string;
   situationA: ConversationSituation;
   situationB: ConversationSituation;
+  situationC?: ConversationSituation; // Only present for trios in extreme mode
 }
 

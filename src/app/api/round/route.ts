@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { selectSituationPair, getDailyInitialPair, selectSingleSituation } from "@/lib/rounds";
+import { GameMode } from "@/lib/types";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const modeParam = searchParams.get("mode");
   const usedIdsParam = searchParams.get("usedIds");
+  const usedPairIdsParam = searchParams.get("usedPairIds");
   const singleParam = searchParams.get("single");
 
-  const mode = modeParam || "classic";
+  const mode = (modeParam || "classic") as GameMode;
   const usedIds = usedIdsParam ? usedIdsParam.split(",").filter(Boolean) : [];
+  const usedPairIds = usedPairIdsParam ? usedPairIdsParam.split(",").filter(Boolean) : [];
   const fetchSingle = singleParam === "true";
 
   try {
@@ -24,6 +27,7 @@ export async function GET(request: NextRequest) {
       }
 
       return NextResponse.json({
+        pairId: null,
         situationA: situation,
         situationB: situation, // Return same for both (only situationA will be used)
       });
@@ -34,17 +38,21 @@ export async function GET(request: NextRequest) {
       const roundData = getDailyInitialPair();
 
       return NextResponse.json({
+        pairId: roundData.pairId,
         situationA: roundData.situationA,
         situationB: roundData.situationB,
+        situationC: roundData.situationC,
       });
     }
 
-    // For other modes, pick a random pair
-    const roundData = selectSituationPair(usedIds);
+    // For other modes, pick a curated pair
+    const roundData = selectSituationPair(usedPairIds, mode);
 
     return NextResponse.json({
+      pairId: roundData.pairId,
       situationA: roundData.situationA,
       situationB: roundData.situationB,
+      situationC: roundData.situationC,
     });
   } catch (error) {
     console.error("Error generating round:", error);
