@@ -68,3 +68,4 @@ situationB: { /* same structure \_/ }
 ## Generate 5 new pairs
 
 Create 5 pairs with a mix of difficulties and themes. Make them diverse in topics (not all work or all dating). Think about scenarios that create interesting dilemmas for the player.
+Be creative!
