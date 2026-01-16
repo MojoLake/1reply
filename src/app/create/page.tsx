@@ -7,26 +7,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { AuthButton } from "@/components/AuthButton";
 import type { User } from "@supabase/supabase-js";
-import type { ConversationSituation } from "@/lib/types";
 
-type Tone = ConversationSituation["tone"];
-
-const TONES: { value: Tone; label: string }[] = [
-  { value: "casual", label: "Casual" },
-  { value: "formal", label: "Formal" },
-  { value: "stressed", label: "Stressed" },
-  { value: "flirty", label: "Flirty" },
-  { value: "serious", label: "Serious" },
-  { value: "playful", label: "Playful" },
-  { value: "concerned", label: "Concerned" },
-  { value: "excited", label: "Excited" },
-];
+// Example tones shown as placeholder hints
+const TONE_EXAMPLES = "casual, formal, sarcastic, passive-aggressive, excited";
 
 interface SituationFormData {
   personName: string;
   personContext: string;
   topic: string;
-  tone: Tone;
+  tone: string;
   intent: string;
   facts: string[];
   messages: string[];
@@ -36,7 +25,7 @@ const emptySituation: SituationFormData = {
   personName: "",
   personContext: "",
   topic: "",
-  tone: "casual",
+  tone: "",
   intent: "",
   facts: [""],
   messages: [""],
@@ -60,6 +49,10 @@ export default function CreatePage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState<{ shareCode: string; shareUrl: string } | null>(null);
 
+  // Auto-fill state
+  const [generatingA, setGeneratingA] = useState(false);
+  const [generatingB, setGeneratingB] = useState(false);
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user: fetchedUser } }: { data: { user: User | null } }) => {
       setUser(fetchedUser);
@@ -75,6 +68,55 @@ export default function CreatePage() {
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
 
+  const handleAutoFill = async (tab: "A" | "B") => {
+    const situation = tab === "A" ? situationA : situationB;
+    const setSituation = tab === "A" ? setSituationA : setSituationB;
+    const setGenerating = tab === "A" ? setGeneratingA : setGeneratingB;
+
+    // Get non-empty messages
+    const validMessages = situation.messages.filter((m) => m.trim());
+    if (validMessages.length === 0) {
+      setError("Enter at least one message before auto-filling");
+      return;
+    }
+
+    setGenerating(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/scenarios/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: validMessages }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to generate fields");
+      }
+
+      // Only fill empty fields
+      setSituation((prev) => ({
+        ...prev,
+        personName: prev.personName || data.personName || "",
+        personContext: prev.personContext || data.personContext || "",
+        topic: prev.topic || data.topic || "",
+        tone: prev.tone || data.tone || "",
+        intent: prev.intent || data.intent || "",
+        facts: prev.facts.some((f) => f.trim())
+          ? prev.facts
+          : data.facts?.length
+          ? data.facts
+          : [""],
+      }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to auto-fill");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -82,17 +124,46 @@ export default function CreatePage() {
     setSubmitting(true);
     setError("");
 
+    // Check if messages exist for both situations
+    const hasMessagesA = situationA.messages.some((m) => m.trim());
+    const hasMessagesB = situationB.messages.some((m) => m.trim());
+
+    if (!hasMessagesA || !hasMessagesB) {
+      setError("Both situations need at least one message");
+      setSubmitting(false);
+      return;
+    }
+
+    // Check if all required fields are filled (after potential auto-fill)
+    const checkSituation = (s: SituationFormData, label: string): string | null => {
+      if (!s.personName.trim()) return `${label}: Person's name is required`;
+      if (!s.personContext.trim()) return `${label}: Relationship/context is required`;
+      if (!s.topic.trim()) return `${label}: Topic is required`;
+      if (!s.tone.trim()) return `${label}: Tone is required`;
+      if (!s.intent.trim()) return `${label}: Intent is required`;
+      return null;
+    };
+
+    const errorA = checkSituation(situationA, "Situation A");
+    const errorB = checkSituation(situationB, "Situation B");
+
+    if (errorA || errorB) {
+      setError(errorA || errorB || "Please fill all required fields or use 'Fill the Rest'");
+      setSubmitting(false);
+      return;
+    }
+
     // Build situation objects
     const buildSituation = (data: SituationFormData) => ({
-      personName: data.personName,
-      personContext: data.personContext,
-      topic: data.topic,
-      tone: data.tone,
-      intent: data.intent,
+      personName: data.personName.trim(),
+      personContext: data.personContext.trim(),
+      topic: data.topic.trim(),
+      tone: data.tone.trim(),
+      intent: data.intent.trim(),
       facts: data.facts.filter((f) => f.trim()),
       initialTranscript: data.messages
         .filter((m) => m.trim())
-        .map((text) => ({ role: "them" as const, text })),
+        .map((text) => ({ role: "them" as const, text: text.trim() })),
     });
 
     try {
@@ -110,6 +181,10 @@ export default function CreatePage() {
       const data = await res.json();
 
       if (!res.ok) {
+        // Check if it's a moderation rejection
+        if (data.reason) {
+          throw new Error(`${data.error}: ${data.reason}`);
+        }
         throw new Error(data.error || "Failed to create scenario");
       }
 
@@ -124,7 +199,7 @@ export default function CreatePage() {
   const updateSituation = (
     setter: React.Dispatch<React.SetStateAction<SituationFormData>>,
     field: keyof SituationFormData,
-    value: string | string[] | Tone
+    value: string | string[]
   ) => {
     setter((prev) => ({ ...prev, [field]: value }));
   };
@@ -273,6 +348,8 @@ export default function CreatePage() {
 
   const activeSituation = activeTab === "A" ? situationA : situationB;
   const setActiveSituation = activeTab === "A" ? setSituationA : setSituationB;
+  const isGenerating = activeTab === "A" ? generatingA : generatingB;
+  const hasMessages = activeSituation.messages.some((m) => m.trim());
 
   return (
     <div className="min-h-screen bg-black flex flex-col">
@@ -290,7 +367,7 @@ export default function CreatePage() {
         >
           <h1 className="text-2xl font-mono text-white mb-2">Create Scenario</h1>
           <p className="text-gray-500 font-mono text-sm mb-8">
-            Design two conversation situations for players to juggle.
+            Design two conversation situations for players to juggle. Enter the messages, then auto-fill the rest!
           </p>
 
           <form onSubmit={handleSubmit}>
@@ -360,131 +437,14 @@ export default function CreatePage() {
                 transition={{ duration: 0.2 }}
                 className="border border-gray-700 p-4 mb-8"
               >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <label className="block text-xs text-gray-500 font-mono mb-2">
-                      PERSON&apos;S NAME
-                    </label>
-                    <input
-                      type="text"
-                      value={activeSituation.personName}
-                      onChange={(e) =>
-                        updateSituation(setActiveSituation, "personName", e.target.value)
-                      }
-                      placeholder="e.g., Sam"
-                      className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 font-mono mb-2">
-                      RELATIONSHIP/CONTEXT
-                    </label>
-                    <input
-                      type="text"
-                      value={activeSituation.personContext}
-                      onChange={(e) =>
-                        updateSituation(setActiveSituation, "personContext", e.target.value)
-                      }
-                      placeholder="e.g., Your coworker"
-                      className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <div>
-                    <label className="block text-xs text-gray-500 font-mono mb-2">
-                      TOPIC
-                    </label>
-                    <input
-                      type="text"
-                      value={activeSituation.topic}
-                      onChange={(e) =>
-                        updateSituation(setActiveSituation, "topic", e.target.value)
-                      }
-                      placeholder="e.g., work"
-                      className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 font-mono mb-2">
-                      TONE
-                    </label>
-                    <select
-                      value={activeSituation.tone}
-                      onChange={(e) =>
-                        updateSituation(setActiveSituation, "tone", e.target.value as Tone)
-                      }
-                      className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
-                    >
-                      {TONES.map((t) => (
-                        <option key={t.value} value={t.value}>
-                          {t.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-500 font-mono mb-2">
-                      INTENT
-                    </label>
-                    <input
-                      type="text"
-                      value={activeSituation.intent}
-                      onChange={(e) =>
-                        updateSituation(setActiveSituation, "intent", e.target.value)
-                      }
-                      placeholder="e.g., small_talk"
-                      className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Facts */}
-                <div className="mb-4">
-                  <label className="block text-xs text-gray-500 font-mono mb-2">
-                    FACTS (context for the AI judge)
+                {/* Initial Messages - PRIMARY FIELD */}
+                <div className="mb-6">
+                  <label className="block text-xs text-white font-mono mb-2">
+                    INITIAL MESSAGES (from them) <span className="text-yellow-500">*required</span>
                   </label>
-                  {activeSituation.facts.map((fact, i) => (
-                    <div key={i} className="flex gap-2 mb-2">
-                      <input
-                        type="text"
-                        value={fact}
-                        onChange={(e) =>
-                          updateArrayItem(setActiveSituation, "facts", i, e.target.value)
-                        }
-                        placeholder={`Fact ${i + 1}`}
-                        className="flex-1 px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
-                      />
-                      {activeSituation.facts.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeArrayItem(setActiveSituation, "facts", i)}
-                          className="px-3 py-2 border border-gray-700 text-gray-500 hover:border-red-500 hover:text-red-500 font-mono transition-colors"
-                        >
-                          [x]
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => addArrayItem(setActiveSituation, "facts")}
-                    className="text-xs text-gray-500 hover:text-white font-mono transition-colors"
-                  >
-                    [+ ADD FACT]
-                  </button>
-                </div>
-
-                {/* Initial Messages */}
-                <div>
-                  <label className="block text-xs text-gray-500 font-mono mb-2">
-                    INITIAL MESSAGES (from them)
-                  </label>
+                  <p className="text-xs text-gray-600 font-mono mb-3">
+                    Write the opening messages. This is the creative core!
+                  </p>
                   {activeSituation.messages.map((msg, i) => (
                     <div key={i} className="flex gap-2 mb-2">
                       <input
@@ -514,6 +474,142 @@ export default function CreatePage() {
                     className="text-xs text-gray-500 hover:text-white font-mono transition-colors"
                   >
                     [+ ADD MESSAGE]
+                  </button>
+                </div>
+
+                {/* Auto-fill Button */}
+                <div className="mb-6 pb-6 border-b border-gray-800">
+                  <button
+                    type="button"
+                    onClick={() => handleAutoFill(activeTab)}
+                    disabled={!hasMessages || isGenerating}
+                    className={`w-full py-3 border font-mono text-sm transition-colors ${
+                      !hasMessages || isGenerating
+                        ? "border-gray-800 text-gray-600 cursor-not-allowed"
+                        : "border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black"
+                    }`}
+                  >
+                    {isGenerating ? "[GENERATING...]" : "[FILL THE REST]"}
+                  </button>
+                  <p className="text-xs text-gray-600 font-mono mt-2 text-center">
+                    Auto-generates the fields below based on your messages
+                  </p>
+                </div>
+
+                {/* Optional Fields */}
+                <p className="text-xs text-gray-600 font-mono mb-4">
+                  These fields can be auto-filled or customized:
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-xs text-gray-500 font-mono mb-2">
+                      PERSON&apos;S NAME <span className="text-gray-700">(optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={activeSituation.personName}
+                      onChange={(e) =>
+                        updateSituation(setActiveSituation, "personName", e.target.value)
+                      }
+                      placeholder="e.g., Sam"
+                      className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 font-mono mb-2">
+                      RELATIONSHIP/CONTEXT <span className="text-gray-700">(optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={activeSituation.personContext}
+                      onChange={(e) =>
+                        updateSituation(setActiveSituation, "personContext", e.target.value)
+                      }
+                      placeholder="e.g., Your coworker"
+                      className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div>
+                    <label className="block text-xs text-gray-500 font-mono mb-2">
+                      TOPIC <span className="text-gray-700">(optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={activeSituation.topic}
+                      onChange={(e) =>
+                        updateSituation(setActiveSituation, "topic", e.target.value)
+                      }
+                      placeholder="e.g., work, dating, family"
+                      className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 font-mono mb-2">
+                      TONE <span className="text-gray-700">(optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={activeSituation.tone}
+                      onChange={(e) =>
+                        updateSituation(setActiveSituation, "tone", e.target.value)
+                      }
+                      placeholder={TONE_EXAMPLES}
+                      className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 font-mono mb-2">
+                      INTENT <span className="text-gray-700">(optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={activeSituation.intent}
+                      onChange={(e) =>
+                        updateSituation(setActiveSituation, "intent", e.target.value)
+                      }
+                      placeholder="e.g., venting, making_plans"
+                      className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
+                    />
+                  </div>
+                </div>
+
+                {/* Facts */}
+                <div>
+                  <label className="block text-xs text-gray-500 font-mono mb-2">
+                    FACTS <span className="text-gray-700">(optional - context for the AI judge)</span>
+                  </label>
+                  {activeSituation.facts.map((fact, i) => (
+                    <div key={i} className="flex gap-2 mb-2">
+                      <input
+                        type="text"
+                        value={fact}
+                        onChange={(e) =>
+                          updateArrayItem(setActiveSituation, "facts", i, e.target.value)
+                        }
+                        placeholder={`Fact ${i + 1}`}
+                        className="flex-1 px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
+                      />
+                      {activeSituation.facts.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeArrayItem(setActiveSituation, "facts", i)}
+                          className="px-3 py-2 border border-gray-700 text-gray-500 hover:border-red-500 hover:text-red-500 font-mono transition-colors"
+                        >
+                          [x]
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => addArrayItem(setActiveSituation, "facts")}
+                    className="text-xs text-gray-500 hover:text-white font-mono transition-colors"
+                  >
+                    [+ ADD FACT]
                   </button>
                 </div>
               </motion.div>

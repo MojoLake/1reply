@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { nanoid } from "nanoid";
 import { ConversationSituation } from "@/lib/types";
+import { moderateContent } from "@/lib/moderation";
 
 // Validate a situation object has all required fields
 function validateSituation(
@@ -48,26 +49,12 @@ function validateSituation(
     }
   }
 
-  // Valid tones
-  const validTones = [
-    "casual",
-    "formal",
-    "stressed",
-    "flirty",
-    "serious",
-    "playful",
-    "concerned",
-    "excited",
-  ];
-  if (!validTones.includes(s.tone as string)) {
-    console.error(`Invalid ${label}: invalid tone "${s.tone}"`);
-    return null;
-  }
+  // Tone is now free-form string, no validation against fixed list
 
   return {
     id: `user-${nanoid(8)}`,
     topic: (s.topic as string).trim(),
-    tone: s.tone as ConversationSituation["tone"],
+    tone: (s.tone as string).trim(),
     intent: (s.intent as string).trim(),
     personName: (s.personName as string).trim(),
     personContext: (s.personContext as string).trim(),
@@ -132,6 +119,58 @@ export async function POST(request: Request) {
       if (!validatedC) {
         return NextResponse.json(
           { error: "Invalid situationC data" },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Content moderation
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey) {
+      const situations = [
+        {
+          personName: validatedA.personName,
+          personContext: validatedA.personContext,
+          topic: validatedA.topic,
+          tone: validatedA.tone,
+          intent: validatedA.intent,
+          facts: validatedA.facts,
+          messages: validatedA.initialTranscript.map((m) => m.text),
+        },
+        {
+          personName: validatedB.personName,
+          personContext: validatedB.personContext,
+          topic: validatedB.topic,
+          tone: validatedB.tone,
+          intent: validatedB.intent,
+          facts: validatedB.facts,
+          messages: validatedB.initialTranscript.map((m) => m.text),
+        },
+      ];
+
+      if (validatedC) {
+        situations.push({
+          personName: validatedC.personName,
+          personContext: validatedC.personContext,
+          topic: validatedC.topic,
+          tone: validatedC.tone,
+          intent: validatedC.intent,
+          facts: validatedC.facts,
+          messages: validatedC.initialTranscript.map((m) => m.text),
+        });
+      }
+
+      const moderationResult = await moderateContent(
+        { title: title.trim(), situations },
+        apiKey
+      );
+
+      if (!moderationResult.approved) {
+        return NextResponse.json(
+          {
+            error: "Content not allowed",
+            reason: moderationResult.reason || "This content violates our guidelines",
+          },
           { status: 400 }
         );
       }

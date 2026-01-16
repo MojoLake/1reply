@@ -8,7 +8,7 @@ export interface Message {
 export interface ConversationSituation {
   id: string;
   topic: string;
-  tone: "casual" | "formal" | "stressed" | "flirty" | "serious" | "playful" | "concerned" | "excited";
+  tone: string; // Free-form, e.g. "casual", "formal", "sarcastic", "passive-aggressive"
   intent: string;
   personName: string;
   personContext: string;

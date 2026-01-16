@@ -37,3 +37,13 @@ export const NEUTRAL_SCORE = 5;
 
 // Notes limit in judge responses
 export const JUDGE_NOTES_LIMIT = 3;
+
+// Content moderation config
+export const MODERATION_TEMPERATURE = 0.1;
+export const MODERATION_MAX_TOKENS = 512;
+export const MODERATION_MAX_RETRIES = 2;
+
+// Scenario generation (auto-fill) config
+export const GENERATION_TEMPERATURE = 0.7;
+export const GENERATION_MAX_TOKENS = 1024;
+export const GENERATION_MAX_RETRIES = 2;
