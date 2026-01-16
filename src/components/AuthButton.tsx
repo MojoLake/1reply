@@ -15,17 +15,23 @@ export function AuthButton() {
 
   useEffect(() => {
     // Get initial user
-    supabase.auth.getUser().then(({ data: { user: fetchedUser } }: { data: { user: User | null } }) => {
-      setUser(fetchedUser);
-      setLoading(false);
-    });
+    supabase.auth
+      .getUser()
+      .then(
+        ({ data: { user: fetchedUser } }: { data: { user: User | null } }) => {
+          setUser(fetchedUser);
+          setLoading(false);
+        }
+      );
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event: string, session: { user: User | null } | null) => {
-      setUser(session?.user ?? null);
-    });
+    } = supabase.auth.onAuthStateChange(
+      (_event: string, session: { user: User | null } | null) => {
+        setUser(session?.user ?? null);
+      }
+    );
 
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
@@ -167,8 +173,14 @@ interface SignInModalProps {
   onClose: () => void;
   onGoogleSignIn: () => void;
   onGitHubSignIn: () => void;
-  onSignIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  onSignUp: (email: string, password: string) => Promise<{ error: Error | null }>;
+  onSignIn: (
+    email: string,
+    password: string
+  ) => Promise<{ error: Error | null }>;
+  onSignUp: (
+    email: string,
+    password: string
+  ) => Promise<{ error: Error | null }>;
   onMagicLink: (email: string) => Promise<{ error: Error | null }>;
 }
 
@@ -276,7 +288,11 @@ function SignInModal({
         </button>
 
         <h2 className="text-xl font-mono text-white mb-2">
-          {mode === "signup" ? "SIGN UP" : mode === "magic-link" ? "MAGIC LINK" : "SIGN IN"}
+          {mode === "signup"
+            ? "SIGN UP"
+            : mode === "magic-link"
+            ? "MAGIC LINK"
+            : "SIGN IN"}
         </h2>
         <p className="text-sm text-gray-500 font-mono mb-6">
           Save scores and create scenarios
@@ -339,16 +355,16 @@ function SignInModal({
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder={mode === "signup" ? "Min 6 characters" : "••••••••"}
+                    placeholder={
+                      mode === "signup" ? "Min 6 characters" : "••••••••"
+                    }
                     className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm mb-3 outline-none transition-colors"
                   />
                 </>
               )}
 
               {error && (
-                <p className="text-red-500 text-xs font-mono mb-3">
-                  {error}
-                </p>
+                <p className="text-red-500 text-xs font-mono mb-3">{error}</p>
               )}
 
               <button
@@ -417,8 +433,12 @@ function SignInModal({
         {/* Corner decorations */}
         <span className="absolute top-0 left-0 text-gray-700 text-xs">+</span>
         <span className="absolute top-0 right-0 text-gray-700 text-xs">+</span>
-        <span className="absolute bottom-0 left-0 text-gray-700 text-xs">+</span>
-        <span className="absolute bottom-0 right-0 text-gray-700 text-xs">+</span>
+        <span className="absolute bottom-0 left-0 text-gray-700 text-xs">
+          +
+        </span>
+        <span className="absolute bottom-0 right-0 text-gray-700 text-xs">
+          +
+        </span>
       </motion.div>
     </motion.div>
   );
