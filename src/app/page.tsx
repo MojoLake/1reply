@@ -12,6 +12,17 @@ import {
 } from "@/lib/storage";
 import { formatScore } from "@/lib/scoring";
 import { AuthButton } from "@/components/AuthButton";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
+
+interface UserScenario {
+  id: string;
+  share_code: string;
+  title: string;
+  difficulty: string;
+  play_count: number;
+  created_at: string;
+}
 
 const modes: {
   id: GameMode;
@@ -49,6 +60,11 @@ export default function HomePage() {
   const router = useRouter();
   const [stats, setStats] = useState<StoredGameData | null>(null);
   const [dailyPlayed, setDailyPlayed] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [userScenarios, setUserScenarios] = useState<UserScenario[]>([]);
+  const [scenariosLoading, setScenariosLoading] = useState(false);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const supabase = createClient();
 
   // Client-side initialization from localStorage (unavailable during SSR)
   useEffect(() => {
@@ -56,6 +72,52 @@ export default function HomePage() {
     setStats(getStoredData());
     setDailyPlayed(hasDailyBeenPlayed());
   }, []);
+
+  // Auth state tracking
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user: fetchedUser } }) => {
+      setUser(fetchedUser);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase.auth]);
+
+  // Fetch user's scenarios when authenticated
+  useEffect(() => {
+    if (!user) {
+      setUserScenarios([]);
+      return;
+    }
+
+    setScenariosLoading(true);
+    fetch("/api/scenarios")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => setUserScenarios(data))
+      .catch(() => setUserScenarios([]))
+      .finally(() => setScenariosLoading(false));
+  }, [user]);
+
+  const copyShareLink = (shareCode: string) => {
+    const url = `${window.location.origin}/play/${shareCode}`;
+    navigator.clipboard.writeText(url);
+    setCopiedCode(shareCode);
+    setTimeout(() => setCopiedCode(null), 2000);
+  };
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
 
   const handleModeSelect = (mode: GameMode) => {
     router.push(`/game?mode=${mode}`);
@@ -226,6 +288,84 @@ export default function HomePage() {
             [+ CREATE SCENARIO]
           </Link>
         </motion.div>
+
+        {/* Your Custom Challenges */}
+        {user && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.0 }}
+            className="mt-12 w-full max-w-2xl"
+          >
+            <h2 className="text-gray-400 font-mono text-sm mb-4 text-center">
+              YOUR CUSTOM CHALLENGES
+            </h2>
+
+            {scenariosLoading ? (
+              <div className="text-center text-gray-600 font-mono text-sm">
+                [LOADING...]
+              </div>
+            ) : userScenarios.length === 0 ? (
+              <div className="text-center border border-gray-800 p-6">
+                <p className="text-gray-600 font-mono text-sm mb-4">
+                  No challenges created yet.
+                </p>
+                <Link
+                  href="/create"
+                  className="text-gray-400 hover:text-white font-mono text-sm transition-colors"
+                >
+                  [CREATE YOUR FIRST]
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {userScenarios.map((scenario, index) => (
+                  <motion.div
+                    key={scenario.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.1 + index * 0.05 }}
+                    className="relative group border border-gray-800 hover:border-gray-600 p-4 transition-colors"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-gray-500 font-mono text-sm">
+                            [&gt;]
+                          </span>
+                          <h3 className="text-white font-mono text-sm truncate">
+                            {scenario.title}
+                          </h3>
+                        </div>
+                        <p className="text-gray-600 font-mono text-xs pl-6">
+                          {scenario.play_count}{" "}
+                          {scenario.play_count === 1 ? "play" : "plays"} ·{" "}
+                          {formatDate(scenario.created_at)}
+                        </p>
+                      </div>
+                      <div className="flex gap-2 pl-6 sm:pl-0">
+                        <Link
+                          href={`/play/${scenario.share_code}`}
+                          className="px-3 py-1.5 border border-gray-700 text-gray-400 hover:border-white hover:text-white font-mono text-xs transition-colors"
+                        >
+                          [PLAY]
+                        </Link>
+                        <button
+                          onClick={() => copyShareLink(scenario.share_code)}
+                          className="px-3 py-1.5 border border-gray-700 text-gray-400 hover:border-white hover:text-white font-mono text-xs transition-colors"
+                        >
+                          {copiedCode === scenario.share_code
+                            ? "[COPIED!]"
+                            : "[COPY LINK]"}
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
       </main>
 
       {/* Footer */}
