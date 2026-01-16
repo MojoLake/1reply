@@ -28,7 +28,7 @@ RULES:
 - personContext: A brief description of who they are to the player (e.g., "Your coworker", "Your friend from college")
 - topic: The general category (e.g., "work", "friendship", "dating", "family", "social", "health")
 - tone: How the messages feel (e.g., "casual", "formal", "excited", "stressed", "flirty", "sarcastic", "passive-aggressive")
-- intent: What the person wants (e.g., "making_plans", "venting", "asking_favor", "sharing_news", "checking_in")
+- intent: What the person wants (e.g., "making plans", "venting", "asking a favor", "sharing news", "checking in")
 - facts: 2-3 background facts that provide CONTEXT, not message analysis.
   GOOD facts (situational context):
     - "It's Saturday afternoon"
