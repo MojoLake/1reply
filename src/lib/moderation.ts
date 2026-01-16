@@ -264,11 +264,11 @@ const CATEGORY_REASONS: Record<string, string> = {
 export async function checkOpenAIModeration(
   texts: string[]
 ): Promise<ModerationResult> {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY_FOR_MODERATION;
 
   if (!apiKey) {
     // If no API key, skip this layer (permissive)
-    console.warn("OPENAI_API_KEY not configured, skipping OpenAI moderation");
+    console.warn("OPENAI_API_KEY_FOR_MODERATION not configured, skipping OpenAI moderation");
     return { approved: true };
   }
 
