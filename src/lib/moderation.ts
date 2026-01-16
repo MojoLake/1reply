@@ -29,39 +29,57 @@ const BLOCKED_PATTERNS: Array<{ pattern: RegExp; reason: string }> = [
   { pattern: /\bretard(ed|s)?\b/i, reason: "Ableist slur detected" },
 
   // Violence/harm instructions
-  { pattern: /\bhow\s+to\s+(make|build)\s+(a\s+)?bomb\b/i, reason: "Violence instructions detected" },
-  { pattern: /\bhow\s+to\s+kill\s+(yourself|someone)\b/i, reason: "Harmful content detected" },
+  {
+    pattern: /\bhow\s+to\s+(make|build)\s+(a\s+)?bomb\b/i,
+    reason: "Violence instructions detected",
+  },
+  {
+    pattern: /\bhow\s+to\s+kill\s+(yourself|someone)\b/i,
+    reason: "Harmful content detected",
+  },
   { pattern: /\bkill\s+yourself\b/i, reason: "Self-harm content detected" },
   { pattern: /\bcommit\s+suicide\b/i, reason: "Self-harm content detected" },
 
   // CSAM indicators
-  { pattern: /\b(child|kid|minor)\s*(porn|sex|nude)/i, reason: "CSAM content detected" },
+  {
+    pattern: /\b(child|kid|minor)\s*(porn|sex|nude)/i,
+    reason: "CSAM content detected",
+  },
   { pattern: /\bpedo(phile|philia)?\b/i, reason: "CSAM content detected" },
 
   // Doxxing patterns
-  { pattern: /\b(ssn|social\s*security)\s*:?\s*\d{3}[-\s]?\d{2}[-\s]?\d{4}\b/i, reason: "Personal information detected" },
+  {
+    pattern: /\b(ssn|social\s*security)\s*:?\s*\d{3}[-\s]?\d{2}[-\s]?\d{4}\b/i,
+    reason: "Personal information detected",
+  },
 ];
 
 /**
  * Quick keyword blocklist check - catches obvious violations instantly.
  * Returns { passed: true } if clean, { passed: false, reason } if blocked.
  */
-export function checkBlocklist(text: string): { passed: boolean; reason?: string } {
+export function checkBlocklist(text: string): {
+  passed: boolean;
+  reason?: string;
+} {
   const normalizedText = text.toLowerCase();
-  
+
   for (const { pattern, reason } of BLOCKED_PATTERNS) {
     if (pattern.test(normalizedText)) {
       return { passed: false, reason };
     }
   }
-  
+
   return { passed: true };
 }
 
 /**
  * Check multiple texts against the blocklist.
  */
-export function checkBlocklistMultiple(texts: string[]): { passed: boolean; reason?: string } {
+export function checkBlocklistMultiple(texts: string[]): {
+  passed: boolean;
+  reason?: string;
+} {
   const combined = texts.join(" ");
   return checkBlocklist(combined);
 }
@@ -185,7 +203,9 @@ export async function moderateContent(
         return parsed;
       }
 
-      console.warn(`Moderation parse failed on attempt ${attempt + 1}, retrying...`);
+      console.warn(
+        `Moderation parse failed on attempt ${attempt + 1}, retrying...`
+      );
     } catch (error) {
       console.error(`Moderation API error on attempt ${attempt + 1}:`, error);
     }
@@ -245,7 +265,7 @@ export async function checkOpenAIModeration(
   texts: string[]
 ): Promise<ModerationResult> {
   const apiKey = process.env.OPENAI_API_KEY;
-  
+
   if (!apiKey) {
     // If no API key, skip this layer (permissive)
     console.warn("OPENAI_API_KEY not configured, skipping OpenAI moderation");
@@ -260,12 +280,17 @@ export async function checkOpenAIModeration(
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
+        model: "omni-moderation-latest",
         input: texts,
       }),
     });
 
     if (!response.ok) {
-      console.error("OpenAI Moderation API error:", response.status, response.statusText);
+      console.error(
+        "OpenAI Moderation API error:",
+        response.status,
+        response.statusText
+      );
       // Fail open - if API errors, allow content through
       return { approved: true };
     }
@@ -280,9 +305,10 @@ export async function checkOpenAIModeration(
           ([, flagged]) => flagged
         );
         const reason = flaggedCategory
-          ? CATEGORY_REASONS[flaggedCategory[0]] || "Content flagged by moderation"
+          ? CATEGORY_REASONS[flaggedCategory[0]] ||
+            "Content flagged by moderation"
           : "Content flagged by moderation";
-        
+
         return { approved: false, reason };
       }
     }
@@ -303,7 +329,7 @@ export async function checkOpenAIModeration(
  * Two-layer moderation for raw messages:
  * 1. Keyword blocklist (instant, free)
  * 2. OpenAI Moderation API (free, catches nuanced content)
- * 
+ *
  * Returns { approved: true } if clean, { approved: false, reason } if blocked.
  */
 export async function moderateMessages(
