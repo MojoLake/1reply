@@ -1,50 +1,43 @@
-import { ConversationSituation, GameMode, RoundData, SituationPair } from "./types";
-import situations from "@/data/situations";
+import { ConversationSituation, GameMode, GamePair, RoundData } from "./types";
 import pairs from "@/data/pairs";
 
 /**
- * Create a map of situation IDs to situations for fast lookup
+ * Extract all unique situations from pairs for single selection
  */
-const situationMap = new Map<string, ConversationSituation>(
-  situations.map((s) => [s.id, s])
-);
+function getAllSituations(): ConversationSituation[] {
+  const situationMap = new Map<string, ConversationSituation>();
+  
+  for (const pair of pairs) {
+    situationMap.set(pair.situationA.id, pair.situationA);
+    situationMap.set(pair.situationB.id, pair.situationB);
+    if (pair.situationC) {
+      situationMap.set(pair.situationC.id, pair.situationC);
+    }
+  }
+  
+  return Array.from(situationMap.values());
+}
 
 /**
  * Filter pairs by mode (exclude trios for non-extreme modes)
  */
-function filterPairsByMode(allPairs: SituationPair[], mode: GameMode): SituationPair[] {
+function filterPairsByMode(allPairs: GamePair[], mode: GameMode): GamePair[] {
   if (mode === "extreme") {
     return allPairs; // Include trios
   }
-  // For non-extreme modes, only include pairs (2 situations)
-  return allPairs.filter((p) => p.situationIds.length === 2);
+  // For non-extreme modes, only include pairs (2 situations, no situationC)
+  return allPairs.filter((p) => !p.situationC);
 }
 
 /**
- * Convert a SituationPair to RoundData by looking up the actual situations
+ * Convert a GamePair to RoundData (direct extraction, no lookup needed)
  */
-function pairToRoundData(pair: SituationPair): RoundData | null {
-  const situationA = situationMap.get(pair.situationIds[0]);
-  const situationB = situationMap.get(pair.situationIds[1]);
-  const situationC = pair.situationIds.length === 3
-    ? situationMap.get(pair.situationIds[2])
-    : undefined;
-
-  if (!situationA || !situationB) {
-    console.warn(`Pair ${pair.id} references missing situations`);
-    return null;
-  }
-
-  if (pair.situationIds.length === 3 && !situationC) {
-    console.warn(`Trio ${pair.id} references missing third situation`);
-    return null;
-  }
-
+function pairToRoundData(pair: GamePair): RoundData {
   return {
     pairId: pair.id,
-    situationA,
-    situationB,
-    situationC,
+    situationA: pair.situationA,
+    situationB: pair.situationB,
+    situationC: pair.situationC,
   };
 }
 
@@ -69,32 +62,7 @@ export function selectSituationPair(
   const shuffled = [...pool].sort(() => Math.random() - 0.5);
   const selectedPair = shuffled[0];
 
-  const roundData = pairToRoundData(selectedPair);
-  if (roundData) {
-    return roundData;
-  }
-
-  // Fallback: try other pairs
-  for (const pair of shuffled.slice(1)) {
-    const data = pairToRoundData(pair);
-    if (data) return data;
-  }
-
-  // Ultimate fallback: random selection from situations (shouldn't happen)
-  console.error("No valid pairs found, falling back to random selection");
-  return selectRandomFallback();
-}
-
-/**
- * Fallback random selection (only used if all curated pairs are invalid)
- */
-function selectRandomFallback(): RoundData {
-  const shuffled = [...situations].sort(() => Math.random() - 0.5);
-  return {
-    pairId: "fallback-random",
-    situationA: shuffled[0],
-    situationB: shuffled[1],
-  };
+  return pairToRoundData(selectedPair);
 }
 
 /**
@@ -103,12 +71,14 @@ function selectRandomFallback(): RoundData {
 export function selectSingleSituation(
   usedSituationIds: string[]
 ): ConversationSituation | null {
+  const allSituations = getAllSituations();
+  
   // Filter available situations (exclude already used ones)
-  let pool = situations.filter((s) => !usedSituationIds.includes(s.id));
+  let pool = allSituations.filter((s) => !usedSituationIds.includes(s.id));
 
   // If empty, recycle from all situations
   if (pool.length === 0) {
-    pool = [...situations];
+    pool = [...allSituations];
   }
 
   if (pool.length === 0) return null;
@@ -153,16 +123,5 @@ export function getDailyInitialPair(): RoundData {
   const shuffled = [...dailyPairs].sort(() => random() - 0.5);
   const selectedPair = shuffled[0];
 
-  const roundData = pairToRoundData(selectedPair);
-  if (roundData) {
-    return roundData;
-  }
-
-  // Fallback to random situations
-  const allSituations = [...situations].sort(() => random() - 0.5);
-  return {
-    pairId: "daily-fallback",
-    situationA: allSituations[0],
-    situationB: allSituations[1],
-  };
+  return pairToRoundData(selectedPair);
 }

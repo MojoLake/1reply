@@ -17,11 +17,21 @@ export interface ConversationSituation {
   difficultyTags: ("easy" | "medium" | "hard")[];
 }
 
+export interface GamePair {
+  id: string;
+  difficulty: "easy" | "medium" | "hard";
+  theme?: "confusable" | "contrast" | "narrative";
+  situationA: ConversationSituation;
+  situationB: ConversationSituation;
+  situationC?: ConversationSituation; // Only present for trios in extreme mode
+}
+
+/** @deprecated Use GamePair instead - kept for migration reference */
 export interface SituationPair {
   id: string;
-  situationIds: [string, string] | [string, string, string]; // pairs or trios (trios for extreme mode)
+  situationIds: [string, string] | [string, string, string];
   difficulty: "easy" | "medium" | "hard";
-  theme?: string; // e.g., "work-life clash", "double booking", "emotional whiplash"
+  theme?: string;
 }
 
 export interface Conversation {
