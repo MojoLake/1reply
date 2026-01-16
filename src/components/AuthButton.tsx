@@ -55,7 +55,26 @@ export function AuthButton() {
     });
   };
 
-  const signInWithEmail = async (email: string) => {
+  const signInWithPassword = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    return { error };
+  };
+
+  const signUpWithPassword = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    return { error };
+  };
+
+  const signInWithMagicLink = async (email: string) => {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
@@ -132,7 +151,9 @@ export function AuthButton() {
             onClose={() => setShowSignInModal(false)}
             onGoogleSignIn={() => signInWithProvider("google")}
             onGitHubSignIn={() => signInWithProvider("github")}
-            onEmailSignIn={signInWithEmail}
+            onSignIn={signInWithPassword}
+            onSignUp={signUpWithPassword}
+            onMagicLink={signInWithMagicLink}
           />
         )}
       </AnimatePresence>
@@ -140,39 +161,91 @@ export function AuthButton() {
   );
 }
 
+type AuthMode = "signin" | "signup" | "magic-link";
+
 interface SignInModalProps {
   onClose: () => void;
   onGoogleSignIn: () => void;
   onGitHubSignIn: () => void;
-  onEmailSignIn: (email: string) => Promise<{ error: Error | null }>;
+  onSignIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  onSignUp: (email: string, password: string) => Promise<{ error: Error | null }>;
+  onMagicLink: (email: string) => Promise<{ error: Error | null }>;
 }
 
 function SignInModal({
   onClose,
   onGoogleSignIn,
   onGitHubSignIn,
-  onEmailSignIn,
+  onSignIn,
+  onSignUp,
+  onMagicLink,
 }: SignInModalProps) {
+  const [mode, setMode] = useState<AuthMode>("signin");
   const [email, setEmail] = useState("");
-  const [emailSent, setEmailSent] = useState(false);
-  const [emailLoading, setEmailLoading] = useState(false);
-  const [emailError, setEmailError] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const handleEmailSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
 
-    setEmailLoading(true);
-    setEmailError("");
+    setLoading(true);
+    setError("");
+    setSuccess("");
 
-    const { error } = await onEmailSignIn(email);
+    let result: { error: Error | null };
 
-    if (error) {
-      setEmailError("Failed to send magic link. Please try again.");
+    if (mode === "magic-link") {
+      result = await onMagicLink(email);
+      if (!result.error) {
+        setSuccess("Check your email for the magic link!");
+      }
+    } else if (mode === "signup") {
+      if (!password || password.length < 6) {
+        setError("Password must be at least 6 characters");
+        setLoading(false);
+        return;
+      }
+      result = await onSignUp(email, password);
+      if (!result.error) {
+        setSuccess("Check your email to confirm your account!");
+      }
     } else {
-      setEmailSent(true);
+      if (!password) {
+        setError("Password is required");
+        setLoading(false);
+        return;
+      }
+      result = await onSignIn(email, password);
+      if (!result.error) {
+        onClose();
+        return;
+      }
     }
-    setEmailLoading(false);
+
+    if (result.error) {
+      // Parse common Supabase errors
+      const msg = result.error.message || "Something went wrong";
+      if (msg.includes("Invalid login credentials")) {
+        setError("Invalid email or password");
+      } else if (msg.includes("User already registered")) {
+        setError("This email is already registered. Try signing in.");
+      } else if (msg.includes("Email not confirmed")) {
+        setError("Please confirm your email before signing in");
+      } else {
+        setError(msg);
+      }
+    }
+
+    setLoading(false);
+  };
+
+  const switchMode = (newMode: AuthMode) => {
+    setMode(newMode);
+    setError("");
+    setSuccess("");
   };
 
   return (
@@ -202,18 +275,18 @@ function SignInModal({
           [x]
         </button>
 
-        <h2 className="text-xl font-mono text-white mb-2">SIGN IN</h2>
+        <h2 className="text-xl font-mono text-white mb-2">
+          {mode === "signup" ? "SIGN UP" : mode === "magic-link" ? "MAGIC LINK" : "SIGN IN"}
+        </h2>
         <p className="text-sm text-gray-500 font-mono mb-6">
           Save scores and create scenarios
         </p>
 
-        {emailSent ? (
+        {success ? (
           <div className="text-center py-8">
             <div className="text-green-400 font-mono mb-4">[✓]</div>
-            <p className="text-white font-mono mb-2">Check your email!</p>
+            <p className="text-white font-mono mb-2">{success}</p>
             <p className="text-sm text-gray-500 font-mono">
-              We sent a magic link to
-              <br />
               <span className="text-gray-400">{email}</span>
             </p>
           </div>
@@ -245,7 +318,7 @@ function SignInModal({
             </div>
 
             {/* Email form */}
-            <form onSubmit={handleEmailSubmit}>
+            <form onSubmit={handleSubmit}>
               <label className="block text-xs text-gray-500 font-mono mb-2">
                 EMAIL
               </label>
@@ -256,19 +329,88 @@ function SignInModal({
                 placeholder="you@example.com"
                 className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm mb-3 outline-none transition-colors"
               />
-              {emailError && (
+
+              {mode !== "magic-link" && (
+                <>
+                  <label className="block text-xs text-gray-500 font-mono mb-2">
+                    PASSWORD
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder={mode === "signup" ? "Min 6 characters" : "••••••••"}
+                    className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm mb-3 outline-none transition-colors"
+                  />
+                </>
+              )}
+
+              {error && (
                 <p className="text-red-500 text-xs font-mono mb-3">
-                  {emailError}
+                  {error}
                 </p>
               )}
+
               <button
                 type="submit"
-                disabled={emailLoading || !email}
+                disabled={loading || !email}
                 className="w-full py-3 bg-white text-black font-mono text-sm hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {emailLoading ? "SENDING..." : "SEND MAGIC LINK"}
+                {loading
+                  ? "LOADING..."
+                  : mode === "signup"
+                  ? "CREATE ACCOUNT"
+                  : mode === "magic-link"
+                  ? "SEND MAGIC LINK"
+                  : "SIGN IN"}
               </button>
             </form>
+
+            {/* Mode toggles */}
+            <div className="mt-4 space-y-2 text-center">
+              {mode === "signin" && (
+                <>
+                  <p className="text-xs text-gray-500 font-mono">
+                    Don&apos;t have an account?{" "}
+                    <button
+                      onClick={() => switchMode("signup")}
+                      className="text-white hover:underline"
+                    >
+                      Sign up
+                    </button>
+                  </p>
+                  <p className="text-xs text-gray-600 font-mono">
+                    <button
+                      onClick={() => switchMode("magic-link")}
+                      className="hover:text-gray-400"
+                    >
+                      Use magic link instead
+                    </button>
+                  </p>
+                </>
+              )}
+              {mode === "signup" && (
+                <p className="text-xs text-gray-500 font-mono">
+                  Already have an account?{" "}
+                  <button
+                    onClick={() => switchMode("signin")}
+                    className="text-white hover:underline"
+                  >
+                    Sign in
+                  </button>
+                </p>
+              )}
+              {mode === "magic-link" && (
+                <p className="text-xs text-gray-500 font-mono">
+                  <button
+                    onClick={() => switchMode("signin")}
+                    className="text-white hover:underline"
+                  >
+                    ← Back to password sign in
+                  </button>
+                </p>
+              )}
+            </div>
           </>
         )}
 
