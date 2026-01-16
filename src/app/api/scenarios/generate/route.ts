@@ -160,6 +160,21 @@ export async function POST(request: Request) {
           },
         });
 
+        // Check if response was blocked or truncated due to safety
+        const candidate = result.response.candidates?.[0];
+        const finishReason = candidate?.finishReason;
+
+        if (finishReason === "SAFETY" || finishReason === "RECITATION") {
+          console.warn(`Generation blocked due to ${finishReason}`);
+          return NextResponse.json(
+            {
+              error:
+                "Unable to generate content for these messages. Please try different text.",
+            },
+            { status: 400 }
+          );
+        }
+
         const response = result.response.text();
         const parsed = parseGenerationResponse(response);
 
