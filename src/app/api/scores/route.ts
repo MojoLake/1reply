@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { SaveScoreRequestSchema, validateRequest } from "@/lib/validation";
 
 export async function POST(request: Request) {
   try {
@@ -19,31 +20,14 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { mode, score, roundsSurvived, scenarioId } = body;
 
-    // Validate mode
-    const validModes = ["classic", "timer", "daily", "extreme", "custom"];
-    if (!mode || !validModes.includes(mode)) {
-      return NextResponse.json(
-        { error: "Valid mode is required" },
-        { status: 400 }
-      );
+    // Validate request body with Zod
+    const validation = validateRequest(SaveScoreRequestSchema, body);
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
     }
 
-    // Validate score and rounds
-    if (typeof score !== "number" || score < 0) {
-      return NextResponse.json(
-        { error: "Valid score is required" },
-        { status: 400 }
-      );
-    }
-
-    if (typeof roundsSurvived !== "number" || roundsSurvived < 0) {
-      return NextResponse.json(
-        { error: "Valid roundsSurvived is required" },
-        { status: 400 }
-      );
-    }
+    const { mode, score, roundsSurvived, scenarioId } = validation.data;
 
     // Insert score
     const { data, error } = await supabase

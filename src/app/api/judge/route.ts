@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { judgeReply } from "@/lib/judge";
 import { calculateConfusionDelta, clampConfusion } from "@/lib/confusion";
 import { calculateRoundScore } from "@/lib/scoring";
-import { Conversation, RoundResult } from "@/lib/types";
+import { RoundResult } from "@/lib/types";
 import { checkRateLimit } from "@/lib/rateLimit";
 import { moderateMessages } from "@/lib/moderation";
-import { MAX_REPLY_LENGTH, MAX_CONFUSION, JUDGE_MAX_RETRIES } from "@/lib/constants";
+import { MAX_CONFUSION, JUDGE_MAX_RETRIES } from "@/lib/constants";
+import { JudgeRequestSchema, validateRequest } from "@/lib/validation";
 
 export async function POST(request: NextRequest) {
   // Get client IP for rate limiting
@@ -29,6 +30,13 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
+
+    // Validate request body with Zod
+    const validation = validateRequest(JudgeRequestSchema, body);
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
+    }
+
     const {
       conversationA,
       conversationB,
@@ -38,33 +46,9 @@ export async function POST(request: NextRequest) {
       currentConfusionB,
       currentConfusionC,
       roundNumber,
-    } = body as {
-      conversationA: Conversation;
-      conversationB: Conversation;
-      conversationC?: Conversation;
-      playerReply: string;
-      currentConfusionA: number;
-      currentConfusionB: number;
-      currentConfusionC?: number;
-      roundNumber: number;
-    };
+    } = validation.data;
 
     const isExtremeMode = !!conversationC;
-
-    // Validate input
-    if (!conversationA || !conversationB || !playerReply) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    if (playerReply.length < 1 || playerReply.length > MAX_REPLY_LENGTH) {
-      return NextResponse.json(
-        { error: `Reply must be between 1 and ${MAX_REPLY_LENGTH} characters` },
-        { status: 400 }
-      );
-    }
 
     // Moderate user content before sending to LLM
     const moderationResult = moderateMessages([playerReply]);

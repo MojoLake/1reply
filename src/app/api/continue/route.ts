@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateAllContinuations } from "@/lib/conversation";
-import { Conversation } from "@/lib/types";
 import { checkRateLimit } from "@/lib/rateLimit";
+import { ContinueRequestSchema, validateRequest } from "@/lib/validation";
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") || "anonymous";
@@ -23,18 +23,14 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { conversationA, conversationB, conversationC } = body as {
-      conversationA: Conversation;
-      conversationB: Conversation;
-      conversationC?: Conversation;
-    };
 
-    if (!conversationA || !conversationB) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+    // Validate request body with Zod
+    const validation = validateRequest(ContinueRequestSchema, body);
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
     }
+
+    const { conversationA, conversationB, conversationC } = validation.data;
 
     const result = await generateAllContinuations(
       conversationA,

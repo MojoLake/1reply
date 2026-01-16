@@ -1,18 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { selectSituationPair, getDailyInitialPair, selectSingleSituation } from "@/lib/rounds";
-import { GameMode } from "@/lib/types";
+import { RoundQuerySchema, validateRequest } from "@/lib/validation";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const modeParam = searchParams.get("mode");
-  const usedIdsParam = searchParams.get("usedIds");
-  const usedPairIdsParam = searchParams.get("usedPairIds");
-  const singleParam = searchParams.get("single");
 
-  const mode = (modeParam || "classic") as GameMode;
-  const usedIds = usedIdsParam ? usedIdsParam.split(",").filter(Boolean) : [];
-  const usedPairIds = usedPairIdsParam ? usedPairIdsParam.split(",").filter(Boolean) : [];
-  const fetchSingle = singleParam === "true";
+  // Validate query parameters with Zod
+  const validation = validateRequest(RoundQuerySchema, {
+    mode: searchParams.get("mode") ?? undefined,
+    usedIds: searchParams.get("usedIds") ?? undefined,
+    usedPairIds: searchParams.get("usedPairIds") ?? undefined,
+    single: searchParams.get("single") ?? undefined,
+  });
+
+  if (!validation.success) {
+    return NextResponse.json({ error: validation.error }, { status: 400 });
+  }
+
+  const { mode, usedIds: usedIdsStr, usedPairIds: usedPairIdsStr, single: fetchSingle } = validation.data;
+  const usedIds = usedIdsStr ? usedIdsStr.split(",").filter(Boolean) : [];
+  const usedPairIds = usedPairIdsStr ? usedPairIdsStr.split(",").filter(Boolean) : [];
 
   try {
     // Handle single situation fetch (for conversation swapping)
