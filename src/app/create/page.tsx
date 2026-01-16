@@ -49,9 +49,11 @@ export default function CreatePage() {
 
   // Form state
   const [title, setTitle] = useState("");
+  const [isTrioMode, setIsTrioMode] = useState(false);
   const [situationA, setSituationA] = useState<SituationFormData>({ ...emptySituation });
   const [situationB, setSituationB] = useState<SituationFormData>({ ...emptySituation });
-  const [activeTab, setActiveTab] = useState<"A" | "B">("A");
+  const [situationC, setSituationC] = useState<SituationFormData>({ ...emptySituation });
+  const [activeTab, setActiveTab] = useState<"A" | "B" | "C">("A");
 
   // Submission state
   const [submitting, setSubmitting] = useState(false);
@@ -61,6 +63,7 @@ export default function CreatePage() {
   // Auto-fill state
   const [generatingA, setGeneratingA] = useState(false);
   const [generatingB, setGeneratingB] = useState(false);
+  const [generatingC, setGeneratingC] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user: fetchedUser } }: { data: { user: User | null } }) => {
@@ -77,10 +80,10 @@ export default function CreatePage() {
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
 
-  const handleAutoFill = async (tab: "A" | "B") => {
-    const situation = tab === "A" ? situationA : situationB;
-    const setSituation = tab === "A" ? setSituationA : setSituationB;
-    const setGenerating = tab === "A" ? setGeneratingA : setGeneratingB;
+  const handleAutoFill = async (tab: "A" | "B" | "C") => {
+    const situation = tab === "A" ? situationA : tab === "B" ? situationB : situationC;
+    const setSituation = tab === "A" ? setSituationA : tab === "B" ? setSituationB : setSituationC;
+    const setGenerating = tab === "A" ? setGeneratingA : tab === "B" ? setGeneratingB : setGeneratingC;
 
     // Get non-empty messages
     const validMessages = situation.messages.filter((m) => m.trim());
@@ -133,12 +136,13 @@ export default function CreatePage() {
     setSubmitting(true);
     setError("");
 
-    // Check if messages exist for both situations
+    // Check if messages exist for all situations
     const hasMessagesA = situationA.messages.some((m) => m.trim());
     const hasMessagesB = situationB.messages.some((m) => m.trim());
+    const hasMessagesC = situationC.messages.some((m) => m.trim());
 
-    if (!hasMessagesA || !hasMessagesB) {
-      setError("Both situations need at least one message");
+    if (!hasMessagesA || !hasMessagesB || (isTrioMode && !hasMessagesC)) {
+      setError(`All ${isTrioMode ? "three" : "two"} situations need at least one message`);
       setSubmitting(false);
       return;
     }
@@ -155,9 +159,10 @@ export default function CreatePage() {
 
     const errorA = checkSituation(situationA, "Situation A");
     const errorB = checkSituation(situationB, "Situation B");
+    const errorC = isTrioMode ? checkSituation(situationC, "Situation C") : null;
 
-    if (errorA || errorB) {
-      setError(errorA || errorB || "Please fill all required fields or use 'Fill the Rest'");
+    if (errorA || errorB || errorC) {
+      setError(errorA || errorB || errorC || "Please fill all required fields or use 'Fill the Rest'");
       setSubmitting(false);
       return;
     }
@@ -183,6 +188,7 @@ export default function CreatePage() {
           title,
           situationA: buildSituation(situationA),
           situationB: buildSituation(situationB),
+          ...(isTrioMode && { situationC: buildSituation(situationC) }),
         }),
       });
 
@@ -312,8 +318,11 @@ export default function CreatePage() {
                 onClick={() => {
                   setSuccess(null);
                   setTitle("");
+                  setIsTrioMode(false);
                   setSituationA({ ...emptySituation });
                   setSituationB({ ...emptySituation });
+                  setSituationC({ ...emptySituation });
+                  setActiveTab("A");
                 }}
                 className="w-full py-3 border border-gray-700 text-gray-400 hover:border-white hover:text-white transition-colors font-mono"
               >
@@ -358,9 +367,9 @@ export default function CreatePage() {
     );
   }
 
-  const activeSituation = activeTab === "A" ? situationA : situationB;
-  const setActiveSituation = activeTab === "A" ? setSituationA : setSituationB;
-  const isGenerating = activeTab === "A" ? generatingA : generatingB;
+  const activeSituation = activeTab === "A" ? situationA : activeTab === "B" ? situationB : situationC;
+  const setActiveSituation = activeTab === "A" ? setSituationA : activeTab === "B" ? setSituationB : setSituationC;
+  const isGenerating = activeTab === "A" ? generatingA : activeTab === "B" ? generatingB : generatingC;
   const hasMessages = activeSituation.messages.some((m) => m.trim());
 
   return (
@@ -379,10 +388,44 @@ export default function CreatePage() {
         >
           <h1 className="text-2xl font-mono text-white mb-2">Create Scenario</h1>
           <p className="text-gray-500 font-mono text-sm mb-8">
-            Design two conversation situations for players to juggle. Enter the messages, then auto-fill the rest!
+            Design {isTrioMode ? "three" : "two"} conversation situations for players to juggle. Enter the messages, then auto-fill the rest!
           </p>
 
           <form onSubmit={handleSubmit}>
+            {/* Mode Toggle */}
+            <div className="mb-6">
+              <label className="block text-xs text-gray-500 font-mono mb-2">
+                MODE
+              </label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsTrioMode(false);
+                    if (activeTab === "C") setActiveTab("B");
+                  }}
+                  className={`px-4 py-2 font-mono text-sm transition-colors ${
+                    !isTrioMode
+                      ? "bg-white text-black"
+                      : "border border-gray-700 text-gray-400 hover:border-white hover:text-white"
+                  }`}
+                >
+                  PAIR (2)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsTrioMode(true)}
+                  className={`px-4 py-2 font-mono text-sm transition-colors ${
+                    isTrioMode
+                      ? "bg-white text-black"
+                      : "border border-gray-700 text-gray-400 hover:border-white hover:text-white"
+                  }`}
+                >
+                  TRIO (3)
+                </button>
+              </div>
+            </div>
+
             {/* Challenge Title */}
             <div className="mb-8">
               <label className="block text-xs text-gray-500 font-mono mb-2">
@@ -401,7 +444,7 @@ export default function CreatePage() {
 
             {/* Situation Tabs */}
             <div className="flex gap-2 mb-4">
-              {(["A", "B"] as const).map((tab) => (
+              {(isTrioMode ? (["A", "B", "C"] as const) : (["A", "B"] as const)).map((tab) => (
                 <button
                   key={tab}
                   type="button"
@@ -423,7 +466,7 @@ export default function CreatePage() {
                 key={activeTab}
                 initial={{ opacity: 0, x: activeTab === "A" ? -20 : 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: activeTab === "A" ? 20 : -20 }}
+                exit={{ opacity: 0, x: activeTab === "C" ? 20 : activeTab === "A" ? 20 : -20 }}
                 transition={{ duration: 0.2 }}
                 className="border border-gray-700 p-4 mb-8"
               >
