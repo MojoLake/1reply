@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { extractJsonFromResponse } from "@/lib/parseJson";
+import { moderateMessages } from "@/lib/moderation";
 import {
   GEMINI_MODEL,
   GENERATION_TEMPERATURE,
@@ -111,6 +112,18 @@ export async function POST(request: Request) {
     if (validMessages.length === 0) {
       return NextResponse.json(
         { error: "At least one non-empty message is required" },
+        { status: 400 }
+      );
+    }
+
+    // Content moderation: keyword blocklist + OpenAI Moderation API
+    const moderationResult = await moderateMessages(validMessages);
+    if (!moderationResult.approved) {
+      return NextResponse.json(
+        {
+          error: "Content not allowed",
+          reason: moderationResult.reason || "This content violates our guidelines",
+        },
         { status: 400 }
       );
     }
