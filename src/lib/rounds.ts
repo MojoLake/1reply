@@ -5,6 +5,30 @@ import trios from "@/data/trios";
 const allPairs: GamePair[] = [...pairs, ...trios];
 
 /**
+ * Fisher-Yates shuffle for uniform randomness
+ */
+function shuffle<T>(array: T[]): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+/**
+ * Fisher-Yates shuffle with a seeded random function
+ */
+function seededShuffle<T>(array: T[], random: () => number): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+/**
  * Extract all unique situations from pairs for single selection
  */
 function getAllSituations(): ConversationSituation[] {
@@ -62,7 +86,10 @@ export function selectSituationPair(
     : filterPairsByMode(allPairs, mode);
 
   // Shuffle and pick one
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  const shuffled = shuffle(pool);
+  if (shuffled.length === 0) {
+    throw new Error("No pairs available for the selected mode");
+  }
   const selectedPair = shuffled[0];
 
   return pairToRoundData(selectedPair);
@@ -87,7 +114,7 @@ export function selectSingleSituation(
   if (pool.length === 0) return null;
 
   // Shuffle and pick one
-  const shuffled = pool.sort(() => Math.random() - 0.5);
+  const shuffled = shuffle(pool);
   return shuffled[0];
 }
 
@@ -123,7 +150,10 @@ export function getDailyInitialPair(): RoundData {
 
   // Filter to pairs only (daily mode doesn't use trios)
   const dailyPairs = filterPairsByMode(allPairs, "daily");
-  const shuffled = [...dailyPairs].sort(() => random() - 0.5);
+  const shuffled = seededShuffle(dailyPairs, random);
+  if (shuffled.length === 0) {
+    throw new Error("No pairs available for daily mode");
+  }
   const selectedPair = shuffled[0];
 
   return pairToRoundData(selectedPair);

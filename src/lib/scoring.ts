@@ -17,22 +17,27 @@ export const CONVERSATION_COMPLETION_BONUS = 200;
 /**
  * Calculate score gained from a round based on judge results.
  * 
- * score += COHERENCE_MULTIPLIER * min(coherenceA, coherenceB)
- * score += RELEVANCE_MULTIPLIER * min(relevanceA, relevanceB)
- * score += TONE_MULTIPLIER * min(tone_matchA, tone_matchB)
- * if directnessA >= threshold && directnessB >= threshold: score += DIRECTNESS_BONUS
+ * score += COHERENCE_MULTIPLIER * min(coherence across all conversations)
+ * score += RELEVANCE_MULTIPLIER * min(relevance across all conversations)
+ * score += TONE_MULTIPLIER * min(tone_match across all conversations)
+ * if all conversations meet directness threshold: score += DIRECTNESS_BONUS
  * score += roundNumber * SURVIVAL_BONUS
  */
 export function calculateRoundScore(result: JudgeResult, roundNumber: number): number {
   let score = 0;
 
-  // Base scores from minimum of both conversations
-  score += COHERENCE_SCORE_MULTIPLIER * Math.min(result.A.coherence, result.B.coherence);
-  score += RELEVANCE_SCORE_MULTIPLIER * Math.min(result.A.relevance, result.B.relevance);
-  score += TONE_SCORE_MULTIPLIER * Math.min(result.A.tone_match, result.B.tone_match);
+  // Collect all conversation scores (including C for extreme mode)
+  const scores = [result.A, result.B];
+  if (result.C) scores.push(result.C);
 
-  // Bonus for being direct in both
-  if (result.A.directness >= DIRECTNESS_BONUS_THRESHOLD && result.B.directness >= DIRECTNESS_BONUS_THRESHOLD) {
+  // Base scores from minimum across all conversations
+  score += COHERENCE_SCORE_MULTIPLIER * Math.min(...scores.map(s => s.coherence));
+  score += RELEVANCE_SCORE_MULTIPLIER * Math.min(...scores.map(s => s.relevance));
+  score += TONE_SCORE_MULTIPLIER * Math.min(...scores.map(s => s.tone_match));
+
+  // Bonus for being direct in all conversations
+  const allMeetDirectness = scores.every(s => s.directness >= DIRECTNESS_BONUS_THRESHOLD);
+  if (allMeetDirectness) {
     score += DIRECTNESS_BONUS;
   }
 
