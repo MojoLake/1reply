@@ -13,6 +13,7 @@ import {
 } from "@/lib/types";
 import { getStoredData, updateHighScore } from "@/lib/storage";
 import { CONVERSATION_COMPLETION_BONUS } from "@/lib/scoring";
+import { saveScore } from "@/lib/useAuth";
 import {
   MAX_ROUNDS,
   TIMER_INITIAL_SECONDS,
@@ -318,6 +319,8 @@ function GamePageContent() {
         if (result.gameOver) {
           const finalScore = gameState.score + result.scoreGained;
           updateHighScore(mode, finalScore, gameState.round);
+          // Save to server for authenticated users (fire and forget)
+          saveScore(mode, finalScore, gameState.round);
         }
 
         // Always fetch continuations and show feedback (even on game over)
@@ -490,6 +493,8 @@ function GamePageContent() {
     // Check if max replies reached - survived! Show full modal (not minimized)
     if (nextRound > MAX_ROUNDS) {
       updateHighScore(mode, gameState.score, gameState.round);
+      // Save to server for authenticated users
+      saveScore(mode, gameState.score, gameState.round);
       setGameState((prev) =>
         prev ? { ...prev, isGameOver: true, gameOverReason: "survived" } : prev
       );
@@ -583,6 +588,8 @@ function GamePageContent() {
   const handleQuit = () => {
     if (gameState) {
       updateHighScore(mode, gameState.score, gameState.round);
+      // Save to server for authenticated users
+      saveScore(mode, gameState.score, gameState.round);
     }
     router.push("/");
   };

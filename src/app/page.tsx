@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { GameMode } from "@/lib/types";
 import {
@@ -10,6 +11,7 @@ import {
   StoredGameData,
 } from "@/lib/storage";
 import { formatScore } from "@/lib/scoring";
+import { AuthButton } from "@/components/AuthButton";
 
 const modes: {
   id: GameMode;
@@ -61,6 +63,11 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-black flex flex-col">
+      {/* Header with auth */}
+      <header className="absolute top-0 right-0 p-4 z-10">
+        <AuthButton />
+      </header>
+
       <main className="relative flex-1 flex flex-col items-center justify-center p-4">
         {/* Hero */}
         <motion.div
@@ -203,6 +210,21 @@ export default function HomePage() {
             {stats.totalGamesPlayed} games played
           </motion.div>
         )}
+
+        {/* Create scenario link */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.9 }}
+          className="mt-8"
+        >
+          <Link
+            href="/create"
+            className="inline-block px-6 py-3 border border-gray-700 text-gray-400 hover:border-white hover:text-white transition-colors font-mono text-sm"
+          >
+            [+ CREATE SCENARIO]
+          </Link>
+        </motion.div>
       </main>
 
       {/* Footer */}

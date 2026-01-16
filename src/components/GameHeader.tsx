@@ -9,6 +9,7 @@ interface GameHeaderProps {
   score: number;
   mode: GameMode;
   onQuit?: () => void;
+  customTitle?: string;
 }
 
 const modeLabels: Record<GameMode, string> = {
@@ -23,6 +24,7 @@ export default function GameHeader({
   score,
   mode,
   onQuit,
+  customTitle,
 }: GameHeaderProps) {
   return (
     <motion.header
@@ -34,10 +36,10 @@ export default function GameHeader({
         {/* Left: Game title and mode */}
         <div className="flex items-center gap-4">
           <h1 className="text-lg font-bold text-white">
-            1Reply
+            {customTitle || "1Reply"}
           </h1>
           <span className="px-2 py-0.5 text-xs font-medium border border-gray-600 text-gray-400">
-            {modeLabels[mode]}
+            {customTitle ? "CUSTOM" : modeLabels[mode]}
           </span>
         </div>
 

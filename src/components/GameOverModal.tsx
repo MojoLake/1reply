@@ -14,6 +14,7 @@ interface GameOverModalProps {
   onPlayAgain: () => void;
   onMainMenu: () => void;
   startMinimized?: boolean;
+  customTitle?: string;
 }
 
 export default function GameOverModal({
@@ -25,12 +26,15 @@ export default function GameOverModal({
   onPlayAgain,
   onMainMenu,
   startMinimized = false,
+  customTitle,
 }: GameOverModalProps) {
   const [isMinimized, setIsMinimized] = useState(startMinimized);
   const isNewHighScore = highScore !== undefined && score > highScore;
 
   const handleShare = () => {
-    const text = `1Reply ${mode === "daily" ? "Daily" : ""}\n\nScore: ${formatScore(score)}\nRounds: ${rounds}\n\nCan you do better? Play at ${window.location.origin}`;
+    const gameName = customTitle ? `1Reply: ${customTitle}` : `1Reply ${mode === "daily" ? "Daily" : ""}`;
+    const shareUrl = customTitle ? window.location.href : window.location.origin;
+    const text = `${gameName}\n\nScore: ${formatScore(score)}\nRounds: ${rounds}\n\nCan you do better? Play at ${shareUrl}`;
 
     if (navigator.share) {
       navigator.share({ text });
