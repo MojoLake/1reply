@@ -1,24 +1,62 @@
+import {
+  RegExpMatcher,
+  englishDataset,
+  englishRecommendedTransformers,
+} from "obscenity";
+
 export interface ModerationResult {
   approved: boolean;
   reason?: string;
 }
 
 // =============================================================================
-// Keyword Blocklist - catches obvious violations instantly
+// Text Normalization - defeats common bypass techniques
 // =============================================================================
 
-// Patterns for obviously inappropriate content
-// This is intentionally conservative - only blocks the worst offenders
-const BLOCKED_PATTERNS: Array<{ pattern: RegExp; reason: string }> = [
-  // Slurs and hate speech (common variations)
-  { pattern: /\bn[i1]gg[ae3]r?s?\b/i, reason: "Racial slur detected" },
-  { pattern: /\bf[a@]gg?[o0]t?s?\b/i, reason: "Homophobic slur detected" },
-  { pattern: /\bk[i1]ke?s?\b/i, reason: "Antisemitic slur detected" },
-  { pattern: /\bch[i1]nk?s?\b/i, reason: "Racial slur detected" },
-  { pattern: /\bsp[i1]c?s?\b/i, reason: "Racial slur detected" },
-  { pattern: /\btr[a@]nn(y|ie)s?\b/i, reason: "Transphobic slur detected" },
-  { pattern: /\bretard(ed|s)?\b/i, reason: "Ableist slur detected" },
+// Zero-width and invisible characters to strip
+const ZERO_WIDTH_CHARS = /[\u200B\u200C\u200D\u2060\uFEFF\u00AD\u034F\u061C\u115F\u1160\u17B4\u17B5\u180E\u2000-\u200F\u202A-\u202F\u205F-\u2064\u206A-\u206F\u3000\u3164\uFFA0]/g;
 
+/**
+ * Normalize text to defeat common bypass techniques:
+ * - Strip zero-width and invisible characters
+ * - Apply Unicode NFKC normalization (converts homoglyphs like Cyrillic "е" to Latin "e")
+ * - Collapse multiple spaces
+ */
+export function normalizeText(text: string): string {
+  return text
+    .replace(ZERO_WIDTH_CHARS, "") // Remove invisible characters
+    .normalize("NFKC") // Normalize homoglyphs (е→e, а→a, etc.)
+    .replace(/\s+/g, " ") // Collapse whitespace
+    .trim();
+}
+
+// =============================================================================
+// Obscenity Matcher - handles leetspeak, repeated chars, substitutions
+// =============================================================================
+
+const obscenityMatcher = new RegExpMatcher({
+  ...englishDataset.build(),
+  ...englishRecommendedTransformers,
+});
+
+/**
+ * Check text against the Obscenity library's profanity detection.
+ * Handles leetspeak, character substitutions, whitespace evasion, etc.
+ */
+function checkObscenity(text: string): { passed: boolean; reason?: string } {
+  const matches = obscenityMatcher.getAllMatches(text);
+  if (matches.length > 0) {
+    return { passed: false, reason: "Inappropriate language detected" };
+  }
+  return { passed: true };
+}
+
+// =============================================================================
+// Custom Patterns - domain-specific content not covered by Obscenity
+// =============================================================================
+
+// Patterns for content Obscenity doesn't cover (violence, CSAM, doxxing)
+const CUSTOM_BLOCKED_PATTERNS: Array<{ pattern: RegExp; reason: string }> = [
   // Violence/harm instructions
   {
     pattern: /\bhow\s+to\s+(make|build)\s+(a\s+)?bomb\b/i,
@@ -46,17 +84,16 @@ const BLOCKED_PATTERNS: Array<{ pattern: RegExp; reason: string }> = [
 ];
 
 /**
- * Quick keyword blocklist check - catches obvious violations instantly.
- * Returns { passed: true } if clean, { passed: false, reason } if blocked.
+ * Check text against custom domain-specific patterns.
  */
-export function checkBlocklist(text: string): {
+function checkCustomPatterns(text: string): {
   passed: boolean;
   reason?: string;
 } {
-  const normalizedText = text.toLowerCase();
+  const lowerText = text.toLowerCase();
 
-  for (const { pattern, reason } of BLOCKED_PATTERNS) {
-    if (pattern.test(normalizedText)) {
+  for (const { pattern, reason } of CUSTOM_BLOCKED_PATTERNS) {
+    if (pattern.test(lowerText)) {
       return { passed: false, reason };
     }
   }
@@ -64,8 +101,41 @@ export function checkBlocklist(text: string): {
   return { passed: true };
 }
 
+// =============================================================================
+// Public API
+// =============================================================================
+
 /**
- * Check multiple texts against the blocklist.
+ * Check text against all moderation layers:
+ * 1. Normalize text (strip zero-width chars, convert homoglyphs)
+ * 2. Check against Obscenity library (handles leetspeak, substitutions)
+ * 3. Check against custom patterns (violence, CSAM, doxxing)
+ *
+ * Returns { passed: true } if clean, { passed: false, reason } if blocked.
+ */
+export function checkBlocklist(text: string): {
+  passed: boolean;
+  reason?: string;
+} {
+  const normalizedText = normalizeText(text);
+
+  // Check Obscenity library first (covers slurs with evasion techniques)
+  const obscenityResult = checkObscenity(normalizedText);
+  if (!obscenityResult.passed) {
+    return obscenityResult;
+  }
+
+  // Check custom patterns (violence, CSAM, doxxing)
+  const customResult = checkCustomPatterns(normalizedText);
+  if (!customResult.passed) {
+    return customResult;
+  }
+
+  return { passed: true };
+}
+
+/**
+ * Check multiple texts against all moderation layers.
  */
 export function checkBlocklistMultiple(texts: string[]): {
   passed: boolean;
@@ -76,7 +146,7 @@ export function checkBlocklistMultiple(texts: string[]): {
 }
 
 /**
- * Moderate messages using keyword blocklist only.
+ * Moderate messages using all moderation layers.
  * Returns { approved: true } if clean, { approved: false, reason } if blocked.
  */
 export function moderateMessages(messages: string[]): ModerationResult {
