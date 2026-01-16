@@ -296,6 +296,11 @@ export default function PlayScenarioPage({
     if (!gameState || !pendingContinuations) return;
 
     const continuations = pendingContinuations;
+    const nextRound = gameState.round + 1;
+
+    // Determine what happens after this round BEFORE updating state
+    const isAtInitialCheckpoint = nextRound > INITIAL_SURVIVAL_ROUNDS && !initialSurvivalAchieved;
+    const isAtFinalSurvival = nextRound > MAX_ROUNDS;
 
     setGameState((prev) => {
       if (!prev) return prev;
@@ -318,10 +323,35 @@ export default function PlayScenarioPage({
         };
       }
 
+      // Handle checkpoint/survival states
+      if (isAtInitialCheckpoint) {
+        return {
+          ...prev,
+          conversationA: newConvA,
+          conversationB: newConvB,
+          conversationC: newConvC,
+          isGameOver: true,
+          gameOverReason: "initial_survived",
+        };
+      }
+
+      if (isAtFinalSurvival) {
+        return {
+          ...prev,
+          conversationA: newConvA,
+          conversationB: newConvB,
+          conversationC: newConvC,
+          isGameOver: true,
+          gameOverReason: "survived",
+        };
+      }
+
+      // If game is over (from confusion), don't increment round
       if (prev.isGameOver) {
         return { ...prev, conversationA: newConvA, conversationB: newConvB, conversationC: newConvC };
       }
 
+      // Otherwise increment round as normal
       return {
         ...prev,
         round: prev.round + 1,
@@ -333,31 +363,23 @@ export default function PlayScenarioPage({
 
     setPendingContinuations(null);
 
+    // If game was over (from confusion), transition to gameover phase
     if (gameState.isGameOver) {
       setGameOverStartMinimized(true);
       setPhase("gameover");
       return;
     }
 
-    const nextRound = gameState.round + 1;
-
     // Check if initial survival threshold reached (first checkpoint)
-    if (nextRound > INITIAL_SURVIVAL_ROUNDS && !initialSurvivalAchieved) {
-      // Show initial survival modal - player can choose to continue or end
-      setGameState((prev) =>
-        prev ? { ...prev, isGameOver: true, gameOverReason: "initial_survived" } : prev
-      );
+    if (isAtInitialCheckpoint) {
       setGameOverStartMinimized(false);
       setPhase("gameover");
       return;
     }
 
-    if (nextRound > MAX_ROUNDS) {
-      // Save score for surviving
+    // Check if max replies reached - survived!
+    if (isAtFinalSurvival) {
       saveScore("custom", gameState.score, gameState.round, scenario?.id);
-      setGameState((prev) =>
-        prev ? { ...prev, isGameOver: true, gameOverReason: "survived" } : prev
-      );
       setGameOverStartMinimized(false);
       setPhase("gameover");
       return;

@@ -424,6 +424,11 @@ function GamePageContent() {
     if (!gameState || !pendingContinuations) return;
 
     const continuations = pendingContinuations;
+    const nextRound = gameState.round + 1;
+
+    // Determine what happens after this round BEFORE updating state
+    const isAtInitialCheckpoint = nextRound > INITIAL_SURVIVAL_ROUNDS && !initialSurvivalAchieved;
+    const isAtFinalSurvival = nextRound > MAX_ROUNDS;
 
     // Apply continuations to show NPC responses in all cases
     setGameState((prev) => {
@@ -457,7 +462,30 @@ function GamePageContent() {
         };
       }
 
-      // If game is over, don't increment round
+      // Handle checkpoint/survival states
+      if (isAtInitialCheckpoint) {
+        return {
+          ...prev,
+          conversationA: newConvA,
+          conversationB: newConvB,
+          conversationC: newConvC,
+          isGameOver: true,
+          gameOverReason: "initial_survived",
+        };
+      }
+
+      if (isAtFinalSurvival) {
+        return {
+          ...prev,
+          conversationA: newConvA,
+          conversationB: newConvB,
+          conversationC: newConvC,
+          isGameOver: true,
+          gameOverReason: "survived",
+        };
+      }
+
+      // If game is over (from confusion), don't increment round
       if (prev.isGameOver) {
         return {
           ...prev,
@@ -480,7 +508,7 @@ function GamePageContent() {
     // Clear pending continuations
     setPendingContinuations(null);
 
-    // If game was over, transition to gameover phase now that NPC responses are visible
+    // If game was over (from confusion), transition to gameover phase
     // Start with modal minimized so player can see the final messages in conversations
     if (gameState.isGameOver) {
       setGameOverStartMinimized(true);
@@ -490,27 +518,18 @@ function GamePageContent() {
 
     setCompletedThisRound({ A: false, B: false, C: isExtremeMode ? false : undefined });
 
-    const nextRound = gameState.round + 1;
-
     // Check if initial survival threshold reached (first checkpoint)
-    if (nextRound > INITIAL_SURVIVAL_ROUNDS && !initialSurvivalAchieved) {
-      // Show initial survival modal - player can choose to continue or end
-      setGameState((prev) =>
-        prev ? { ...prev, isGameOver: true, gameOverReason: "initial_survived" } : prev
-      );
+    if (isAtInitialCheckpoint) {
       setGameOverStartMinimized(false);
       setPhase("gameover");
       return;
     }
 
-    // Check if max replies reached - survived! Show full modal (not minimized)
-    if (nextRound > MAX_ROUNDS) {
+    // Check if max replies reached - survived!
+    if (isAtFinalSurvival) {
       updateHighScore(mode, gameState.score, gameState.round);
       // Save to server for authenticated users
       saveScore(mode, gameState.score, gameState.round);
-      setGameState((prev) =>
-        prev ? { ...prev, isGameOver: true, gameOverReason: "survived" } : prev
-      );
       setGameOverStartMinimized(false);
       setPhase("gameover");
       return;
