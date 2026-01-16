@@ -44,7 +44,8 @@ export function getStoredData(): StoredGameData {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) return defaultData;
     return { ...defaultData, ...JSON.parse(stored) };
-  } catch {
+  } catch (error) {
+    console.warn("Failed to parse stored game data:", error);
     return defaultData;
   }
 }

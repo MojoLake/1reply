@@ -209,7 +209,8 @@ function parseJudgeResponse(
     }
 
     return result;
-  } catch {
+  } catch (error) {
+    console.warn("Failed to parse judge response:", error);
     return null;
   }
 }

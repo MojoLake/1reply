@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     // Moderate user content before sending to LLM
     const moderationResult = moderateMessages([playerReply]);
-    if (!moderationResult.approved) {
+    if (!moderationResult.allowed) {
       return NextResponse.json(
         { error: "Your message contains inappropriate content" },
         { status: 400 }

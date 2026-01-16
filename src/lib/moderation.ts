@@ -4,17 +4,13 @@ import {
   englishRecommendedTransformers,
 } from "obscenity";
 
-export interface ModerationResult {
-  approved: boolean;
-  reason?: string;
-}
-
 // =============================================================================
 // Text Normalization - defeats common bypass techniques
 // =============================================================================
 
 // Zero-width and invisible characters to strip
-const ZERO_WIDTH_CHARS = /[\u200B\u200C\u200D\u2060\uFEFF\u00AD\u034F\u061C\u115F\u1160\u17B4\u17B5\u180E\u2000-\u200F\u202A-\u202F\u205F-\u2064\u206A-\u206F\u3000\u3164\uFFA0]/g;
+const ZERO_WIDTH_CHARS =
+  /[\u200B\u200C\u200D\u2060\uFEFF\u00AD\u034F\u061C\u115F\u1160\u17B4\u17B5\u180E\u2000-\u200F\u202A-\u202F\u205F-\u2064\u206A-\u206F\u3000\u3164\uFFA0]/g;
 
 /**
  * Normalize text to defeat common bypass techniques:
@@ -43,12 +39,12 @@ const obscenityMatcher = new RegExpMatcher({
  * Check text against the Obscenity library's profanity detection.
  * Handles leetspeak, character substitutions, whitespace evasion, etc.
  */
-function checkObscenity(text: string): { passed: boolean; reason?: string } {
+function checkObscenity(text: string): { allowed: boolean; reason?: string } {
   const matches = obscenityMatcher.getAllMatches(text);
   if (matches.length > 0) {
-    return { passed: false, reason: "Inappropriate language detected" };
+    return { allowed: false, reason: "Inappropriate language detected" };
   }
-  return { passed: true };
+  return { allowed: true };
 }
 
 // =============================================================================
@@ -87,18 +83,18 @@ const CUSTOM_BLOCKED_PATTERNS: Array<{ pattern: RegExp; reason: string }> = [
  * Check text against custom domain-specific patterns.
  */
 function checkCustomPatterns(text: string): {
-  passed: boolean;
+  allowed: boolean;
   reason?: string;
 } {
   const lowerText = text.toLowerCase();
 
   for (const { pattern, reason } of CUSTOM_BLOCKED_PATTERNS) {
     if (pattern.test(lowerText)) {
-      return { passed: false, reason };
+      return { allowed: false, reason };
     }
   }
 
-  return { passed: true };
+  return { allowed: true };
 }
 
 // =============================================================================
@@ -106,53 +102,52 @@ function checkCustomPatterns(text: string): {
 // =============================================================================
 
 /**
- * Check text against all moderation layers:
+ * Check if text content is allowed by all moderation layers:
  * 1. Normalize text (strip zero-width chars, convert homoglyphs)
  * 2. Check against Obscenity library (handles leetspeak, substitutions)
  * 3. Check against custom patterns (violence, CSAM, doxxing)
  *
- * Returns { passed: true } if clean, { passed: false, reason } if blocked.
+ * Returns { allowed: true } if clean, { allowed: false, reason } if blocked.
  */
-export function checkBlocklist(text: string): {
-  passed: boolean;
+export function isContentAllowed(text: string): {
+  allowed: boolean;
   reason?: string;
 } {
   const normalizedText = normalizeText(text);
 
   // Check Obscenity library first (covers slurs with evasion techniques)
   const obscenityResult = checkObscenity(normalizedText);
-  if (!obscenityResult.passed) {
+  if (!obscenityResult.allowed) {
     return obscenityResult;
   }
 
   // Check custom patterns (violence, CSAM, doxxing)
   const customResult = checkCustomPatterns(normalizedText);
-  if (!customResult.passed) {
+  if (!customResult.allowed) {
     return customResult;
   }
 
-  return { passed: true };
+  return { allowed: true };
 }
 
 /**
- * Check multiple texts against all moderation layers.
+ * Check if all texts are allowed by all moderation layers.
  */
-export function checkBlocklistMultiple(texts: string[]): {
-  passed: boolean;
+export function isAllContentAllowed(texts: string[]): {
+  allowed: boolean;
   reason?: string;
 } {
   const combined = texts.join(" ");
-  return checkBlocklist(combined);
+  return isContentAllowed(combined);
 }
 
 /**
  * Moderate messages using all moderation layers.
- * Returns { approved: true } if clean, { approved: false, reason } if blocked.
+ * Returns { allowed: true } if clean, { allowed: false, reason } if blocked.
  */
-export function moderateMessages(messages: string[]): ModerationResult {
-  const blocklistResult = checkBlocklistMultiple(messages);
-  if (!blocklistResult.passed) {
-    return { approved: false, reason: blocklistResult.reason };
-  }
-  return { approved: true };
+export function moderateMessages(messages: string[]): {
+  allowed: boolean;
+  reason?: string;
+} {
+  return isAllContentAllowed(messages);
 }

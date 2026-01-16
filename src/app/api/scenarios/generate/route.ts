@@ -87,7 +87,8 @@ function parseGenerationResponse(response: string): GeneratedFields | null {
       };
     }
     return null;
-  } catch {
+  } catch (error) {
+    console.warn("Failed to parse scenario generation response:", error);
     return null;
   }
 }
@@ -120,7 +121,7 @@ export async function POST(request: Request) {
 
     // Content moderation: keyword blocklist
     const moderationResult = moderateMessages(validMessages);
-    if (!moderationResult.approved) {
+    if (!moderationResult.allowed) {
       return NextResponse.json(
         {
           error: "Content not allowed",

@@ -187,7 +187,7 @@ export async function POST(request: Request) {
 
     const moderationResult = moderateMessages(allText);
 
-    if (!moderationResult.approved) {
+    if (!moderationResult.allowed) {
       return NextResponse.json(
         {
           error: "Content not allowed",
