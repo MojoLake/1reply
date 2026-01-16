@@ -489,15 +489,15 @@ export default function CreatePage() {
                   </p>
                 </div>
 
-                {/* Optional Fields */}
+                {/* Required Fields (can be AI-generated) */}
                 <p className="text-xs text-gray-600 font-mono mb-4">
-                  These fields can be auto-filled or customized:
+                  Fill these fields manually or use &quot;Fill the Rest&quot; above:
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
                     <label className="block text-xs text-gray-500 font-mono mb-2">
-                      PERSON&apos;S NAME <span className="text-gray-700">(optional)</span>
+                      PERSON&apos;S NAME
                     </label>
                     <input
                       type="text"
@@ -512,7 +512,7 @@ export default function CreatePage() {
                   </div>
                   <div>
                     <label className="block text-xs text-gray-500 font-mono mb-2">
-                      RELATIONSHIP/CONTEXT <span className="text-gray-700">(optional)</span>
+                      RELATIONSHIP/CONTEXT
                     </label>
                     <input
                       type="text"
@@ -530,7 +530,7 @@ export default function CreatePage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   <div>
                     <label className="block text-xs text-gray-500 font-mono mb-2">
-                      TOPIC <span className="text-gray-700">(optional)</span>
+                      TOPIC
                     </label>
                     <input
                       type="text"
@@ -545,7 +545,7 @@ export default function CreatePage() {
                   </div>
                   <div>
                     <label className="block text-xs text-gray-500 font-mono mb-2">
-                      TONE <span className="text-gray-700">(optional)</span>
+                      TONE
                     </label>
                     <input
                       type="text"
@@ -560,7 +560,7 @@ export default function CreatePage() {
                   </div>
                   <div>
                     <label className="block text-xs text-gray-500 font-mono mb-2">
-                      INTENT <span className="text-gray-700">(optional)</span>
+                      INTENT
                     </label>
                     <input
                       type="text"
