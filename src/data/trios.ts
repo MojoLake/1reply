@@ -20,7 +20,7 @@ export const trios: GamePair[] = [
       personContext: "Your project manager",
       facts: [
         "Project deadline is Friday",
-        "The player is working on the frontend",
+        "You is working on the frontend",
       ],
       initialTranscript: [
         { role: "them", text: "Hi, quick check-in on the project." },
@@ -79,7 +79,7 @@ export const trios: GamePair[] = [
       personContext: "Your friend who loves trying new restaurants",
       facts: [
         "There's a new Thai place downtown",
-        "The player and Taylor are both free this weekend",
+        "You and Taylor are both free this weekend",
       ],
       initialTranscript: [
         { role: "them", text: "That new Thai place opened!" },
@@ -95,7 +95,7 @@ export const trios: GamePair[] = [
       personName: "Blake",
       personContext: "Your friend with similar music taste",
       facts: [
-        "The player's favorite band is coming to town",
+        "You's favorite band is coming to town",
         "Blake has two tickets",
       ],
       initialTranscript: [
@@ -111,7 +111,7 @@ export const trios: GamePair[] = [
       intent: "inviting",
       personName: "Lisa",
       personContext: "Your coworker who loves karaoke",
-      facts: ["Team is going out tonight", "Lisa wants the player to join"],
+      facts: ["Team is going out tonight", "Lisa wants you to join"],
       initialTranscript: [
         { role: "them", text: "KARAOKE TONIGHT!!! 🎤" },
         {
@@ -135,7 +135,7 @@ export const trios: GamePair[] = [
       personContext: "Your mother",
       facts: [
         "Mom wants to visit next month",
-        "The player is very busy with work",
+        "You is very busy with work",
       ],
       initialTranscript: [
         {
@@ -154,8 +154,8 @@ export const trios: GamePair[] = [
       personName: "Matt",
       personContext: "Your competitive older brother",
       facts: [
-        "The player and Matt both play the same mobile game",
-        "Matt just beat the player's high score",
+        "You and Matt both play the same mobile game",
+        "Matt just beat your high score",
       ],
       initialTranscript: [
         { role: "them", text: "Check the leaderboard 😎" },
@@ -195,7 +195,7 @@ export const trios: GamePair[] = [
       intent: "showing_interest",
       personName: "Robin",
       personContext: "Someone you went on a first date with",
-      facts: ["The player and Robin had dinner last night", "It went well"],
+      facts: ["You and Robin had dinner last night", "It went well"],
       initialTranscript: [
         { role: "them", text: "I had a really great time last night 😊" },
         { role: "them", text: "Would love to do it again sometime" },
@@ -211,7 +211,7 @@ export const trios: GamePair[] = [
       personContext: "Your ex from 2 years ago",
       facts: [
         "The breakup was mutual",
-        "The player and Nathan haven't spoken since",
+        "You and Nathan haven't spoken since",
       ],
       initialTranscript: [
         { role: "them", text: "Hey, I know this is random" },
@@ -227,8 +227,8 @@ export const trios: GamePair[] = [
       personName: "Denise",
       personContext: "Your work friend",
       facts: [
-        "The player and Denise both noticed James has been extra friendly to the player",
-        "Denise is teasing the player about it",
+        "You and Denise both noticed James has been extra friendly to you",
+        "Denise is teasing you about it",
       ],
       initialTranscript: [
         {
@@ -252,7 +252,7 @@ export const trios: GamePair[] = [
       personName: "Alex",
       personContext: "Your close friend from college",
       facts: [
-        "The player and Alex haven't seen each other in 2 weeks",
+        "You and Alex haven't seen each other in 2 weeks",
         "Alex just got back from vacation",
       ],
       initialTranscript: [
@@ -269,7 +269,7 @@ export const trios: GamePair[] = [
       personName: "Jordan",
       personContext: "Your gym buddy",
       facts: [
-        "The player and Jordan both go to the same gym",
+        "You and Jordan both go to the same gym",
         "Jordan missed the last few sessions",
       ],
       initialTranscript: [
@@ -286,8 +286,8 @@ export const trios: GamePair[] = [
       personName: "Maria",
       personContext: "Your best friend from elementary school",
       facts: [
-        "The player and Maria haven't seen each other in 10 years",
-        "Maria found the player on social media",
+        "You and Maria haven't seen each other in 10 years",
+        "Maria found you on social media",
       ],
       initialTranscript: [
         { role: "them", text: "OMG IS THIS REALLY YOU??" },
