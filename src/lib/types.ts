@@ -97,7 +97,7 @@ export interface GameState {
   usedSituationIds: string[];
   usedPairIds: string[];
   isGameOver: boolean;
-  gameOverReason?: "A" | "B" | "C" | "survived"; // "survived" when player completes all 30 rounds
+  gameOverReason?: "A" | "B" | "C" | "survived" | "initial_survived"; // "survived" when player completes all 30 rounds, "initial_survived" at checkpoint
   completedConversations: number; // count of successfully completed conversations
 }
 
