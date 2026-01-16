@@ -138,7 +138,7 @@ export const pairs: GamePair[] = [
       intent: "asking_for_update",
       personName: "Patricia",
       personContext: "Your project manager",
-      facts: ["Project deadline is Friday", "You is working on the frontend"],
+      facts: ["Project deadline is Friday", "You are working on the frontend"],
       initialTranscript: [
         { role: "them", text: "Hi, quick check-in on the project." },
         { role: "them", text: "How's progress looking for Friday?" },
@@ -152,7 +152,7 @@ export const pairs: GamePair[] = [
       intent: "inviting",
       personName: "Blake",
       personContext: "Your friend with similar music taste",
-      facts: ["You's favorite band is coming to town", "Blake has two tickets"],
+      facts: ["Your favorite band is coming to town", "Blake has two tickets"],
       initialTranscript: [
         { role: "them", text: "GUESS WHO GOT TICKETS?! 🎸" },
         { role: "them", text: "You're coming with me right??" },
@@ -428,7 +428,7 @@ export const pairs: GamePair[] = [
       intent: "asking_favor",
       personName: "Chris",
       personContext: "Your sibling",
-      facts: ["Chris's car is in the shop", "You has a spare car"],
+      facts: ["Chris's car is in the shop", "You have a spare car"],
       initialTranscript: [
         { role: "them", text: "Hey so my car broke down 😭" },
         { role: "them", text: "Any chance I could borrow yours this weekend?" },
@@ -528,7 +528,7 @@ export const pairs: GamePair[] = [
       intent: "making_demands",
       personName: "Mom",
       personContext: "Your mother",
-      facts: ["Mom wants to visit next month", "You is very busy with work"],
+      facts: ["Mom wants to visit next month", "You are very busy with work"],
       initialTranscript: [
         {
           role: "them",
@@ -756,7 +756,7 @@ export const pairs: GamePair[] = [
       personName: "Realtor Linda",
       personContext: "Real estate agent helping you find a place",
       facts: [
-        "You has been looking for apartments",
+        "You have been looking for apartments",
         "Realtor Linda found something that might work",
       ],
       initialTranscript: [
@@ -861,7 +861,7 @@ export const pairs: GamePair[] = [
       intent: "venting",
       personName: "Alex",
       personContext: "Coworker frustrated with management",
-      facts: ["You's boss made an unfair decision", "Alex is fed up"],
+      facts: ["Your boss made an unfair decision", "Alex is fed up"],
       initialTranscript: [
         {
           role: "them",
@@ -1126,7 +1126,7 @@ export const pairs: GamePair[] = [
       personContext: "Your college friend",
       facts: [
         "Jennifer is getting married next summer",
-        "You is on the guest list",
+        "You are on the guest list",
       ],
       initialTranscript: [
         { role: "them", text: "Save the date!! 💒" },
@@ -1237,7 +1237,7 @@ export const pairs: GamePair[] = [
       personName: "Mira",
       personContext: "Your team lead.",
       facts: [
-        "You owns the deployment checklist.",
+        "You own the deployment checklist.",
         "The release is scheduled for tonight.",
       ],
       initialTranscript: [
@@ -1275,7 +1275,10 @@ export const pairs: GamePair[] = [
       intent: "asking_favor",
       personName: "Dr. Khan",
       personContext: "Your thesis supervisor.",
-      facts: ["You has the latest slides.", "The meeting is tomorrow morning."],
+      facts: [
+        "You have the latest slides.",
+        "The meeting is tomorrow morning.",
+      ],
       initialTranscript: [
         { role: "them", text: "Can you send me the latest version?" },
         { role: "them", text: "I need it before 9." },
@@ -1346,7 +1349,7 @@ export const pairs: GamePair[] = [
       personContext: "Your manager.",
       facts: [
         "An incident happened in the team channel.",
-        "You was tagged in the thread.",
+        "You were tagged in the thread.",
       ],
       initialTranscript: [
         { role: "them", text: "I saw what happened." },
@@ -1419,7 +1422,7 @@ export const pairs: GamePair[] = [
       intent: "asking_favor",
       personName: "Dad",
       personContext: "Your father.",
-      facts: ["Dad can’t log into email.", "You usually fixes it remotely."],
+      facts: ["Dad can’t log into email.", "You usually fix it remotely."],
       initialTranscript: [
         { role: "them", text: "Quick call?" },
         { role: "them", text: "My email’s acting weird again." },
@@ -1505,7 +1508,7 @@ export const pairs: GamePair[] = [
       intent: "asking_favor",
       personName: "Bruno",
       personContext: "Your friend who dodges awkward plans.",
-      facts: ["Bruno wants an excuse to cancel.", "You knows Bruno’s parents."],
+      facts: ["Bruno wants an excuse to cancel.", "You know Bruno’s parents."],
       initialTranscript: [
         { role: "them", text: "Cover me for 30 mins?" },
         { role: "them", text: "If they ask, I’m with you 😅" },
@@ -1626,7 +1629,7 @@ export const pairs: GamePair[] = [
       intent: "asking_favor",
       personName: "Grandma",
       personContext: "Your grandmother.",
-      facts: ["Grandma has a clinic appointment.", "You has a car."],
+      facts: ["Grandma has a clinic appointment.", "You have a car."],
       initialTranscript: [
         { role: "them", text: "Can you drive me to the thing today?" },
         { role: "them", text: "I wrote the time down somewhere." },
@@ -1781,7 +1784,7 @@ export const pairs: GamePair[] = [
       intent: "warning",
       personName: "Rina",
       personContext: "Your friend who loves spoilers.",
-      facts: ["Rina is about to spoil a show.", "You wants to stay unspoiled."],
+      facts: ["Rina is about to spoil a show.", "You want to stay unspoiled."],
       initialTranscript: [
         { role: "them", text: "Don’t open that link 😭" },
         { role: "them", text: "It’s spoilers!!" },
@@ -1938,7 +1941,7 @@ export const pairs: GamePair[] = [
       intent: "asking_favor",
       personName: "Dev Rafi",
       personContext: "Your teammate.",
-      facts: ["Rafi has a bug screenshot.", "You knows the module."],
+      facts: ["Rafi has a bug screenshot.", "You know the module."],
       initialTranscript: [
         { role: "them", text: "Can you look at this real quick?" },
         { role: "them", text: "It’s crashing again." },
@@ -2073,7 +2076,7 @@ export const pairs: GamePair[] = [
       intent: "venting",
       personName: "Mentor Cal",
       personContext: "Your workplace mentor.",
-      facts: ["You got surprising feedback.", "You is processing it."],
+      facts: ["You got surprising feedback.", "You are processing it."],
       initialTranscript: [
         { role: "them", text: "How did the review go?" },
         { role: "them", text: "Any surprises?" },
@@ -2141,7 +2144,7 @@ export const pairs: GamePair[] = [
       personContext: "External vendor contacting you.",
       facts: [
         "An invoice is pending approval.",
-        "You is the point of contact.",
+        "You are the point of contact.",
       ],
       initialTranscript: [
         { role: "them", text: "I need you to confirm receipt." },
@@ -2258,7 +2261,7 @@ export const pairs: GamePair[] = [
       intent: "asking_favor",
       personName: "Ex Jamie",
       personContext: "Your ex who texted unexpectedly.",
-      facts: ["Jamie wants to meet up.", "You is tempted."],
+      facts: ["Jamie wants to meet up.", "You are tempted."],
       initialTranscript: [
         { role: "them", text: "Is this a bad idea?" },
         { role: "them", text: "I kinda wanna message them." },
@@ -2291,7 +2294,7 @@ export const pairs: GamePair[] = [
       intent: "problem_solving",
       personName: "Roommate Ali",
       personContext: "Your roommate.",
-      facts: ["Ali lost the spare key.", "You has the other set."],
+      facts: ["Ali lost the spare key.", "You have the other set."],
       initialTranscript: [
         { role: "them", text: "I can’t find it anywhere 😩" },
         { role: "them", text: "Did you move the spare key?" },
@@ -2300,7 +2303,7 @@ export const pairs: GamePair[] = [
     },
   },
   {
-    id: "we-need-to-talk-about-the-money",
+    id: "money-conversations",
     difficulty: "hard",
     theme: "confusable",
     situationA: {
@@ -2310,10 +2313,10 @@ export const pairs: GamePair[] = [
       intent: "problem_solving",
       personName: "Accounting",
       personContext: "Company accounting team.",
-      facts: ["You’s expense report is flagged.", "Receipts are missing."],
+      facts: ["Your expense report is flagged.", "Receipts are missing."],
       initialTranscript: [
-        { role: "them", text: "We need to talk about the money." },
-        { role: "them", text: "Your report is flagged." },
+        { role: "them", text: "Your expense report has been flagged." },
+        { role: "them", text: "We're missing receipts for 3 transactions." },
       ],
       difficultyTags: ["hard"],
     },
@@ -2326,8 +2329,8 @@ export const pairs: GamePair[] = [
       personContext: "Your partner discussing bills.",
       facts: ["Bills are due soon.", "Ash feels the split is unfair."],
       initialTranscript: [
-        { role: "them", text: "We need to talk about the money." },
-        { role: "them", text: "This isn’t working." },
+        { role: "them", text: "Can we talk about the rent situation?" },
+        { role: "them", text: "I don't think 50/50 is fair anymore." },
       ],
       difficultyTags: ["hard"],
     },
@@ -2405,7 +2408,7 @@ export const pairs: GamePair[] = [
     },
   },
   {
-    id: "that-thing-you-said-hurt",
+    id: "feedback-gone-wrong",
     difficulty: "hard",
     theme: "contrast",
     situationA: {
@@ -2417,8 +2420,8 @@ export const pairs: GamePair[] = [
       personContext: "Your mentee/intern.",
       facts: ["You gave blunt feedback.", "Ayo took it personally."],
       initialTranscript: [
-        { role: "them", text: "That thing you said hurt." },
-        { role: "them", text: "Can we talk?" },
+        { role: "them", text: "I need to talk to you about the review." },
+        { role: "them", text: "That was harsh in front of everyone." },
       ],
       difficultyTags: ["hard"],
     },
@@ -2429,10 +2432,10 @@ export const pairs: GamePair[] = [
       intent: "repairing",
       personName: "Cousin Remy",
       personContext: "Your cousin.",
-      facts: ["You joked about Remy’s job.", "Remy is sensitive about it."],
+      facts: ["You joked about Remy's job.", "Remy is sensitive about it."],
       initialTranscript: [
-        { role: "them", text: "That thing you said hurt." },
-        { role: "them", text: "Not cool." },
+        { role: "them", text: "That joke at dinner wasn't funny." },
+        { role: "them", text: "You know I'm struggling with work stuff." },
       ],
       difficultyTags: ["hard"],
     },
@@ -2501,7 +2504,7 @@ export const pairs: GamePair[] = [
       intent: "reminding",
       personName: "Hana",
       personContext: "Friend hosting game night.",
-      facts: ["You owns the board game.", "Hana asked for it."],
+      facts: ["You own the board game.", "Hana asked for it."],
       initialTranscript: [
         { role: "them", text: "Don’t forget to bring it 😄" },
         { role: "them", text: "Game night depends on you." },
@@ -2510,7 +2513,7 @@ export const pairs: GamePair[] = [
     },
   },
   {
-    id: "i-need-you-to-be-honest",
+    id: "honest-conversations",
     difficulty: "hard",
     theme: "contrast",
     situationA: {
@@ -2522,8 +2525,8 @@ export const pairs: GamePair[] = [
       personContext: "Your manager.",
       facts: ["Tessa suspects burnout.", "She wants a truthful status."],
       initialTranscript: [
-        { role: "them", text: "I need you to be honest." },
-        { role: "them", text: "Can you handle this load?" },
+        { role: "them", text: "Quick check-in, off the record." },
+        { role: "them", text: "Are you actually okay with this workload?" },
       ],
       difficultyTags: ["hard"],
     },
@@ -2534,16 +2537,16 @@ export const pairs: GamePair[] = [
       intent: "checking_in",
       personName: "Val",
       personContext: "Your situationship.",
-      facts: ["Val wants clarity.", "They’ve been ambiguous."],
+      facts: ["Val wants clarity.", "They've been ambiguous."],
       initialTranscript: [
-        { role: "them", text: "I need you to be honest." },
-        { role: "them", text: "What are we doing?" },
+        { role: "them", text: "I need to know where I stand." },
+        { role: "them", text: "What is this to you?" },
       ],
       difficultyTags: ["hard"],
     },
   },
   {
-    id: "can-you-make-it-short",
+    id: "brevity-needed",
     difficulty: "medium",
     theme: "confusable",
     situationA: {
@@ -2555,8 +2558,8 @@ export const pairs: GamePair[] = [
       personContext: "Person who formats updates for leadership.",
       facts: ["You wrote a long update.", "Leadership wants a short version."],
       initialTranscript: [
-        { role: "them", text: "Can you make it short?" },
-        { role: "them", text: "They only read 2 lines." },
+        { role: "them", text: "This needs to fit on one slide." },
+        { role: "them", text: "Execs don't read past 2 lines." },
       ],
       difficultyTags: ["medium"],
     },
@@ -2567,10 +2570,10 @@ export const pairs: GamePair[] = [
       intent: "flirting",
       personName: "Timo",
       personContext: "Your flirt who dislikes paragraphs.",
-      facts: ["You tends to over-explain.", "Timo prefers quick texts."],
+      facts: ["You tend to over-explain.", "Timo prefers quick texts."],
       initialTranscript: [
-        { role: "them", text: "Can you make it short? 😄" },
-        { role: "them", text: "I’m bad at long messages." },
+        { role: "them", text: "Lol that's a lot of words 😄" },
+        { role: "them", text: "Give me the TL;DR version?" },
       ],
       difficultyTags: ["medium"],
     },
@@ -2721,7 +2724,7 @@ export const pairs: GamePair[] = [
       intent: "warning",
       personName: "Ops Pager",
       personContext: "Automated incident paging system.",
-      facts: ["A critical alert fired.", "You is on-call."],
+      facts: ["A critical alert fired.", "You are on-call."],
       initialTranscript: [
         { role: "them", text: "This is urgent." },
         { role: "them", text: "Service down." },
@@ -2830,7 +2833,7 @@ export const pairs: GamePair[] = [
       personName: "Legal Counsel",
       personContext: "Company lawyer with a thick stack of papers.",
       facts: [
-        "You is being asked to sign a non-compete agreement.",
+        "You are being asked to sign a non-compete agreement.",
         "Refusing might affect their standing.",
       ],
       initialTranscript: [
@@ -2868,7 +2871,7 @@ export const pairs: GamePair[] = [
       intent: "checking_in",
       personName: "Team Lead Sol",
       personContext: "Your team lead.",
-      facts: ["You has been quiet in standups.", "Tasks are slipping."],
+      facts: ["You have been quiet in standups.", "Tasks are slipping."],
       initialTranscript: [
         { role: "them", text: "Is everything ok with you?" },
         { role: "them", text: "You’ve been quiet." },
@@ -2882,7 +2885,7 @@ export const pairs: GamePair[] = [
       intent: "checking_in",
       personName: "Caro",
       personContext: "Someone you went on a date with.",
-      facts: ["You hasn’t replied all day.", "Caro worries they messed up."],
+      facts: ["You haven’t replied all day.", "Caro worries they messed up."],
       initialTranscript: [
         { role: "them", text: "Everything ok with you?" },
         { role: "them", text: "You disappeared 😕" },
@@ -2903,7 +2906,7 @@ export const pairs: GamePair[] = [
       personContext: "Your executive leader.",
       facts: [
         "A critical customer escalation happened.",
-        "You owns the affected system.",
+        "You own the affected system.",
       ],
       initialTranscript: [
         { role: "them", text: "Can you drop everything?" },
@@ -2993,7 +2996,7 @@ export const pairs: GamePair[] = [
       intent: "checking_in",
       personName: "Nell",
       personContext: "Friend at a party with you.",
-      facts: ["You’s ex is present.", "Nell is warning you."],
+      facts: ["Your ex is present.", "Nell is warning you."],
       initialTranscript: [
         { role: "them", text: "This is awkward but..." },
         { role: "them", text: "Your ex is here 😬" },
@@ -3123,7 +3126,7 @@ export const pairs: GamePair[] = [
       intent: "asking_favor",
       personName: "CFO",
       personContext: "Executive needing you urgently.",
-      facts: ["A meeting is happening now.", "You has key data."],
+      facts: ["A meeting is happening now.", "You have key data."],
       initialTranscript: [
         { role: "them", text: "I need you to come here." },
         { role: "them", text: "Right now." },
@@ -3218,7 +3221,7 @@ export const pairs: GamePair[] = [
     },
   },
   {
-    id: "are-you-mad-at-me",
+    id: "cold-shoulder",
     difficulty: "hard",
     theme: "confusable",
     situationA: {
@@ -3228,10 +3231,10 @@ export const pairs: GamePair[] = [
       intent: "repairing",
       personName: "Teammate Jace",
       personContext: "Coworker who feels slighted.",
-      facts: ["You reassigned Jace’s task.", "Jace is being cold."],
+      facts: ["You reassigned Jace's task.", "Jace is being cold."],
       initialTranscript: [
-        { role: "them", text: "Are you mad at me?" },
-        { role: "them", text: "Feels like you are." },
+        { role: "them", text: "Why did you take me off the project?" },
+        { role: "them", text: "A heads up would've been nice." },
       ],
       difficultyTags: ["hard"],
     },
@@ -3244,14 +3247,14 @@ export const pairs: GamePair[] = [
       personContext: "Your date who thinks they were ignored.",
       facts: ["You left Quinn on read.", "Quinn is insecure about it."],
       initialTranscript: [
-        { role: "them", text: "Are you mad at me?" },
-        { role: "them", text: "Be honest 😕" },
+        { role: "them", text: "Did I say something wrong?" },
+        { role: "them", text: "You've been quiet 😕" },
       ],
       difficultyTags: ["hard"],
     },
   },
   {
-    id: "i-dont-think-this-is-working",
+    id: "something-isnt-working",
     difficulty: "hard",
     theme: "contrast",
     situationA: {
@@ -3263,8 +3266,8 @@ export const pairs: GamePair[] = [
       personContext: "Lead on the tooling project.",
       facts: ["A new tool rollout failed.", "Hana wants immediate triage."],
       initialTranscript: [
-        { role: "them", text: "I don’t think this is working." },
-        { role: "them", text: "We need a fix today." },
+        { role: "them", text: "The migration is broken." },
+        { role: "them", text: "Half the team can't deploy. We need a fix today." },
       ],
       difficultyTags: ["hard"],
     },
@@ -3277,8 +3280,8 @@ export const pairs: GamePair[] = [
       personContext: "Your partner.",
       facts: ["Morgan is unhappy.", "They want a serious talk."],
       initialTranscript: [
-        { role: "them", text: "I don’t think this is working." },
-        { role: "them", text: "We need to talk." },
+        { role: "them", text: "I've been thinking a lot lately." },
+        { role: "them", text: "Can we talk tonight? In person?" },
       ],
       difficultyTags: ["hard"],
     },
@@ -3312,7 +3315,7 @@ export const pairs: GamePair[] = [
       personName: "Bestie Tia",
       personContext: "Friend following your chaotic date night.",
       facts: [
-        "You's date just excused themselves to the bathroom 20 mins ago.",
+        "Your date just excused themselves to the bathroom 20 mins ago.",
         "Tia is convinced it's going badly.",
       ],
       initialTranscript: [
@@ -3475,7 +3478,7 @@ export const pairs: GamePair[] = [
       personName: "Mentor Gia",
       personContext: "Your mentor.",
       facts: [
-        "You is considering quitting.",
+        "You are considering quitting.",
         "Gia asked for a decision update.",
       ],
       initialTranscript: [
@@ -3491,7 +3494,7 @@ export const pairs: GamePair[] = [
       intent: "asking_favor",
       personName: "Friend Kiki",
       personContext: "Friend hyping you up.",
-      facts: ["You plans to confess to a crush.", "Kiki wants play-by-play."],
+      facts: ["You plan to confess to a crush.", "Kiki wants play-by-play."],
       initialTranscript: [
         { role: "them", text: "Are you gonna do it??" },
         { role: "them", text: "Text them NOW 👀" },
@@ -3511,7 +3514,7 @@ export const pairs: GamePair[] = [
       personName: "Finance Auditor",
       personContext: "External auditor reviewing company expenses.",
       facts: [
-        "You's team retreat expenses are being audited.",
+        "Your team retreat expenses are being audited.",
         "One $800 charge has no documentation.",
       ],
       initialTranscript: [
@@ -3563,7 +3566,7 @@ export const pairs: GamePair[] = [
       intent: "checking_in",
       personName: "Friend Miki",
       personContext: "Friend texting during your date.",
-      facts: ["You is on a first date.", "Miki wants a vibe check."],
+      facts: ["You are on a first date.", "Miki wants a vibe check."],
       initialTranscript: [
         { role: "them", text: "How’s the vibe??" },
         { role: "them", text: "Green flag or no?" },
@@ -3572,7 +3575,7 @@ export const pairs: GamePair[] = [
     },
   },
   {
-    id: "can-you-keep-this-between-us",
+    id: "secrets-shared",
     difficulty: "hard",
     theme: "confusable",
     situationA: {
@@ -3582,10 +3585,10 @@ export const pairs: GamePair[] = [
       intent: "sharing_news",
       personName: "Colleague Dan",
       personContext: "Coworker sharing internal conflict info.",
-      facts: ["Dan is worried about retaliation.", "You is trusted."],
+      facts: ["Dan is worried about retaliation.", "You are trusted."],
       initialTranscript: [
-        { role: "them", text: "Keep this between us." },
-        { role: "them", text: "Seriously." },
+        { role: "them", text: "Don't tell anyone I told you this." },
+        { role: "them", text: "But something's going on with leadership." },
       ],
       difficultyTags: ["hard"],
     },
@@ -3598,8 +3601,8 @@ export const pairs: GamePair[] = [
       personContext: "Friend sharing a secret crush story.",
       facts: ["Sora likes someone in the group.", "Sora fears teasing."],
       initialTranscript: [
-        { role: "them", text: "Keep this between us 😳" },
-        { role: "them", text: "I have a crush." },
+        { role: "them", text: "Okay but you CAN'T tell anyone 😳" },
+        { role: "them", text: "I think I like someone in our friend group..." },
       ],
       difficultyTags: ["hard"],
     },
@@ -3616,8 +3619,8 @@ export const pairs: GamePair[] = [
       personName: "HR Recruiter",
       personContext: "Recruiter who scheduled you for an interview panel.",
       facts: [
-        "You is supposed to interview a candidate in 10 minutes.",
-        "You hasn't confirmed attendance.",
+        "You are supposed to interview a candidate in 10 minutes.",
+        "You haven't confirmed attendance.",
       ],
       initialTranscript: [
         { role: "them", text: "You're still joining the panel at 2pm right?" },
@@ -3651,7 +3654,7 @@ export const pairs: GamePair[] = [
       intent: "asking_favor",
       personName: "Engineer Liv",
       personContext: "Coworker pitching an idea with you.",
-      facts: ["Liv expects pushback.", "You has data to support it."],
+      facts: ["Liv expects pushback.", "You have data to support it."],
       initialTranscript: [
         { role: "them", text: "Need you to back me up." },
         { role: "them", text: "They’ll argue." },
@@ -3769,8 +3772,8 @@ export const pairs: GamePair[] = [
       tone: "playful",
       intent: "asking_favor",
       personName: "Younger Sibling",
-      personContext: "You's 16-year-old sibling who wants to go to a party.",
-      facts: ["Parents are out of town.", "You is 'in charge' this weekend."],
+      personContext: "Your 16-year-old sibling who wants to go to a party.",
+      facts: ["Parents are out of town.", "You are 'in charge' this weekend."],
       initialTranscript: [
         { role: "them", text: "Soooo there's a party tonight..." },
         { role: "them", text: "You're the cool one right? 😇" },
@@ -3789,7 +3792,7 @@ export const pairs: GamePair[] = [
       intent: "setting_boundary",
       personName: "Coworker Ken",
       personContext: "Coworker repeatedly pinging you.",
-      facts: ["Ken is sending many messages.", "You is in meetings."],
+      facts: ["Ken is sending many messages.", "You are in meetings."],
       initialTranscript: [
         { role: "them", text: "?? You there" },
         { role: "them", text: "Need answer now" },
@@ -3896,7 +3899,7 @@ export const pairs: GamePair[] = [
       personContext: "VP doing a post-mortem on yesterday's outage.",
       facts: [
         "The outage cost the company $50k in lost revenue.",
-        "You's commit was in the deploy.",
+        "Your commit was in the deploy.",
       ],
       initialTranscript: [
         { role: "them", text: "Walk me through exactly what happened." },
@@ -4181,7 +4184,7 @@ export const pairs: GamePair[] = [
       personName: "Manager Dee",
       personContext: "Your manager after a third missed deadline.",
       facts: [
-        "You has missed two deadlines already.",
+        "You have missed two deadlines already.",
         "This is a PIP conversation.",
       ],
       initialTranscript: [
@@ -4238,7 +4241,7 @@ export const pairs: GamePair[] = [
       personContext: "Your mom who lives 3 hours away.",
       facts: [
         "Mom didn't mention she was coming.",
-        "You's apartment is a disaster.",
+        "Your apartment is a disaster.",
       ],
       initialTranscript: [
         { role: "them", text: "SURPRISE! I'm outside!! 🎉" },
@@ -4310,7 +4313,7 @@ export const pairs: GamePair[] = [
       tone: "serious",
       intent: "reconnecting",
       personName: "Ex Yuki",
-      personContext: "You's ex from college, now engaged to someone else.",
+      personContext: "Your ex from college, now engaged to someone else.",
       facts: [
         "Yuki is getting married next month.",
         "Yuki wants to 'clear the air' before the wedding.",
