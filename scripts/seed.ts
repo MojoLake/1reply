@@ -1,8 +1,8 @@
 /**
  * Seed script for populating Supabase with test data
- * 
+ *
  * Run with: npm run seed (or yarn seed)
- * 
+ *
  * Prerequisites:
  * 1. Set SUPABASE_SERVICE_ROLE_KEY in your .env.local (from Supabase dashboard)
  * 2. Have the database schema already applied
@@ -18,7 +18,10 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!supabaseUrl || !supabaseServiceKey) {
   console.error("❌ Missing environment variables:");
   console.error("   NEXT_PUBLIC_SUPABASE_URL:", supabaseUrl ? "✓" : "✗");
-  console.error("   SUPABASE_SERVICE_ROLE_KEY:", supabaseServiceKey ? "✓" : "✗");
+  console.error(
+    "   SUPABASE_SERVICE_ROLE_KEY:",
+    supabaseServiceKey ? "✓" : "✗"
+  );
   console.error("\nMake sure these are set in your .env.local file");
   process.exit(1);
 }
@@ -33,8 +36,8 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 
 // Test user data
 const TEST_USER = {
-  email: "test@1reply.game",
-  password: "testpassword123",
+  email: "test@1.co",
+  password: "42",
   displayName: "Test Player",
 };
 
@@ -145,13 +148,16 @@ const SAMPLE_SCENARIOS = [
       intent: "complaint",
       personName: "Mr. Park",
       personContext: "Your strict landlord",
-      facts: [
-        "Rent is due next week",
-        "The heater has been broken for 3 days",
-      ],
+      facts: ["Rent is due next week", "The heater has been broken for 3 days"],
       initialTranscript: [
-        { role: "them", text: "Hello, this is regarding the maintenance request." },
-        { role: "them", text: "When would be a good time to send someone over?" },
+        {
+          role: "them",
+          text: "Hello, this is regarding the maintenance request.",
+        },
+        {
+          role: "them",
+          text: "When would be a good time to send someone over?",
+        },
       ],
       difficultyTags: ["medium"],
     },
@@ -163,25 +169,28 @@ async function seed() {
 
   // Step 1: Create test user
   console.log("👤 Creating test user...");
-  
+
   // First, check if user already exists
   const { data: existingUsers } = await supabase.auth.admin.listUsers();
-  const existingUser = existingUsers?.users?.find((u: { email?: string }) => u.email === TEST_USER.email);
-  
+  const existingUser = existingUsers?.users?.find(
+    (u: { email?: string }) => u.email === TEST_USER.email
+  );
+
   let userId: string;
-  
+
   if (existingUser) {
     console.log("   User already exists, using existing user");
     userId = existingUser.id;
   } else {
-    const { data: newUser, error: userError } = await supabase.auth.admin.createUser({
-      email: TEST_USER.email,
-      password: TEST_USER.password,
-      email_confirm: true,
-      user_metadata: {
-        full_name: TEST_USER.displayName,
-      },
-    });
+    const { data: newUser, error: userError } =
+      await supabase.auth.admin.createUser({
+        email: TEST_USER.email,
+        password: TEST_USER.password,
+        email_confirm: true,
+        user_metadata: {
+          full_name: TEST_USER.displayName,
+        },
+      });
 
     if (userError) {
       console.error("❌ Failed to create test user:", userError.message);
@@ -201,12 +210,10 @@ async function seed() {
     .single();
 
   if (!profile) {
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .insert({
-        id: userId,
-        display_name: TEST_USER.displayName,
-      });
+    const { error: profileError } = await supabase.from("profiles").insert({
+      id: userId,
+      display_name: TEST_USER.displayName,
+    });
 
     if (profileError) {
       console.error("❌ Failed to create profile:", profileError.message);
@@ -219,10 +226,10 @@ async function seed() {
 
   // Step 3: Create sample scenarios
   console.log("\n🎮 Creating sample scenarios...");
-  
+
   for (const scenario of SAMPLE_SCENARIOS) {
     const shareCode = nanoid(8);
-    
+
     const { data, error } = await supabase
       .from("user_scenarios")
       .insert({
@@ -239,18 +246,25 @@ async function seed() {
     if (error) {
       // Check if it's a duplicate
       if (error.code === "23505") {
-        console.log(`   ⚠ Scenario "${scenario.title}" already exists, skipping`);
+        console.log(
+          `   ⚠ Scenario "${scenario.title}" already exists, skipping`
+        );
       } else {
-        console.error(`   ❌ Failed to create "${scenario.title}":`, error.message);
+        console.error(
+          `   ❌ Failed to create "${scenario.title}":`,
+          error.message
+        );
       }
     } else {
-      console.log(`   ✓ Created "${scenario.title}" → /play/${data.share_code}`);
+      console.log(
+        `   ✓ Created "${scenario.title}" → /play/${data.share_code}`
+      );
     }
   }
 
   // Step 4: Create some sample scores
   console.log("\n🏆 Creating sample scores...");
-  
+
   const sampleScores = [
     { mode: "classic", score: 1250, rounds_survived: 8 },
     { mode: "classic", score: 2100, rounds_survived: 14 },
@@ -259,17 +273,17 @@ async function seed() {
   ];
 
   for (const scoreData of sampleScores) {
-    const { error } = await supabase
-      .from("user_scores")
-      .insert({
-        user_id: userId,
-        ...scoreData,
-      });
+    const { error } = await supabase.from("user_scores").insert({
+      user_id: userId,
+      ...scoreData,
+    });
 
     if (error) {
       console.error(`   ❌ Failed to create score:`, error.message);
     } else {
-      console.log(`   ✓ Added ${scoreData.mode} score: ${scoreData.score} pts (${scoreData.rounds_survived} rounds)`);
+      console.log(
+        `   ✓ Added ${scoreData.mode} score: ${scoreData.score} pts (${scoreData.rounds_survived} rounds)`
+      );
     }
   }
 
