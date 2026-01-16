@@ -37,9 +37,17 @@ export default function GameHeader({
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         {/* Left: Game title and mode */}
         <div className="flex items-center gap-4">
-          <h1 className="text-lg font-bold text-white">
-            {customTitle || "1Reply"}
-          </h1>
+          {onQuit ? (
+            <button onClick={onQuit} className="hover:opacity-80 transition-opacity">
+              <h1 className="text-lg font-bold text-white">
+                {customTitle || "1Reply"}
+              </h1>
+            </button>
+          ) : (
+            <h1 className="text-lg font-bold text-white">
+              {customTitle || "1Reply"}
+            </h1>
+          )}
           <span className="px-2 py-0.5 text-xs font-medium border border-gray-600 text-gray-400">
             {customTitle ? "CUSTOM" : modeLabels[mode]}
           </span>
