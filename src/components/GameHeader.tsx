@@ -18,6 +18,7 @@ const modeLabels: Record<GameMode, string> = {
   timer: "TIMER",
   daily: "DAILY",
   extreme: "EXTREME",
+  custom: "CUSTOM",
 };
 
 export default function GameHeader({

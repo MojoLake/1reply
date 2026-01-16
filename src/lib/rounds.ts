@@ -4,6 +4,9 @@ import trios from "@/data/trios";
 
 const allPairs: GamePair[] = [...pairs, ...trios];
 
+// Memoized cache for all unique situations
+let cachedSituations: ConversationSituation[] | null = null;
+
 /**
  * Fisher-Yates shuffle for uniform randomness
  */
@@ -29,20 +32,21 @@ function seededShuffle<T>(array: T[], random: () => number): T[] {
 }
 
 /**
- * Extract all unique situations from pairs for single selection
+ * Extract all unique situations from pairs for single selection (memoized)
  */
 function getAllSituations(): ConversationSituation[] {
-  const situationMap = new Map<string, ConversationSituation>();
-  
-  for (const pair of allPairs) {
-    situationMap.set(pair.situationA.id, pair.situationA);
-    situationMap.set(pair.situationB.id, pair.situationB);
-    if (pair.situationC) {
-      situationMap.set(pair.situationC.id, pair.situationC);
+  if (!cachedSituations) {
+    const situationMap = new Map<string, ConversationSituation>();
+    for (const pair of allPairs) {
+      situationMap.set(pair.situationA.id, pair.situationA);
+      situationMap.set(pair.situationB.id, pair.situationB);
+      if (pair.situationC) {
+        situationMap.set(pair.situationC.id, pair.situationC);
+      }
     }
+    cachedSituations = Array.from(situationMap.values());
   }
-  
-  return Array.from(situationMap.values());
+  return cachedSituations;
 }
 
 /**

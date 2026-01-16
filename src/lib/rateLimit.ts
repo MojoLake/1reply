@@ -5,6 +5,18 @@ const RATE_WINDOW_MS = 60 * 1000; // 1 minute
 // In-memory rate limit storage
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
+// Clean up expired entries every minute
+if (typeof setInterval !== "undefined") {
+  setInterval(() => {
+    const now = Date.now();
+    for (const [ip, record] of rateLimitMap) {
+      if (now > record.resetTime) {
+        rateLimitMap.delete(ip);
+      }
+    }
+  }, 60000);
+}
+
 /**
  * Check if a request from the given IP is within rate limits.
  * Returns true if the request is allowed, false if rate limited.

@@ -157,6 +157,7 @@ export default function HomePage() {
               {/* High score */}
               {stats &&
                 mode.id !== "daily" &&
+                mode.id !== "custom" &&
                 stats.highScores[mode.id] > 0 && (
                   <div className="mt-3 text-xs text-gray-600 group-hover:text-gray-500">
                     Best: {formatScore(stats.highScores[mode.id])} pts

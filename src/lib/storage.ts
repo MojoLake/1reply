@@ -73,6 +73,9 @@ export function updateHighScore(mode: GameMode, score: number, rounds: number): 
     if (data.highScores.daily.date !== today || score > data.highScores.daily.score) {
       data.highScores.daily = { score, date: today };
     }
+  } else if (mode === "custom") {
+    // Custom mode scores are stored server-side, not in localStorage
+    // Skip local storage update
   } else {
     if (score > data.highScores[mode]) {
       data.highScores[mode] = score;

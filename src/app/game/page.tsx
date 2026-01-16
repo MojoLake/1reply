@@ -1,22 +1,17 @@
 "use client";
 
-import { Suspense, useState, useEffect, useCallback, useRef } from "react";
+import { Suspense, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  GameState,
   GameMode,
   Conversation,
   ConversationSituation,
   RoundResult,
   ContinuationResponse,
 } from "@/lib/types";
-import {
-  addPlayerReplyToConversations,
-  addReplyToConversation,
-} from "@/lib/conversation";
+import { addReplyToConversation } from "@/lib/conversation";
 import { getStoredData, updateHighScore } from "@/lib/storage";
-import { CONVERSATION_COMPLETION_BONUS } from "@/lib/scoring";
 import { saveScore } from "@/lib/useAuth";
 import {
   MAX_ROUNDS,
@@ -32,16 +27,8 @@ import MobileConversationTabs from "@/components/MobileConversationTabs";
 import ReplyInput from "@/components/ReplyInput";
 import JudgeFeedback from "@/components/JudgeFeedback";
 import GameOverModal from "@/components/GameOverModal";
-
-type GamePhase = "loading" | "playing" | "judging" | "feedback" | "gameover";
-
-function createConversation(situation: ConversationSituation): Conversation {
-  return {
-    situation,
-    transcript: [...situation.initialTranscript],
-    confusion: 0,
-  };
-}
+import { useGameReducer, InitialSituations } from "./useGameReducer";
+import { useGameTimer, calculateNextRoundTime } from "./useGameTimer";
 
 function LoadingSpinner() {
   return (
@@ -73,68 +60,55 @@ function GamePageContent() {
   const hasTimer = mode === "timer";
   const isExtremeMode = mode === "extreme";
 
-  const [phase, setPhase] = useState<GamePhase>("loading");
-  const [gameState, setGameState] = useState<GameState | null>(null);
-  const [lastResult, setLastResult] = useState<RoundResult | null>(null);
-  const [timeRemaining, setTimeRemaining] = useState<number | undefined>(
-    hasTimer ? TIMER_INITIAL_SECONDS : undefined
-  );
-  const [highScore, setHighScore] = useState(0);
-  const [completedThisRound, setCompletedThisRound] = useState<{
-    A: boolean;
-    B: boolean;
-    C?: boolean;
-  }>({ A: false, B: false });
-  const [pendingContinuations, setPendingContinuations] = useState<ContinuationResponse | null>(null);
-  const [endingConversations, setEndingConversations] = useState<{
-    A: boolean;
-    B: boolean;
-    C?: boolean;
-  }>({ A: false, B: false });
-  const [gameOverStartMinimized, setGameOverStartMinimized] = useState(false);
-  const [initialSurvivalAchieved, setInitialSurvivalAchieved] = useState(false);
+  // Use the game reducer for all state management
+  const { state, actions } = useGameReducer(hasTimer, isExtremeMode);
+  const {
+    phase,
+    gameState,
+    lastResult,
+    timeRemaining,
+    highScore,
+    completedThisRound,
+    pendingContinuations,
+    endingConversations,
+    gameOverStartMinimized,
+    initialSurvivalAchieved,
+  } = state;
 
   // Refs for timer handling
   const submitRef = useRef<((reply: string) => Promise<void>) | null>(null);
-  const isSubmittingRef = useRef(false);
 
-  // Load high score
+  // Load high score on mount
   useEffect(() => {
     const data = getStoredData();
     if (mode === "daily") {
-      setHighScore(data.highScores.daily.score);
+      actions.setHighScore(data.highScores.daily.score);
+    } else if (mode === "custom") {
+      // Custom mode high scores are stored server-side, not in localStorage
+      actions.setHighScore(0);
     } else {
-      setHighScore(data.highScores[mode]);
+      actions.setHighScore(data.highScores[mode]);
     }
-  }, [mode]);
+  }, [mode, actions]);
 
   // Fetch initial situations for game start
-  const fetchInitialSituations = useCallback(
-    async () => {
-      try {
-        const params = new URLSearchParams({
-          mode,
-          usedIds: "",
-          usedPairIds: "",
-        });
+  const fetchInitialSituations = useCallback(async (): Promise<InitialSituations | null> => {
+    try {
+      const params = new URLSearchParams({
+        mode,
+        usedIds: "",
+        usedPairIds: "",
+      });
 
-        const res = await fetch(`/api/round?${params}`);
-        if (!res.ok) throw new Error("Failed to fetch situations");
+      const res = await fetch(`/api/round?${params}`);
+      if (!res.ok) throw new Error("Failed to fetch situations");
 
-        const data = await res.json();
-        return data as {
-          pairId: string;
-          situationA: ConversationSituation;
-          situationB: ConversationSituation;
-          situationC?: ConversationSituation;
-        };
-      } catch (error) {
-        console.error("Error fetching situations:", error);
-        return null;
-      }
-    },
-    [mode]
-  );
+      return await res.json();
+    } catch (error) {
+      console.error("Error fetching situations:", error);
+      return null;
+    }
+  }, [mode]);
 
   // Fetch a single new situation for conversation swapping
   const fetchSingleSituation = useCallback(
@@ -150,7 +124,6 @@ function GamePageContent() {
         if (!res.ok) return null;
 
         const data = await res.json();
-        // Return situationA from the response
         return data.situationA as ConversationSituation;
       } catch (error) {
         console.error("Error fetching single situation:", error);
@@ -179,11 +152,9 @@ function GamePageContent() {
           throw new Error(errorData.error || "Failed to fetch continuations");
         }
 
-        const data: ContinuationResponse = await res.json();
-        return data;
+        return await res.json();
       } catch (error) {
         console.error("Error fetching continuations:", error);
-        // Fallback to simple responses
         return {
           responseA: "Okay",
           responseB: "Okay",
@@ -206,59 +177,30 @@ function GamePageContent() {
         return;
       }
 
-      // Collect used situation IDs
-      const usedIds = [initialData.situationA.id, initialData.situationB.id];
-      
-      // For extreme mode: use the trio's situationC if available, otherwise fetch a third
-      let situationC: ConversationSituation | null | undefined = initialData.situationC;
-      
+      // For extreme mode: fetch a third situation if not provided
+      let situationC = initialData.situationC;
       if (isExtremeMode && !situationC) {
-        situationC = await fetchSingleSituation(usedIds);
+        const usedIds = [initialData.situationA.id, initialData.situationB.id];
+        situationC = await fetchSingleSituation(usedIds) ?? undefined;
       }
-      
-      if (situationC) {
-        usedIds.push(situationC.id);
-      }
-      
-      setGameState({
+
+      actions.initGame(
+        { ...initialData, situationC },
         mode,
-        round: 1,
-        score: 0,
-        conversationA: createConversation(initialData.situationA),
-        conversationB: createConversation(initialData.situationB),
-        conversationC: situationC ? createConversation(situationC) : undefined,
-        usedSituationIds: usedIds,
-        usedPairIds: [initialData.pairId],
-        isGameOver: false,
-        completedConversations: 0,
-      });
-      setPhase("playing");
-      if (hasTimer) setTimeRemaining(TIMER_INITIAL_SECONDS);
+        TIMER_INITIAL_SECONDS
+      );
     };
 
     initGame();
-  }, [fetchInitialSituations, fetchSingleSituation, mode, router, hasTimer, isExtremeMode]);
+  }, [fetchInitialSituations, fetchSingleSituation, mode, router, isExtremeMode, actions]);
 
   // Handle reply submission
   const handleSubmitReply = useCallback(
     async (reply: string) => {
-      if (!gameState || phase !== "playing" || isSubmittingRef.current) return;
-      isSubmittingRef.current = true;
+      if (!gameState || phase !== "playing") return;
 
-      // Clear any completion status from previous round and ending flags (player chose to continue by replying)
-      setCompletedThisRound({ A: false, B: false, C: isExtremeMode ? false : undefined });
-      setEndingConversations({ A: false, B: false, C: isExtremeMode ? false : undefined });
-
-      // Immediately add the player's reply to all conversation transcripts for instant UI feedback
-      setGameState((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          ...addPlayerReplyToConversations(prev, reply),
-        };
-      });
-
-      setPhase("judging");
+      // Update state to show reply and transition to judging
+      actions.submitReply(reply);
 
       try {
         const res = await fetch("/api/judge", {
@@ -282,44 +224,16 @@ function GamePageContent() {
         }
 
         const result: RoundResult = await res.json();
-        setLastResult(result);
-
-        // Update game state with new confusion levels (transcript already updated above)
-        setGameState((prev) => {
-          if (!prev) return prev;
-
-          return {
-            ...prev,
-            conversationA: {
-              ...prev.conversationA,
-              confusion: result.newConfusionA,
-            },
-            conversationB: {
-              ...prev.conversationB,
-              confusion: result.newConfusionB,
-            },
-            conversationC: prev.conversationC && result.newConfusionC !== undefined
-              ? {
-                  ...prev.conversationC,
-                  confusion: result.newConfusionC,
-                }
-              : prev.conversationC,
-            score: prev.score + result.scoreGained,
-            isGameOver: result.gameOver,
-            gameOverReason: result.gameOverReason,
-          };
-        });
+        actions.receiveJudgment(result);
 
         // Update high score immediately if game over
         if (result.gameOver) {
           const finalScore = gameState.score + result.scoreGained;
           updateHighScore(mode, finalScore, gameState.round);
-          // Save to server for authenticated users (fire and forget)
           saveScore(mode, finalScore, gameState.round);
         }
 
-        // Always fetch continuations and show feedback (even on game over)
-        // This lets players see the NPC responses and analysis before the game over modal
+        // Fetch continuations to show NPC responses
         const updatedConvA: Conversation = {
           ...addReplyToConversation(gameState.conversationA, reply),
           confusion: result.newConfusionA,
@@ -335,16 +249,14 @@ function GamePageContent() {
                 confusion: result.newConfusionC,
               }
             : undefined;
+
         const continuations = await fetchContinuations(updatedConvA, updatedConvB, updatedConvC);
-        setPendingContinuations(continuations);
-        setPhase("feedback");
+        actions.setPendingContinuations(continuations);
       } catch (error) {
         console.error("Error judging reply:", error);
-        // Extract error message for user display
         const errorMessage = error instanceof Error ? error.message : "Unknown error";
         const isRateLimited = errorMessage.toLowerCase().includes("rate limit");
-        
-        // On error, show feedback with neutral result and the actual error
+
         const neutralScore = {
           coherence: NEUTRAL_SCORE,
           relevance: NEUTRAL_SCORE,
@@ -352,11 +264,12 @@ function GamePageContent() {
           directness: NEUTRAL_SCORE,
           contradiction: false,
           unsafe: false,
-          notes: isRateLimited 
+          notes: isRateLimited
             ? ["⚠️ " + errorMessage, "Neutral score applied - try again shortly"]
             : ["⚠️ Error: " + errorMessage, "Neutral score applied"],
         };
-        setLastResult({
+
+        actions.setError({
           evaluation: {
             A: neutralScore,
             B: neutralScore,
@@ -369,12 +282,9 @@ function GamePageContent() {
           newConfusionC: gameState.conversationC?.confusion,
           gameOver: false,
         });
-        setPhase("feedback");
-      } finally {
-        isSubmittingRef.current = false;
       }
     },
-    [gameState, phase, mode, isExtremeMode, fetchContinuations]
+    [gameState, phase, mode, isExtremeMode, fetchContinuations, actions]
   );
 
   // Update ref when handleSubmitReply changes
@@ -383,255 +293,93 @@ function GamePageContent() {
   }, [handleSubmitReply]);
 
   // Timer logic
-  useEffect(() => {
-    if (!hasTimer || phase !== "playing" || timeRemaining === undefined) return;
-
-    if (timeRemaining <= 0) {
-      // Auto-submit when timer expires
-      if (submitRef.current && !isSubmittingRef.current) {
+  useGameTimer({
+    hasTimer,
+    phase,
+    timeRemaining,
+    onTick: actions.tickTimer,
+    onExpire: useCallback(() => {
+      if (submitRef.current) {
         submitRef.current("...");
       }
-      return;
-    }
+    }, []),
+  });
 
-    const timer = setTimeout(() => {
-      setTimeRemaining((t) => (t !== undefined ? t - 1 : undefined));
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [hasTimer, phase, timeRemaining]);
-
-  // Handle continue to next round - always continue all conversations
-  const handleContinue = () => {
+  // Handle continue to next round
+  const handleContinue = useCallback(() => {
     if (!gameState || !pendingContinuations) return;
 
-    const continuations = pendingContinuations;
+    // Check if we're at final survival (before applying continuations)
     const nextRound = gameState.round + 1;
+    const isAtFinalSurvival = nextRound > MAX_ROUNDS && !gameState.isGameOver;
 
-    // Determine what happens after this round BEFORE updating state
-    const isAtInitialCheckpoint = nextRound > INITIAL_SURVIVAL_ROUNDS && !initialSurvivalAchieved;
-    const isAtFinalSurvival = nextRound > MAX_ROUNDS;
-
-    // Apply continuations to show NPC responses in all cases
-    setGameState((prev) => {
-      if (!prev) return prev;
-
-      // Continue all conversations with the LLM responses
-      const newConvA: Conversation = {
-        ...prev.conversationA,
-        transcript: [
-          ...prev.conversationA.transcript,
-          { role: "them" as const, text: continuations.responseA },
-        ],
-      };
-
-      const newConvB: Conversation = {
-        ...prev.conversationB,
-        transcript: [
-          ...prev.conversationB.transcript,
-          { role: "them" as const, text: continuations.responseB },
-        ],
-      };
-
-      let newConvC: Conversation | undefined = prev.conversationC;
-      if (isExtremeMode && prev.conversationC && continuations.responseC) {
-        newConvC = {
-          ...prev.conversationC,
-          transcript: [
-            ...prev.conversationC.transcript,
-            { role: "them" as const, text: continuations.responseC },
-          ],
-        };
-      }
-
-      // Handle checkpoint/survival states
-      if (isAtInitialCheckpoint) {
-        return {
-          ...prev,
-          conversationA: newConvA,
-          conversationB: newConvB,
-          conversationC: newConvC,
-          isGameOver: true,
-          gameOverReason: "initial_survived",
-        };
-      }
-
-      if (isAtFinalSurvival) {
-        return {
-          ...prev,
-          conversationA: newConvA,
-          conversationB: newConvB,
-          conversationC: newConvC,
-          isGameOver: true,
-          gameOverReason: "survived",
-        };
-      }
-
-      // If game is over (from confusion), don't increment round
-      if (prev.isGameOver) {
-        return {
-          ...prev,
-          conversationA: newConvA,
-          conversationB: newConvB,
-          conversationC: newConvC,
-        };
-      }
-
-      // Otherwise increment round as normal
-      return {
-        ...prev,
-        round: prev.round + 1,
-        conversationA: newConvA,
-        conversationB: newConvB,
-        conversationC: newConvC,
-      };
-    });
-
-    // Clear pending continuations
-    setPendingContinuations(null);
-
-    // If game was over (from confusion), transition to gameover phase
-    // Start with modal minimized so player can see the final messages in conversations
-    if (gameState.isGameOver) {
-      setGameOverStartMinimized(true);
-      setPhase("gameover");
-      return;
-    }
-
-    setCompletedThisRound({ A: false, B: false, C: isExtremeMode ? false : undefined });
-
-    // Check if initial survival threshold reached (first checkpoint)
-    if (isAtInitialCheckpoint) {
-      setGameOverStartMinimized(false);
-      setPhase("gameover");
-      return;
-    }
-
-    // Check if max replies reached - survived!
     if (isAtFinalSurvival) {
       updateHighScore(mode, gameState.score, gameState.round);
-      // Save to server for authenticated users
       saveScore(mode, gameState.score, gameState.round);
-      setGameOverStartMinimized(false);
-      setPhase("gameover");
-      return;
     }
 
-    // Store ending flags for display in playing phase
-    setEndingConversations({
-      A: pendingContinuations.endingA,
-      B: pendingContinuations.endingB,
-      C: isExtremeMode ? pendingContinuations.endingC : undefined,
-    });
+    // Apply continuations (reducer handles all the state transitions)
+    actions.applyContinuations();
 
-    if (hasTimer) setTimeRemaining(Math.max(TIMER_MIN_SECONDS, TIMER_INITIAL_SECONDS + 5 - nextRound * TIMER_DECREMENT_PER_ROUND));
-    setPhase("playing");
-  };
+    // Reset timer for next round if continuing to play
+    if (hasTimer && !gameState.isGameOver && nextRound <= MAX_ROUNDS) {
+      const nextTime = calculateNextRoundTime(
+        gameState.round,
+        TIMER_INITIAL_SECONDS,
+        TIMER_DECREMENT_PER_ROUND,
+        TIMER_MIN_SECONDS
+      );
+      actions.resetTimer(nextTime);
+    }
+  }, [gameState, pendingContinuations, mode, hasTimer, actions]);
 
-  // Handle starting a new conversation when user clicks "Start New" on an ending conversation
+  // Handle starting a new conversation
   const handleStartNewConversation = useCallback(
     async (label: "A" | "B" | "C") => {
       if (!gameState) return;
 
-      // Fetch a new situation
       const newSituation = await fetchSingleSituation(gameState.usedSituationIds);
       if (!newSituation) return;
 
-      // Update game state with new conversation and bonus
-      setGameState((prev) => {
-        if (!prev) return prev;
-
-        const newUsedIds = [...prev.usedSituationIds, newSituation.id];
-        const newConversation = createConversation(newSituation);
-
-        if (label === "A") {
-          return {
-            ...prev,
-            conversationA: newConversation,
-            score: prev.score + CONVERSATION_COMPLETION_BONUS,
-            usedSituationIds: newUsedIds,
-            completedConversations: prev.completedConversations + 1,
-          };
-        } else if (label === "B") {
-          return {
-            ...prev,
-            conversationB: newConversation,
-            score: prev.score + CONVERSATION_COMPLETION_BONUS,
-            usedSituationIds: newUsedIds,
-            completedConversations: prev.completedConversations + 1,
-          };
-        } else {
-          return {
-            ...prev,
-            conversationC: newConversation,
-            score: prev.score + CONVERSATION_COMPLETION_BONUS,
-            usedSituationIds: newUsedIds,
-            completedConversations: prev.completedConversations + 1,
-          };
-        }
-      });
-
-      // Clear the ending flag for this conversation
-      setEndingConversations((prev) => ({
-        ...prev,
-        [label]: false,
-      }));
-
-      // Track completion for this round
-      setCompletedThisRound((prev) => ({
-        ...prev,
-        [label]: true,
-      }));
+      actions.startNewConversation(label, newSituation);
     },
-    [gameState, fetchSingleSituation]
+    [gameState, fetchSingleSituation, actions]
   );
 
   // Handle continuing current conversation (dismisses the ending prompt)
   const handleContinueCurrent = useCallback(
     (label: "A" | "B" | "C") => {
-      // Just clear the ending flag - player chose to continue this conversation
-      setEndingConversations((prev) => ({
-        ...prev,
-        [label]: false,
-      }));
+      actions.dismissEnding(label);
     },
-    []
+    [actions]
   );
 
   // Handle continuing past initial survival checkpoint
-  const handleContinuePastCheckpoint = () => {
+  const handleContinuePastCheckpoint = useCallback(() => {
     if (!gameState) return;
-    
-    // Mark initial survival as achieved so we don't show the checkpoint again
-    setInitialSurvivalAchieved(true);
-    
-    // Reset game over state and continue playing
-    setGameState((prev) =>
-      prev ? { ...prev, isGameOver: false, gameOverReason: undefined } : prev
+
+    const nextTime = calculateNextRoundTime(
+      gameState.round,
+      TIMER_INITIAL_SECONDS,
+      TIMER_DECREMENT_PER_ROUND,
+      TIMER_MIN_SECONDS
     );
-    
-    // Resume the game
-    if (hasTimer) {
-      const nextRound = gameState.round + 1;
-      setTimeRemaining(Math.max(TIMER_MIN_SECONDS, TIMER_INITIAL_SECONDS + 5 - nextRound * TIMER_DECREMENT_PER_ROUND));
-    }
-    setPhase("playing");
-  };
+    actions.continuePastCheckpoint(nextTime);
+  }, [gameState, actions]);
 
   // Handle quit
-  const handleQuit = () => {
+  const handleQuit = useCallback(() => {
     if (gameState) {
       updateHighScore(mode, gameState.score, gameState.round);
-      // Save to server for authenticated users
       saveScore(mode, gameState.score, gameState.round);
     }
     router.push("/");
-  };
+  }, [gameState, mode, router]);
 
   // Handle play again
-  const handlePlayAgain = () => {
+  const handlePlayAgain = useCallback(() => {
     window.location.reload();
-  };
+  }, []);
 
   // Loading state
   if (phase === "loading" || !gameState) {
@@ -697,11 +445,11 @@ function GamePageContent() {
         </div>
 
         {/* Desktop: Grid layout */}
-        <div className={`hidden md:grid flex-1 min-h-0 max-h-[60vh] grid-cols-1 gap-4 mb-4 ${
-          isExtremeMode 
-            ? "lg:grid-cols-3" 
-            : "lg:grid-cols-2"
-        }`}>
+        <div
+          className={`hidden md:grid flex-1 min-h-0 max-h-[60vh] grid-cols-1 gap-4 mb-4 ${
+            isExtremeMode ? "lg:grid-cols-3" : "lg:grid-cols-2"
+          }`}
+        >
           <ConversationPanel
             conversation={gameState.conversationA}
             label="A"
@@ -803,7 +551,9 @@ function GamePageContent() {
             highScore={highScore}
             onPlayAgain={handlePlayAgain}
             onMainMenu={() => router.push("/")}
-            onContinue={gameState.gameOverReason === "initial_survived" ? handleContinuePastCheckpoint : undefined}
+            onContinue={
+              gameState.gameOverReason === "initial_survived" ? handleContinuePastCheckpoint : undefined
+            }
             startMinimized={gameOverStartMinimized}
           />
         )}
