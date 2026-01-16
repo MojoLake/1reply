@@ -16,6 +16,7 @@ import { CONVERSATION_COMPLETION_BONUS } from "@/lib/scoring";
 import { saveScore } from "@/lib/useAuth";
 import {
   MAX_ROUNDS,
+  INITIAL_SURVIVAL_ROUNDS,
   TIMER_INITIAL_SECONDS,
   TIMER_MIN_SECONDS,
   TIMER_DECREMENT_PER_ROUND,
@@ -87,6 +88,7 @@ function GamePageContent() {
     C?: boolean;
   }>({ A: false, B: false });
   const [gameOverStartMinimized, setGameOverStartMinimized] = useState(false);
+  const [initialSurvivalAchieved, setInitialSurvivalAchieved] = useState(false);
 
   // Refs for timer handling
   const submitRef = useRef<((reply: string) => Promise<void>) | null>(null);
@@ -490,6 +492,17 @@ function GamePageContent() {
 
     const nextRound = gameState.round + 1;
 
+    // Check if initial survival threshold reached (first checkpoint)
+    if (nextRound > INITIAL_SURVIVAL_ROUNDS && !initialSurvivalAchieved) {
+      // Show initial survival modal - player can choose to continue or end
+      setGameState((prev) =>
+        prev ? { ...prev, isGameOver: true, gameOverReason: "initial_survived" } : prev
+      );
+      setGameOverStartMinimized(false);
+      setPhase("gameover");
+      return;
+    }
+
     // Check if max replies reached - survived! Show full modal (not minimized)
     if (nextRound > MAX_ROUNDS) {
       updateHighScore(mode, gameState.score, gameState.round);
@@ -583,6 +596,26 @@ function GamePageContent() {
     },
     []
   );
+
+  // Handle continuing past initial survival checkpoint
+  const handleContinuePastCheckpoint = () => {
+    if (!gameState) return;
+    
+    // Mark initial survival as achieved so we don't show the checkpoint again
+    setInitialSurvivalAchieved(true);
+    
+    // Reset game over state and continue playing
+    setGameState((prev) =>
+      prev ? { ...prev, isGameOver: false, gameOverReason: undefined } : prev
+    );
+    
+    // Resume the game
+    if (hasTimer) {
+      const nextRound = gameState.round + 1;
+      setTimeRemaining(Math.max(TIMER_MIN_SECONDS, TIMER_INITIAL_SECONDS + 5 - nextRound * TIMER_DECREMENT_PER_ROUND));
+    }
+    setPhase("playing");
+  };
 
   // Handle quit
   const handleQuit = () => {
@@ -768,6 +801,7 @@ function GamePageContent() {
             highScore={highScore}
             onPlayAgain={handlePlayAgain}
             onMainMenu={() => router.push("/")}
+            onContinue={gameState.gameOverReason === "initial_survived" ? handleContinuePastCheckpoint : undefined}
             startMinimized={gameOverStartMinimized}
           />
         )}

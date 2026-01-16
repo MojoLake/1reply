@@ -9,10 +9,11 @@ interface GameOverModalProps {
   score: number;
   rounds: number;
   mode: GameMode;
-  reason?: "A" | "B" | "C" | "survived";
+  reason?: "A" | "B" | "C" | "survived" | "initial_survived";
   highScore?: number;
   onPlayAgain: () => void;
   onMainMenu: () => void;
+  onContinue?: () => void; // For initial_survived - continue playing to max rounds
   startMinimized?: boolean;
   customTitle?: string;
 }
@@ -25,11 +26,14 @@ export default function GameOverModal({
   highScore,
   onPlayAgain,
   onMainMenu,
+  onContinue,
   startMinimized = false,
   customTitle,
 }: GameOverModalProps) {
   const [isMinimized, setIsMinimized] = useState(startMinimized);
   const isNewHighScore = highScore !== undefined && score > highScore;
+  const isInitialSurvival = reason === "initial_survived";
+  const isFinalSurvival = reason === "survived";
 
   const handleShare = () => {
     const gameName = customTitle ? `1Reply: ${customTitle}` : `1Reply ${mode === "daily" ? "Daily" : ""}`;
@@ -59,7 +63,7 @@ export default function GameOverModal({
             <div className="flex items-center justify-between p-3 gap-4">
               <div className="flex items-center gap-4 text-sm">
                 <span className="text-gray-500">
-                  {reason === "survived" ? "SURVIVED!" : "GAME OVER"}
+                  {isInitialSurvival ? "CHECKPOINT!" : isFinalSurvival ? "SURVIVED!" : "GAME OVER"}
                 </span>
                 <span className="text-white font-bold">
                   Score: {formatScore(score)}
@@ -69,14 +73,25 @@ export default function GameOverModal({
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={onPlayAgain}
-                  className="px-3 py-1.5 text-sm border border-white text-white hover:bg-white hover:text-black transition-all"
-                >
-                  PLAY AGAIN
-                </motion.button>
+                {isInitialSurvival && onContinue ? (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={onContinue}
+                    className="px-3 py-1.5 text-sm border border-white text-white hover:bg-white hover:text-black transition-all"
+                  >
+                    CONTINUE
+                  </motion.button>
+                ) : (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={onPlayAgain}
+                    className="px-3 py-1.5 text-sm border border-white text-white hover:bg-white hover:text-black transition-all"
+                  >
+                    PLAY AGAIN
+                  </motion.button>
+                )}
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -112,7 +127,12 @@ export default function GameOverModal({
                 transition={{ type: "spring", delay: 0.2 }}
                 className="text-white text-xs mb-4 leading-tight"
               >
-{reason === "survived" ? `
+{isInitialSurvival ? `
+  +-----------------+
+  |   CHECKPOINT!   |
+  |      \\o/        |
+  +-----------------+
+` : isFinalSurvival ? `
   +-----------------+
   |    SURVIVED!    |
   |      :D         |
@@ -129,7 +149,11 @@ export default function GameOverModal({
   +-----------------+
 `}
               </motion.pre>
-              {reason === "survived" ? (
+              {isInitialSurvival ? (
+                <p className="text-sm text-gray-500">
+                  You survived {rounds} rounds! Keep going?
+                </p>
+              ) : isFinalSurvival ? (
                 <p className="text-sm text-gray-500">
                   You made it through all 30 rounds!
                 </p>
@@ -156,7 +180,7 @@ export default function GameOverModal({
               <div className="grid grid-cols-2 gap-4">
                 <div className="border border-gray-700 p-4 text-center">
                   <div className="text-xs text-gray-600 uppercase tracking-wider mb-1">
-                    Final Score
+                    {isInitialSurvival ? "Current Score" : "Final Score"}
                   </div>
                   <motion.div
                     initial={{ scale: 0 }}
@@ -192,43 +216,87 @@ export default function GameOverModal({
 
             {/* Actions */}
             <div className="p-6 pt-0 space-y-3">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={onPlayAgain}
-                className="w-full py-3 border border-white text-white font-semibold hover:bg-white hover:text-black transition-all"
-              >
-                [ PLAY AGAIN ]
-              </motion.button>
+              {isInitialSurvival && onContinue ? (
+                <>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={onContinue}
+                    className="w-full py-3 border border-white text-white font-semibold hover:bg-white hover:text-black transition-all"
+                  >
+                    [ CONTINUE PLAYING ]
+                  </motion.button>
 
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setIsMinimized(true)}
-                className="w-full py-3 border border-gray-500 text-gray-300 font-medium hover:border-white hover:text-white transition-all"
-              >
-                [ REVIEW CHAT ]
-              </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setIsMinimized(true)}
+                    className="w-full py-3 border border-gray-500 text-gray-300 font-medium hover:border-white hover:text-white transition-all"
+                  >
+                    [ REVIEW CHAT ]
+                  </motion.button>
 
-              <div className="flex gap-3">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleShare}
-                  className="flex-1 py-3 border border-gray-600 text-gray-400 font-medium hover:border-white hover:text-white transition-all"
-                >
-                  [ SHARE ]
-                </motion.button>
+                  <div className="flex gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleShare}
+                      className="flex-1 py-3 border border-gray-600 text-gray-400 font-medium hover:border-white hover:text-white transition-all"
+                    >
+                      [ SHARE ]
+                    </motion.button>
 
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={onMainMenu}
-                  className="flex-1 py-3 border border-gray-600 text-gray-500 font-medium hover:border-white hover:text-white transition-all"
-                >
-                  [ MENU ]
-                </motion.button>
-              </div>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={onMainMenu}
+                      className="flex-1 py-3 border border-gray-600 text-gray-500 font-medium hover:border-white hover:text-white transition-all"
+                    >
+                      [ END GAME ]
+                    </motion.button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={onPlayAgain}
+                    className="w-full py-3 border border-white text-white font-semibold hover:bg-white hover:text-black transition-all"
+                  >
+                    [ PLAY AGAIN ]
+                  </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setIsMinimized(true)}
+                    className="w-full py-3 border border-gray-500 text-gray-300 font-medium hover:border-white hover:text-white transition-all"
+                  >
+                    [ REVIEW CHAT ]
+                  </motion.button>
+
+                  <div className="flex gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleShare}
+                      className="flex-1 py-3 border border-gray-600 text-gray-400 font-medium hover:border-white hover:text-white transition-all"
+                    >
+                      [ SHARE ]
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={onMainMenu}
+                      className="flex-1 py-3 border border-gray-600 text-gray-500 font-medium hover:border-white hover:text-white transition-all"
+                    >
+                      [ MENU ]
+                    </motion.button>
+                  </div>
+                </>
+              )}
             </div>
           </motion.div>
         </motion.div>

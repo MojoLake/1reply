@@ -1,6 +1,7 @@
 // Game limits
 export const MAX_REPLY_LENGTH = 280;
 export const MAX_ROUNDS = 30;
+export const INITIAL_SURVIVAL_ROUNDS = 5; // First "win" checkpoint - player can choose to continue
 export const MAX_CONFUSION = 5;
 
 // Timer mode

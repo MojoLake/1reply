@@ -13,6 +13,7 @@ import {
 } from "@/lib/types";
 import {
   MAX_ROUNDS,
+  INITIAL_SURVIVAL_ROUNDS,
   NEUTRAL_SCORE,
 } from "@/lib/constants";
 import { saveScore } from "@/lib/useAuth";
@@ -59,6 +60,7 @@ export default function PlayScenarioPage({
   const [lastResult, setLastResult] = useState<RoundResult | null>(null);
   const [pendingContinuations, setPendingContinuations] = useState<ContinuationResponse | null>(null);
   const [gameOverStartMinimized, setGameOverStartMinimized] = useState(false);
+  const [initialSurvivalAchieved, setInitialSurvivalAchieved] = useState(false);
   
   const isExtremeMode = scenario?.situation_c != null;
   const isSubmittingRef = useRef(false);
@@ -338,6 +340,18 @@ export default function PlayScenarioPage({
     }
 
     const nextRound = gameState.round + 1;
+
+    // Check if initial survival threshold reached (first checkpoint)
+    if (nextRound > INITIAL_SURVIVAL_ROUNDS && !initialSurvivalAchieved) {
+      // Show initial survival modal - player can choose to continue or end
+      setGameState((prev) =>
+        prev ? { ...prev, isGameOver: true, gameOverReason: "initial_survived" } : prev
+      );
+      setGameOverStartMinimized(false);
+      setPhase("gameover");
+      return;
+    }
+
     if (nextRound > MAX_ROUNDS) {
       // Save score for surviving
       saveScore("custom", gameState.score, gameState.round, scenario?.id);
@@ -349,6 +363,22 @@ export default function PlayScenarioPage({
       return;
     }
 
+    setPhase("playing");
+  };
+
+  // Handle continuing past initial survival checkpoint
+  const handleContinuePastCheckpoint = () => {
+    if (!gameState) return;
+    
+    // Mark initial survival as achieved so we don't show the checkpoint again
+    setInitialSurvivalAchieved(true);
+    
+    // Reset game over state and continue playing
+    setGameState((prev) =>
+      prev ? { ...prev, isGameOver: false, gameOverReason: undefined } : prev
+    );
+    
+    // Resume the game
     setPhase("playing");
   };
 
@@ -590,6 +620,7 @@ export default function PlayScenarioPage({
             highScore={0}
             onPlayAgain={handlePlayAgain}
             onMainMenu={() => router.push("/")}
+            onContinue={gameState.gameOverReason === "initial_survived" ? handleContinuePastCheckpoint : undefined}
             startMinimized={gameOverStartMinimized}
             customTitle={scenario?.title}
           />
