@@ -31,7 +31,17 @@ RULES:
 - topic: The general category (e.g., "work", "friendship", "dating", "family", "social", "health")
 - tone: How the messages feel (e.g., "casual", "formal", "excited", "stressed", "flirty", "sarcastic", "passive-aggressive")
 - intent: What the person wants (e.g., "making_plans", "venting", "asking_favor", "sharing_news", "checking_in")
-- facts: 2-3 relevant facts about the situation, referring to the recipient as "the player"
+- facts: 2-3 background facts that provide CONTEXT, not message analysis.
+  GOOD facts (situational context):
+    - "It's Saturday afternoon"
+    - "Mark is texting from work"
+    - "The player and Mark are friends"
+    - "The player hasn't heard from Mark in a few days"
+  BAD facts (message analysis - DO NOT DO THIS):
+    - "Mark is greeting the player" (just describes the message)
+    - "Mark uses casual language" (analyzes tone - that's what 'tone' field is for)
+    - "Mark considers the player a friend based on word choice" (analyzing the message)
+  Facts should add context the judge needs to evaluate replies, NOT describe or analyze the message content.
 
 Be creative but realistic. The fields should match the vibe of the messages.
 
