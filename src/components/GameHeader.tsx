@@ -10,6 +10,7 @@ interface GameHeaderProps {
   mode: GameMode;
   onQuit?: () => void;
   customTitle?: string;
+  targetRound?: number; // The current goal (initial checkpoint or max rounds)
 }
 
 const modeLabels: Record<GameMode, string> = {
@@ -25,6 +26,7 @@ export default function GameHeader({
   mode,
   onQuit,
   customTitle,
+  targetRound,
 }: GameHeaderProps) {
   return (
     <motion.header
@@ -51,9 +53,12 @@ export default function GameHeader({
               key={round}
               initial={{ scale: 1.2 }}
               animate={{ scale: 1 }}
-              className="text-xl font-bold text-white"
+              className="text-xl font-bold"
             >
-              {round}
+              <span className="text-white">{round}</span>
+              {targetRound && (
+                <span className="text-gray-500">/{targetRound}</span>
+              )}
             </motion.div>
           </div>
 
