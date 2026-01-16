@@ -13,7 +13,7 @@ import {
 import { formatScore } from "@/lib/scoring";
 import { AuthButton } from "@/components/AuthButton";
 import { createClient } from "@/lib/supabase/client";
-import type { User } from "@supabase/supabase-js";
+import type { AuthChangeEvent, Session, User } from "@supabase/supabase-js";
 
 interface UserScenario {
   id: string;
@@ -75,13 +75,13 @@ export default function HomePage() {
 
   // Auth state tracking
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user: fetchedUser } }) => {
+    supabase.auth.getUser().then(({ data: { user: fetchedUser } }: { data: { user: User | null } }) => {
       setUser(fetchedUser);
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
       setUser(session?.user ?? null);
     });
 
