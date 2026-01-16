@@ -1,4 +1,4 @@
-import { useReducer, useCallback } from "react";
+import { useReducer, useCallback, useMemo } from "react";
 import {
   GameState,
   GameMode,
@@ -445,23 +445,39 @@ export function useGameReducer(hasTimer: boolean, isExtremeMode: boolean) {
     dispatch({ type: "SET_ERROR", payload: { result } });
   }, []);
 
+  const actions = useMemo(() => ({
+    initGame,
+    setHighScore,
+    submitReply,
+    receiveJudgment,
+    setPendingContinuations,
+    applyContinuations,
+    startNewConversation,
+    dismissEnding,
+    continuePastCheckpoint,
+    setPhase,
+    tickTimer,
+    resetTimer,
+    setError,
+  }), [
+    initGame,
+    setHighScore,
+    submitReply,
+    receiveJudgment,
+    setPendingContinuations,
+    applyContinuations,
+    startNewConversation,
+    dismissEnding,
+    continuePastCheckpoint,
+    setPhase,
+    tickTimer,
+    resetTimer,
+    setError,
+  ]);
+
   return {
     state,
     dispatch,
-    actions: {
-      initGame,
-      setHighScore,
-      submitReply,
-      receiveJudgment,
-      setPendingContinuations,
-      applyContinuations,
-      startNewConversation,
-      dismissEnding,
-      continuePastCheckpoint,
-      setPhase,
-      tickTimer,
-      resetTimer,
-      setError,
-    },
+    actions,
   };
 }
