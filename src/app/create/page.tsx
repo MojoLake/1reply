@@ -50,15 +50,24 @@ export default function CreatePage() {
   // Form state
   const [title, setTitle] = useState("");
   const [isTrioMode, setIsTrioMode] = useState(false);
-  const [situationA, setSituationA] = useState<SituationFormData>({ ...emptySituation });
-  const [situationB, setSituationB] = useState<SituationFormData>({ ...emptySituation });
-  const [situationC, setSituationC] = useState<SituationFormData>({ ...emptySituation });
+  const [situationA, setSituationA] = useState<SituationFormData>({
+    ...emptySituation,
+  });
+  const [situationB, setSituationB] = useState<SituationFormData>({
+    ...emptySituation,
+  });
+  const [situationC, setSituationC] = useState<SituationFormData>({
+    ...emptySituation,
+  });
   const [activeTab, setActiveTab] = useState<"A" | "B" | "C">("A");
 
   // Submission state
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState<{ shareCode: string; shareUrl: string } | null>(null);
+  const [success, setSuccess] = useState<{
+    shareCode: string;
+    shareUrl: string;
+  } | null>(null);
 
   // Auto-fill state
   const [generatingA, setGeneratingA] = useState(false);
@@ -66,24 +75,37 @@ export default function CreatePage() {
   const [generatingC, setGeneratingC] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user: fetchedUser } }: { data: { user: User | null } }) => {
-      setUser(fetchedUser);
-      setLoading(false);
-    });
+    supabase.auth
+      .getUser()
+      .then(
+        ({ data: { user: fetchedUser } }: { data: { user: User | null } }) => {
+          setUser(fetchedUser);
+          setLoading(false);
+        }
+      );
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event: string, session: { user: User | null } | null) => {
-      setUser(session?.user ?? null);
-    });
+    } = supabase.auth.onAuthStateChange(
+      (_event: string, session: { user: User | null } | null) => {
+        setUser(session?.user ?? null);
+      }
+    );
 
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
 
   const handleAutoFill = async (tab: "A" | "B" | "C") => {
-    const situation = tab === "A" ? situationA : tab === "B" ? situationB : situationC;
-    const setSituation = tab === "A" ? setSituationA : tab === "B" ? setSituationB : setSituationC;
-    const setGenerating = tab === "A" ? setGeneratingA : tab === "B" ? setGeneratingB : setGeneratingC;
+    const situation =
+      tab === "A" ? situationA : tab === "B" ? situationB : situationC;
+    const setSituation =
+      tab === "A" ? setSituationA : tab === "B" ? setSituationB : setSituationC;
+    const setGenerating =
+      tab === "A"
+        ? setGeneratingA
+        : tab === "B"
+        ? setGeneratingB
+        : setGeneratingC;
 
     // Get non-empty messages
     const validMessages = situation.messages.filter((m) => m.trim());
@@ -142,15 +164,23 @@ export default function CreatePage() {
     const hasMessagesC = situationC.messages.some((m) => m.trim());
 
     if (!hasMessagesA || !hasMessagesB || (isTrioMode && !hasMessagesC)) {
-      setError(`All ${isTrioMode ? "three" : "two"} situations need at least one message`);
+      setError(
+        `All ${
+          isTrioMode ? "three" : "two"
+        } situations need at least one message`
+      );
       setSubmitting(false);
       return;
     }
 
     // Check if all required fields are filled (after potential auto-fill)
-    const checkSituation = (s: SituationFormData, label: string): string | null => {
+    const checkSituation = (
+      s: SituationFormData,
+      label: string
+    ): string | null => {
       if (!s.personName.trim()) return `${label}: Person's name is required`;
-      if (!s.personContext.trim()) return `${label}: Relationship/context is required`;
+      if (!s.personContext.trim())
+        return `${label}: Relationship/context is required`;
       if (!s.topic.trim()) return `${label}: Topic is required`;
       if (!s.tone.trim()) return `${label}: Tone is required`;
       if (!s.intent.trim()) return `${label}: Intent is required`;
@@ -159,10 +189,17 @@ export default function CreatePage() {
 
     const errorA = checkSituation(situationA, "Situation A");
     const errorB = checkSituation(situationB, "Situation B");
-    const errorC = isTrioMode ? checkSituation(situationC, "Situation C") : null;
+    const errorC = isTrioMode
+      ? checkSituation(situationC, "Situation C")
+      : null;
 
     if (errorA || errorB || errorC) {
-      setError(errorA || errorB || errorC || "Please fill all required fields or use 'Fill the Rest'");
+      setError(
+        errorA ||
+          errorB ||
+          errorC ||
+          "Please fill all required fields or use 'Fill the Rest'"
+      );
       setSubmitting(false);
       return;
     }
@@ -268,9 +305,10 @@ export default function CreatePage() {
 
   // Success state
   if (success) {
-    const fullUrl = typeof window !== "undefined" 
-      ? `${window.location.origin}${success.shareUrl}` 
-      : success.shareUrl;
+    const fullUrl =
+      typeof window !== "undefined"
+        ? `${window.location.origin}${success.shareUrl}`
+        : success.shareUrl;
 
     return (
       <div className="min-h-screen bg-black flex flex-col">
@@ -367,9 +405,24 @@ export default function CreatePage() {
     );
   }
 
-  const activeSituation = activeTab === "A" ? situationA : activeTab === "B" ? situationB : situationC;
-  const setActiveSituation = activeTab === "A" ? setSituationA : activeTab === "B" ? setSituationB : setSituationC;
-  const isGenerating = activeTab === "A" ? generatingA : activeTab === "B" ? generatingB : generatingC;
+  const activeSituation =
+    activeTab === "A"
+      ? situationA
+      : activeTab === "B"
+      ? situationB
+      : situationC;
+  const setActiveSituation =
+    activeTab === "A"
+      ? setSituationA
+      : activeTab === "B"
+      ? setSituationB
+      : setSituationC;
+  const isGenerating =
+    activeTab === "A"
+      ? generatingA
+      : activeTab === "B"
+      ? generatingB
+      : generatingC;
   const hasMessages = activeSituation.messages.some((m) => m.trim());
 
   return (
@@ -386,9 +439,12 @@ export default function CreatePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-2xl font-mono text-white mb-2">Create Scenario</h1>
+          <h1 className="text-2xl font-mono text-white mb-2">
+            Create Scenario
+          </h1>
           <p className="text-gray-500 font-mono text-sm mb-8">
-            Design {isTrioMode ? "three" : "two"} conversation situations for players to juggle. Enter the messages, then auto-fill the rest!
+            Design {isTrioMode ? "three" : "two"} conversation situations for
+            players to juggle. Enter the messages, then auto-fill the rest!
           </p>
 
           <form onSubmit={handleSubmit}>
@@ -444,7 +500,10 @@ export default function CreatePage() {
 
             {/* Situation Tabs */}
             <div className="flex gap-2 mb-4">
-              {(isTrioMode ? (["A", "B", "C"] as const) : (["A", "B"] as const)).map((tab) => (
+              {(isTrioMode
+                ? (["A", "B", "C"] as const)
+                : (["A", "B"] as const)
+              ).map((tab) => (
                 <button
                   key={tab}
                   type="button"
@@ -466,14 +525,18 @@ export default function CreatePage() {
                 key={activeTab}
                 initial={{ opacity: 0, x: activeTab === "A" ? -20 : 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: activeTab === "C" ? 20 : activeTab === "A" ? 20 : -20 }}
+                exit={{
+                  opacity: 0,
+                  x: activeTab === "C" ? 20 : activeTab === "A" ? 20 : -20,
+                }}
                 transition={{ duration: 0.2 }}
                 className="border border-gray-700 p-4 mb-8"
               >
                 {/* Initial Messages - PRIMARY FIELD */}
                 <div className="mb-6">
                   <label className="block text-xs text-white font-mono mb-2">
-                    INITIAL MESSAGES (from them) <span className="text-yellow-500">*required</span>
+                    INITIAL MESSAGES (from them){" "}
+                    <span className="text-yellow-500">*required</span>
                   </label>
                   <p className="text-xs text-gray-600 font-mono mb-3">
                     Write the opening messages. This is the creative core!
@@ -484,7 +547,12 @@ export default function CreatePage() {
                         type="text"
                         value={msg}
                         onChange={(e) =>
-                          updateArrayItem(setActiveSituation, "messages", i, e.target.value)
+                          updateArrayItem(
+                            setActiveSituation,
+                            "messages",
+                            i,
+                            e.target.value
+                          )
                         }
                         placeholder={`Message ${i + 1}`}
                         maxLength={CREATE_MESSAGE_MAX_LENGTH}
@@ -494,7 +562,9 @@ export default function CreatePage() {
                       {activeSituation.messages.length > 1 && (
                         <button
                           type="button"
-                          onClick={() => removeArrayItem(setActiveSituation, "messages", i)}
+                          onClick={() =>
+                            removeArrayItem(setActiveSituation, "messages", i)
+                          }
                           className="px-3 py-2 border border-gray-700 text-gray-500 hover:border-red-500 hover:text-red-500 font-mono transition-colors"
                         >
                           [x]
@@ -505,7 +575,9 @@ export default function CreatePage() {
                   {activeSituation.messages.length < CREATE_MAX_MESSAGES && (
                     <button
                       type="button"
-                      onClick={() => addArrayItem(setActiveSituation, "messages")}
+                      onClick={() =>
+                        addArrayItem(setActiveSituation, "messages")
+                      }
                       className="text-xs text-gray-500 hover:text-white font-mono transition-colors"
                     >
                       [+ ADD MESSAGE]
@@ -534,7 +606,8 @@ export default function CreatePage() {
 
                 {/* Required Fields (can be AI-generated) */}
                 <p className="text-xs text-gray-600 font-mono mb-4">
-                  Fill these fields manually or use &quot;Fill the Rest&quot; above:
+                  Fill these fields manually or use &quot;Fill the Rest&quot;
+                  above:
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -546,7 +619,11 @@ export default function CreatePage() {
                       type="text"
                       value={activeSituation.personName}
                       onChange={(e) =>
-                        updateSituation(setActiveSituation, "personName", e.target.value)
+                        updateSituation(
+                          setActiveSituation,
+                          "personName",
+                          e.target.value
+                        )
                       }
                       placeholder="e.g., Sam"
                       maxLength={CREATE_NAME_MAX_LENGTH}
@@ -561,7 +638,11 @@ export default function CreatePage() {
                       type="text"
                       value={activeSituation.personContext}
                       onChange={(e) =>
-                        updateSituation(setActiveSituation, "personContext", e.target.value)
+                        updateSituation(
+                          setActiveSituation,
+                          "personContext",
+                          e.target.value
+                        )
                       }
                       placeholder="e.g., Your coworker"
                       maxLength={CREATE_CONTEXT_MAX_LENGTH}
@@ -579,7 +660,11 @@ export default function CreatePage() {
                       type="text"
                       value={activeSituation.topic}
                       onChange={(e) =>
-                        updateSituation(setActiveSituation, "topic", e.target.value)
+                        updateSituation(
+                          setActiveSituation,
+                          "topic",
+                          e.target.value
+                        )
                       }
                       placeholder="e.g., work, dating, family"
                       maxLength={CREATE_TOPIC_MAX_LENGTH}
@@ -594,7 +679,11 @@ export default function CreatePage() {
                       type="text"
                       value={activeSituation.tone}
                       onChange={(e) =>
-                        updateSituation(setActiveSituation, "tone", e.target.value)
+                        updateSituation(
+                          setActiveSituation,
+                          "tone",
+                          e.target.value
+                        )
                       }
                       placeholder={TONE_EXAMPLES}
                       maxLength={CREATE_TONE_MAX_LENGTH}
@@ -609,7 +698,11 @@ export default function CreatePage() {
                       type="text"
                       value={activeSituation.intent}
                       onChange={(e) =>
-                        updateSituation(setActiveSituation, "intent", e.target.value)
+                        updateSituation(
+                          setActiveSituation,
+                          "intent",
+                          e.target.value
+                        )
                       }
                       placeholder="e.g., venting, making_plans"
                       maxLength={CREATE_INTENT_MAX_LENGTH}
@@ -621,10 +714,14 @@ export default function CreatePage() {
                 {/* Facts */}
                 <div>
                   <label className="block text-xs text-gray-500 font-mono mb-2">
-                    FACTS <span className="text-gray-700">(optional - context for the AI judge)</span>
+                    FACTS{" "}
+                    <span className="text-gray-700">
+                      (optional - context for the AI judge)
+                    </span>
                   </label>
                   <p className="text-xs text-gray-600 font-mono mb-2">
-                    Refer to the recipient as &quot;the player&quot; (e.g., &quot;The player owes them $50&quot;)
+                    Refer to the recipient as &quot;the player&quot; (e.g.,
+                    &quot;The player owes them $50&quot;)
                   </p>
                   {activeSituation.facts.map((fact, i) => (
                     <div key={i} className="flex gap-2 mb-2">
@@ -632,16 +729,27 @@ export default function CreatePage() {
                         type="text"
                         value={fact}
                         onChange={(e) =>
-                          updateArrayItem(setActiveSituation, "facts", i, e.target.value)
+                          updateArrayItem(
+                            setActiveSituation,
+                            "facts",
+                            i,
+                            e.target.value
+                          )
                         }
-                        placeholder={i === 0 ? "e.g., The player and them are roommates" : `Fact ${i + 1}`}
+                        placeholder={
+                          i === 0
+                            ? "e.g., The player and them are roommates"
+                            : `Fact ${i + 1}`
+                        }
                         maxLength={CREATE_FACT_MAX_LENGTH}
                         className="flex-1 px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
                       />
                       {activeSituation.facts.length > 1 && (
                         <button
                           type="button"
-                          onClick={() => removeArrayItem(setActiveSituation, "facts", i)}
+                          onClick={() =>
+                            removeArrayItem(setActiveSituation, "facts", i)
+                          }
                           className="px-3 py-2 border border-gray-700 text-gray-500 hover:border-red-500 hover:text-red-500 font-mono transition-colors"
                         >
                           [x]
