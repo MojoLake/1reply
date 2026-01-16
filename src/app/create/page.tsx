@@ -119,11 +119,6 @@ export default function CreatePage() {
           ? data.facts
           : [""],
       }));
-
-      // Also fill title if empty
-      if (!title && data.title) {
-        setTitle(data.title);
-      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to auto-fill");
     } finally {
