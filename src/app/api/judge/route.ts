@@ -4,6 +4,7 @@ import { calculateConfusionDelta, clampConfusion } from "@/lib/confusion";
 import { calculateRoundScore } from "@/lib/scoring";
 import { Conversation, RoundResult } from "@/lib/types";
 import { checkRateLimit } from "@/lib/rateLimit";
+import { moderateMessages } from "@/lib/moderation";
 import { MAX_REPLY_LENGTH, MAX_CONFUSION, JUDGE_MAX_RETRIES } from "@/lib/constants";
 
 export async function POST(request: NextRequest) {
@@ -61,6 +62,15 @@ export async function POST(request: NextRequest) {
     if (playerReply.length < 1 || playerReply.length > MAX_REPLY_LENGTH) {
       return NextResponse.json(
         { error: `Reply must be between 1 and ${MAX_REPLY_LENGTH} characters` },
+        { status: 400 }
+      );
+    }
+
+    // Moderate user content before sending to LLM
+    const moderationResult = moderateMessages([playerReply]);
+    if (!moderationResult.approved) {
+      return NextResponse.json(
+        { error: "Your message contains inappropriate content" },
         { status: 400 }
       );
     }
