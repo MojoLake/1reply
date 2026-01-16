@@ -1,5 +1,8 @@
 import { ConversationSituation, GameMode, GamePair, RoundData } from "./types";
 import pairs from "@/data/pairs";
+import trios from "@/data/trios";
+
+const allPairs: GamePair[] = [...pairs, ...trios];
 
 /**
  * Extract all unique situations from pairs for single selection
@@ -7,7 +10,7 @@ import pairs from "@/data/pairs";
 function getAllSituations(): ConversationSituation[] {
   const situationMap = new Map<string, ConversationSituation>();
   
-  for (const pair of pairs) {
+  for (const pair of allPairs) {
     situationMap.set(pair.situationA.id, pair.situationA);
     situationMap.set(pair.situationB.id, pair.situationB);
     if (pair.situationC) {
@@ -49,14 +52,14 @@ export function selectSituationPair(
   mode: GameMode = "classic"
 ): RoundData {
   // Filter pairs by mode and exclude already used ones
-  const availablePairs = filterPairsByMode(pairs, mode).filter(
+  const availablePairs = filterPairsByMode(allPairs, mode).filter(
     (p) => !usedPairIds.includes(p.id)
   );
 
   // If no pairs left, recycle from all pairs for this mode
   const pool = availablePairs.length > 0
     ? availablePairs
-    : filterPairsByMode(pairs, mode);
+    : filterPairsByMode(allPairs, mode);
 
   // Shuffle and pick one
   const shuffled = [...pool].sort(() => Math.random() - 0.5);
@@ -119,7 +122,7 @@ export function getDailyInitialPair(): RoundData {
   const random = seededRandom(seed);
 
   // Filter to pairs only (daily mode doesn't use trios)
-  const dailyPairs = filterPairsByMode(pairs, "daily");
+  const dailyPairs = filterPairsByMode(allPairs, "daily");
   const shuffled = [...dailyPairs].sort(() => random() - 0.5);
   const selectedPair = shuffled[0];
 
