@@ -131,7 +131,9 @@ ${formatConversationForJudge(conversationB, "B")}
 ${formatConversationForJudge(conversationC, "C")}
 
 === Player's Reply (sent to ALL THREE conversations) ===
-"${playerReply}"
+<user_reply>
+${playerReply}
+</user_reply>
 
 Evaluate how well this single reply works as the next message in EACH conversation independently.`;
   }
@@ -141,7 +143,9 @@ Evaluate how well this single reply works as the next message in EACH conversati
 ${formatConversationForJudge(conversationB, "B")}
 
 === Player's Reply (sent to BOTH conversations) ===
-"${playerReply}"
+<user_reply>
+${playerReply}
+</user_reply>
 
 Evaluate how well this single reply works as the next message in EACH conversation independently.`;
 }
