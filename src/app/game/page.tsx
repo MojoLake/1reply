@@ -11,6 +11,10 @@ import {
   RoundResult,
   ContinuationResponse,
 } from "@/lib/types";
+import {
+  addPlayerReplyToConversations,
+  addReplyToConversation,
+} from "@/lib/conversation";
 import { getStoredData, updateHighScore } from "@/lib/storage";
 import { CONVERSATION_COMPLETION_BONUS } from "@/lib/scoring";
 import { saveScore } from "@/lib/useAuth";
@@ -250,18 +254,7 @@ function GamePageContent() {
         if (!prev) return prev;
         return {
           ...prev,
-          conversationA: {
-            ...prev.conversationA,
-            transcript: [...prev.conversationA.transcript, { role: "player" as const, text: reply }],
-          },
-          conversationB: {
-            ...prev.conversationB,
-            transcript: [...prev.conversationB.transcript, { role: "player" as const, text: reply }],
-          },
-          conversationC: prev.conversationC ? {
-            ...prev.conversationC,
-            transcript: [...prev.conversationC.transcript, { role: "player" as const, text: reply }],
-          } : undefined,
+          ...addPlayerReplyToConversations(prev, reply),
         };
       });
 
@@ -327,32 +320,21 @@ function GamePageContent() {
 
         // Always fetch continuations and show feedback (even on game over)
         // This lets players see the NPC responses and analysis before the game over modal
-        const updatedConvA = {
-          ...gameState.conversationA,
+        const updatedConvA: Conversation = {
+          ...addReplyToConversation(gameState.conversationA, reply),
           confusion: result.newConfusionA,
-          transcript: [
-            ...gameState.conversationA.transcript,
-            { role: "player" as const, text: reply },
-          ],
         };
-        const updatedConvB = {
-          ...gameState.conversationB,
+        const updatedConvB: Conversation = {
+          ...addReplyToConversation(gameState.conversationB, reply),
           confusion: result.newConfusionB,
-          transcript: [
-            ...gameState.conversationB.transcript,
-            { role: "player" as const, text: reply },
-          ],
         };
-        const updatedConvC = gameState.conversationC && result.newConfusionC !== undefined
-          ? {
-              ...gameState.conversationC,
-              confusion: result.newConfusionC,
-              transcript: [
-                ...gameState.conversationC.transcript,
-                { role: "player" as const, text: reply },
-              ],
-            }
-          : undefined;
+        const updatedConvC: Conversation | undefined =
+          gameState.conversationC && result.newConfusionC !== undefined
+            ? {
+                ...addReplyToConversation(gameState.conversationC, reply),
+                confusion: result.newConfusionC,
+              }
+            : undefined;
         const continuations = await fetchContinuations(updatedConvA, updatedConvB, updatedConvC);
         setPendingContinuations(continuations);
         setPhase("feedback");

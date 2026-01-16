@@ -3,8 +3,43 @@ import {
   Conversation,
   ContinuationResult,
   ContinuationResponse,
+  GameState,
 } from "./types";
 import { extractJsonFromResponse } from "./parseJson";
+
+/**
+ * Adds a player reply to a single conversation's transcript.
+ * Returns a new Conversation object with the reply appended.
+ */
+export function addReplyToConversation(
+  conversation: Conversation,
+  reply: string
+): Conversation {
+  return {
+    ...conversation,
+    transcript: [
+      ...conversation.transcript,
+      { role: "player" as const, text: reply },
+    ],
+  };
+}
+
+/**
+ * Adds a player reply to all conversations in the game state.
+ * Returns the updated conversation objects (A, B, and optionally C).
+ */
+export function addPlayerReplyToConversations(
+  state: GameState,
+  reply: string
+): Pick<GameState, "conversationA" | "conversationB" | "conversationC"> {
+  return {
+    conversationA: addReplyToConversation(state.conversationA, reply),
+    conversationB: addReplyToConversation(state.conversationB, reply),
+    conversationC: state.conversationC
+      ? addReplyToConversation(state.conversationC, reply)
+      : undefined,
+  };
+}
 import {
   GEMINI_MODEL,
   CONTINUATION_TEMPERATURE,
