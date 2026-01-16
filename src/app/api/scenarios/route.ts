@@ -3,8 +3,20 @@ import { createClient } from "@/lib/supabase/server";
 import { nanoid } from "nanoid";
 import { ConversationSituation } from "@/lib/types";
 import { moderateContent } from "@/lib/moderation";
+import {
+  CREATE_TITLE_MAX_LENGTH,
+  CREATE_NAME_MAX_LENGTH,
+  CREATE_CONTEXT_MAX_LENGTH,
+  CREATE_TOPIC_MAX_LENGTH,
+  CREATE_TONE_MAX_LENGTH,
+  CREATE_INTENT_MAX_LENGTH,
+  CREATE_FACT_MAX_LENGTH,
+  CREATE_MESSAGE_MAX_LENGTH,
+  CREATE_MAX_FACTS,
+  CREATE_MAX_MESSAGES,
+} from "@/lib/constants";
 
-// Validate a situation object has all required fields
+// Validate a situation object has all required fields and enforce length limits
 function validateSituation(
   situation: unknown,
   label: string
@@ -36,6 +48,12 @@ function validateSituation(
     return null;
   }
 
+  // Validate and limit transcript messages count
+  if (s.initialTranscript.length > CREATE_MAX_MESSAGES) {
+    console.error(`Invalid ${label}: too many messages (max ${CREATE_MAX_MESSAGES})`);
+    return null;
+  }
+
   // Validate transcript messages
   for (const msg of s.initialTranscript) {
     if (
@@ -49,17 +67,35 @@ function validateSituation(
     }
   }
 
-  // Tone is now free-form string, no validation against fixed list
+  // Limit facts count
+  if (s.facts.length > CREATE_MAX_FACTS) {
+    console.error(`Invalid ${label}: too many facts (max ${CREATE_MAX_FACTS})`);
+    return null;
+  }
+
+  // Truncate all fields to their max lengths
+  const personName = (s.personName as string).trim().slice(0, CREATE_NAME_MAX_LENGTH);
+  const personContext = (s.personContext as string).trim().slice(0, CREATE_CONTEXT_MAX_LENGTH);
+  const topic = (s.topic as string).trim().slice(0, CREATE_TOPIC_MAX_LENGTH);
+  const tone = (s.tone as string).trim().slice(0, CREATE_TONE_MAX_LENGTH);
+  const intent = (s.intent as string).trim().slice(0, CREATE_INTENT_MAX_LENGTH);
+  const facts = (s.facts as string[])
+    .filter((f) => f.trim())
+    .slice(0, CREATE_MAX_FACTS)
+    .map((f) => f.trim().slice(0, CREATE_FACT_MAX_LENGTH));
+  const transcript = (s.initialTranscript as Array<{ role: "them"; text: string }>)
+    .slice(0, CREATE_MAX_MESSAGES)
+    .map((m) => ({ role: m.role, text: m.text.trim().slice(0, CREATE_MESSAGE_MAX_LENGTH) }));
 
   return {
     id: `user-${nanoid(8)}`,
-    topic: (s.topic as string).trim(),
-    tone: (s.tone as string).trim(),
-    intent: (s.intent as string).trim(),
-    personName: (s.personName as string).trim(),
-    personContext: (s.personContext as string).trim(),
-    facts: (s.facts as string[]).filter((f) => f.trim()),
-    initialTranscript: s.initialTranscript as ConversationSituation["initialTranscript"],
+    topic,
+    tone,
+    intent,
+    personName,
+    personContext,
+    facts,
+    initialTranscript: transcript,
     difficultyTags: ["medium"], // User scenarios default to medium
   };
 }
@@ -82,7 +118,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { title, difficulty, situationA, situationB, situationC } = body;
+    const { title, situationA, situationB, situationC } = body;
 
     // Validate title
     if (!title || typeof title !== "string" || !title.trim()) {
@@ -92,14 +128,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate difficulty
-    const validDifficulties = ["easy", "medium", "hard"];
-    if (!difficulty || !validDifficulties.includes(difficulty)) {
-      return NextResponse.json(
-        { error: "Valid difficulty (easy, medium, hard) is required" },
-        { status: 400 }
-      );
-    }
+    // Truncate title to max length
+    const trimmedTitle = title.trim().slice(0, CREATE_TITLE_MAX_LENGTH);
 
     // Validate situations
     const validatedA = validateSituation(situationA, "situationA");
@@ -161,7 +191,7 @@ export async function POST(request: Request) {
       }
 
       const moderationResult = await moderateContent(
-        { title: title.trim(), situations },
+        { title: trimmedTitle, situations },
         apiKey
       );
 
@@ -185,8 +215,8 @@ export async function POST(request: Request) {
       .insert({
         author_id: user.id,
         share_code: shareCode,
-        title: title.trim(),
-        difficulty,
+        title: trimmedTitle,
+        difficulty: "medium", // Default difficulty for user-created scenarios
         situation_a: validatedA,
         situation_b: validatedB,
         situation_c: validatedC,

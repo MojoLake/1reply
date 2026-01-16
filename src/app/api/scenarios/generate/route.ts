@@ -6,9 +6,12 @@ import {
   GENERATION_TEMPERATURE,
   GENERATION_MAX_TOKENS,
   GENERATION_MAX_RETRIES,
+  CREATE_MESSAGE_MAX_LENGTH,
+  CREATE_MAX_MESSAGES,
 } from "@/lib/constants";
 
 export interface GeneratedFields {
+  title: string;
   personName: string;
   personContext: string;
   topic: string;
@@ -22,6 +25,7 @@ const GENERATION_SYSTEM_PROMPT = `You are helping create content for a word puzz
 Given a set of opening messages from one conversation, infer the context and generate the missing fields.
 
 RULES:
+- title: A short, catchy challenge title (e.g., "The Double Date Dilemma", "Office Politics", "Family Feud")
 - personName: The sender's first name (invent a realistic one if not obvious)
 - personContext: A brief description of who they are to the player (e.g., "Your coworker", "Your friend from college")
 - topic: The general category (e.g., "work", "friendship", "dating", "family", "social", "health")
@@ -33,6 +37,7 @@ Be creative but realistic. The fields should match the vibe of the messages.
 
 OUTPUT: Return ONLY valid JSON:
 {
+  "title": "string",
   "personName": "string",
   "personContext": "string",
   "topic": "string",
@@ -55,6 +60,7 @@ function parseGenerationResponse(response: string): GeneratedFields | null {
 
     // Validate required fields
     if (
+      typeof parsed.title === "string" &&
       typeof parsed.personName === "string" &&
       typeof parsed.personContext === "string" &&
       typeof parsed.topic === "string" &&
@@ -63,6 +69,7 @@ function parseGenerationResponse(response: string): GeneratedFields | null {
       Array.isArray(parsed.facts)
     ) {
       return {
+        title: parsed.title.trim(),
         personName: parsed.personName.trim(),
         personContext: parsed.personContext.trim(),
         topic: parsed.topic.trim(),
@@ -90,10 +97,11 @@ export async function POST(request: Request) {
       );
     }
 
-    // Filter and validate messages
+    // Filter, validate, and truncate messages
     const validMessages = messages
       .filter((m): m is string => typeof m === "string" && m.trim().length > 0)
-      .map((m) => m.trim());
+      .slice(0, CREATE_MAX_MESSAGES)
+      .map((m) => m.trim().slice(0, CREATE_MESSAGE_MAX_LENGTH));
 
     if (validMessages.length === 0) {
       return NextResponse.json(
@@ -146,6 +154,7 @@ export async function POST(request: Request) {
 
     // Fallback: return reasonable defaults
     return NextResponse.json({
+      title: "The Chat Challenge",
       personName: "Alex",
       personContext: "Someone you know",
       topic: "general",

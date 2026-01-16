@@ -47,3 +47,15 @@ export const MODERATION_MAX_RETRIES = 2;
 export const GENERATION_TEMPERATURE = 0.7;
 export const GENERATION_MAX_TOKENS = 1024;
 export const GENERATION_MAX_RETRIES = 2;
+
+// User scenario creation limits (for prompt injection prevention)
+export const CREATE_TITLE_MAX_LENGTH = 50;
+export const CREATE_NAME_MAX_LENGTH = 30;
+export const CREATE_CONTEXT_MAX_LENGTH = 80;
+export const CREATE_TOPIC_MAX_LENGTH = 40;
+export const CREATE_TONE_MAX_LENGTH = 40;
+export const CREATE_INTENT_MAX_LENGTH = 50;
+export const CREATE_FACT_MAX_LENGTH = 150;
+export const CREATE_MESSAGE_MAX_LENGTH = 300;
+export const CREATE_MAX_FACTS = 5;
+export const CREATE_MAX_MESSAGES = 5;

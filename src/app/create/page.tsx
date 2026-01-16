@@ -1,12 +1,23 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { AuthButton } from "@/components/AuthButton";
 import type { User } from "@supabase/supabase-js";
+import {
+  CREATE_TITLE_MAX_LENGTH,
+  CREATE_NAME_MAX_LENGTH,
+  CREATE_CONTEXT_MAX_LENGTH,
+  CREATE_TOPIC_MAX_LENGTH,
+  CREATE_TONE_MAX_LENGTH,
+  CREATE_INTENT_MAX_LENGTH,
+  CREATE_FACT_MAX_LENGTH,
+  CREATE_MESSAGE_MAX_LENGTH,
+  CREATE_MAX_FACTS,
+  CREATE_MAX_MESSAGES,
+} from "@/lib/constants";
 
 // Example tones shown as placeholder hints
 const TONE_EXAMPLES = "casual, formal, sarcastic, passive-aggressive, excited";
@@ -32,14 +43,12 @@ const emptySituation: SituationFormData = {
 };
 
 export default function CreatePage() {
-  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
   // Form state
   const [title, setTitle] = useState("");
-  const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
   const [situationA, setSituationA] = useState<SituationFormData>({ ...emptySituation });
   const [situationB, setSituationB] = useState<SituationFormData>({ ...emptySituation });
   const [activeTab, setActiveTab] = useState<"A" | "B">("A");
@@ -110,6 +119,11 @@ export default function CreatePage() {
           ? data.facts
           : [""],
       }));
+
+      // Also fill title if empty
+      if (!title && data.title) {
+        setTitle(data.title);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to auto-fill");
     } finally {
@@ -172,7 +186,6 @@ export default function CreatePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
-          difficulty,
           situationA: buildSituation(situationA),
           situationB: buildSituation(situationB),
         }),
@@ -208,7 +221,11 @@ export default function CreatePage() {
     setter: React.Dispatch<React.SetStateAction<SituationFormData>>,
     field: "facts" | "messages"
   ) => {
-    setter((prev) => ({ ...prev, [field]: [...prev[field], ""] }));
+    const maxItems = field === "facts" ? CREATE_MAX_FACTS : CREATE_MAX_MESSAGES;
+    setter((prev) => {
+      if (prev[field].length >= maxItems) return prev;
+      return { ...prev, [field]: [...prev[field], ""] };
+    });
   };
 
   const updateArrayItem = (
@@ -371,42 +388,20 @@ export default function CreatePage() {
           </p>
 
           <form onSubmit={handleSubmit}>
-            {/* Title and Difficulty */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              <div>
-                <label className="block text-xs text-gray-500 font-mono mb-2">
-                  SCENARIO TITLE
-                </label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g., Office Drama"
-                  className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 font-mono mb-2">
-                  DIFFICULTY
-                </label>
-                <div className="flex gap-2">
-                  {(["easy", "medium", "hard"] as const).map((d) => (
-                    <button
-                      key={d}
-                      type="button"
-                      onClick={() => setDifficulty(d)}
-                      className={`flex-1 py-2 border font-mono text-sm transition-colors ${
-                        difficulty === d
-                          ? "border-white bg-white text-black"
-                          : "border-gray-700 text-gray-400 hover:border-white hover:text-white"
-                      }`}
-                    >
-                      {d.toUpperCase()}
-                    </button>
-                  ))}
-                </div>
-              </div>
+            {/* Challenge Title */}
+            <div className="mb-8">
+              <label className="block text-xs text-gray-500 font-mono mb-2">
+                CHALLENGE TITLE
+              </label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g., My Impossible Combo"
+                maxLength={CREATE_TITLE_MAX_LENGTH}
+                className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
+                required
+              />
             </div>
 
             {/* Situation Tabs */}
@@ -454,6 +449,7 @@ export default function CreatePage() {
                           updateArrayItem(setActiveSituation, "messages", i, e.target.value)
                         }
                         placeholder={`Message ${i + 1}`}
+                        maxLength={CREATE_MESSAGE_MAX_LENGTH}
                         className="flex-1 px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
                         required={i === 0}
                       />
@@ -468,13 +464,15 @@ export default function CreatePage() {
                       )}
                     </div>
                   ))}
-                  <button
-                    type="button"
-                    onClick={() => addArrayItem(setActiveSituation, "messages")}
-                    className="text-xs text-gray-500 hover:text-white font-mono transition-colors"
-                  >
-                    [+ ADD MESSAGE]
-                  </button>
+                  {activeSituation.messages.length < CREATE_MAX_MESSAGES && (
+                    <button
+                      type="button"
+                      onClick={() => addArrayItem(setActiveSituation, "messages")}
+                      className="text-xs text-gray-500 hover:text-white font-mono transition-colors"
+                    >
+                      [+ ADD MESSAGE]
+                    </button>
+                  )}
                 </div>
 
                 {/* Auto-fill Button */}
@@ -513,6 +511,7 @@ export default function CreatePage() {
                         updateSituation(setActiveSituation, "personName", e.target.value)
                       }
                       placeholder="e.g., Sam"
+                      maxLength={CREATE_NAME_MAX_LENGTH}
                       className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
                     />
                   </div>
@@ -527,6 +526,7 @@ export default function CreatePage() {
                         updateSituation(setActiveSituation, "personContext", e.target.value)
                       }
                       placeholder="e.g., Your coworker"
+                      maxLength={CREATE_CONTEXT_MAX_LENGTH}
                       className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
                     />
                   </div>
@@ -544,6 +544,7 @@ export default function CreatePage() {
                         updateSituation(setActiveSituation, "topic", e.target.value)
                       }
                       placeholder="e.g., work, dating, family"
+                      maxLength={CREATE_TOPIC_MAX_LENGTH}
                       className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
                     />
                   </div>
@@ -558,6 +559,7 @@ export default function CreatePage() {
                         updateSituation(setActiveSituation, "tone", e.target.value)
                       }
                       placeholder={TONE_EXAMPLES}
+                      maxLength={CREATE_TONE_MAX_LENGTH}
                       className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
                     />
                   </div>
@@ -572,6 +574,7 @@ export default function CreatePage() {
                         updateSituation(setActiveSituation, "intent", e.target.value)
                       }
                       placeholder="e.g., venting, making_plans"
+                      maxLength={CREATE_INTENT_MAX_LENGTH}
                       className="w-full px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
                     />
                   </div>
@@ -594,6 +597,7 @@ export default function CreatePage() {
                           updateArrayItem(setActiveSituation, "facts", i, e.target.value)
                         }
                         placeholder={i === 0 ? "e.g., The player and them are roommates" : `Fact ${i + 1}`}
+                        maxLength={CREATE_FACT_MAX_LENGTH}
                         className="flex-1 px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
                       />
                       {activeSituation.facts.length > 1 && (
@@ -607,13 +611,15 @@ export default function CreatePage() {
                       )}
                     </div>
                   ))}
-                  <button
-                    type="button"
-                    onClick={() => addArrayItem(setActiveSituation, "facts")}
-                    className="text-xs text-gray-500 hover:text-white font-mono transition-colors"
-                  >
-                    [+ ADD FACT]
-                  </button>
+                  {activeSituation.facts.length < CREATE_MAX_FACTS && (
+                    <button
+                      type="button"
+                      onClick={() => addArrayItem(setActiveSituation, "facts")}
+                      className="text-xs text-gray-500 hover:text-white font-mono transition-colors"
+                    >
+                      [+ ADD FACT]
+                    </button>
+                  )}
                 </div>
               </motion.div>
             </AnimatePresence>
