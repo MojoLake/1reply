@@ -2,17 +2,17 @@ import { SituationPair } from "@/lib/types";
 
 /**
  * Curated situation pairs for the game.
- * 
+ *
  * Design philosophies:
  * - Confusable: Similar topics/words but different contexts (tricky but fair)
  * - Contrast: Stark tonal/stakes differences (boss + ex, serious + silly)
  * - Narrative: Creates funny/absurd scenarios when mixed up
- * 
+ *
  * Trios (3 situations) are only used in extreme mode.
  */
 export const pairs: SituationPair[] = [
   // === EASY: Clear contrast, forgiving pairs ===
-  
+
   {
     id: "monday-blues",
     situationIds: ["coworker-monday", "friend-checkin-1"],
@@ -235,4 +235,3 @@ export const pairs: SituationPair[] = [
 ];
 
 export default pairs;
-
