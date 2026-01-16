@@ -164,6 +164,8 @@ export async function POST(request: Request) {
         const candidate = result.response.candidates?.[0];
         const finishReason = candidate?.finishReason;
 
+        console.log("finishReason", finishReason);
+
         if (finishReason === "SAFETY" || finishReason === "RECITATION") {
           console.warn(`Generation blocked due to ${finishReason}`);
           return NextResponse.json(
