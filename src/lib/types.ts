@@ -101,7 +101,10 @@ export interface GameState {
   completedConversations: number; // count of successfully completed conversations
 }
 
-export type GameMode = "classic" | "timer" | "daily" | "extreme";
+// Re-export from validation.ts - single source of truth
+export { GAME_MODES } from "./validation";
+import { GAME_MODES } from "./validation";
+export type GameMode = (typeof GAME_MODES)[number];
 
 export interface RoundData {
   pairId: string;
