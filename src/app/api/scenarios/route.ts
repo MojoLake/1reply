@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { nanoid } from "nanoid";
 import { ConversationSituation } from "@/lib/types";
-import { moderateContent } from "@/lib/moderation";
+import { moderateMessages } from "@/lib/moderation";
 import {
   CREATE_TITLE_MAX_LENGTH,
   CREATE_NAME_MAX_LENGTH,
@@ -154,56 +154,47 @@ export async function POST(request: Request) {
       }
     }
 
-    // Content moderation
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (apiKey) {
-      const situations = [
-        {
-          personName: validatedA.personName,
-          personContext: validatedA.personContext,
-          topic: validatedA.topic,
-          tone: validatedA.tone,
-          intent: validatedA.intent,
-          facts: validatedA.facts,
-          messages: validatedA.initialTranscript.map((m) => m.text),
-        },
-        {
-          personName: validatedB.personName,
-          personContext: validatedB.personContext,
-          topic: validatedB.topic,
-          tone: validatedB.tone,
-          intent: validatedB.intent,
-          facts: validatedB.facts,
-          messages: validatedB.initialTranscript.map((m) => m.text),
-        },
-      ];
+    // Content moderation - collect all text and check against blocklist
+    const allText = [
+      trimmedTitle,
+      validatedA.personName,
+      validatedA.personContext,
+      validatedA.topic,
+      validatedA.tone,
+      validatedA.intent,
+      ...validatedA.facts,
+      ...validatedA.initialTranscript.map((m) => m.text),
+      validatedB.personName,
+      validatedB.personContext,
+      validatedB.topic,
+      validatedB.tone,
+      validatedB.intent,
+      ...validatedB.facts,
+      ...validatedB.initialTranscript.map((m) => m.text),
+    ];
 
-      if (validatedC) {
-        situations.push({
-          personName: validatedC.personName,
-          personContext: validatedC.personContext,
-          topic: validatedC.topic,
-          tone: validatedC.tone,
-          intent: validatedC.intent,
-          facts: validatedC.facts,
-          messages: validatedC.initialTranscript.map((m) => m.text),
-        });
-      }
-
-      const moderationResult = await moderateContent(
-        { title: trimmedTitle, situations },
-        apiKey
+    if (validatedC) {
+      allText.push(
+        validatedC.personName,
+        validatedC.personContext,
+        validatedC.topic,
+        validatedC.tone,
+        validatedC.intent,
+        ...validatedC.facts,
+        ...validatedC.initialTranscript.map((m) => m.text)
       );
+    }
 
-      if (!moderationResult.approved) {
-        return NextResponse.json(
-          {
-            error: "Content not allowed",
-            reason: moderationResult.reason || "This content violates our guidelines",
-          },
-          { status: 400 }
-        );
-      }
+    const moderationResult = moderateMessages(allText);
+
+    if (!moderationResult.approved) {
+      return NextResponse.json(
+        {
+          error: "Content not allowed",
+          reason: moderationResult.reason || "This content violates our guidelines",
+        },
+        { status: 400 }
+      );
     }
 
     // Generate unique share code

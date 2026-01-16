@@ -81,7 +81,9 @@ function parseGenerationResponse(response: string): GeneratedFields | null {
         topic: parsed.topic.trim(),
         tone: parsed.tone.trim(),
         intent: parsed.intent.trim(),
-        facts: parsed.facts.map((f: unknown) => String(f).trim()).filter((f: string) => f),
+        facts: parsed.facts
+          .map((f: unknown) => String(f).trim())
+          .filter((f: string) => f),
       };
     }
     return null;
@@ -116,13 +118,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Content moderation: keyword blocklist + OpenAI Moderation API
-    const moderationResult = await moderateMessages(validMessages);
+    // Content moderation: keyword blocklist
+    const moderationResult = moderateMessages(validMessages);
     if (!moderationResult.approved) {
       return NextResponse.json(
         {
           error: "Content not allowed",
-          reason: moderationResult.reason || "This content violates our guidelines",
+          reason:
+            moderationResult.reason || "This content violates our guidelines",
         },
         { status: 400 }
       );
@@ -164,7 +167,9 @@ export async function POST(request: Request) {
           return NextResponse.json(parsed);
         }
 
-        console.warn(`Generation parse failed on attempt ${attempt + 1}, retrying...`);
+        console.warn(
+          `Generation parse failed on attempt ${attempt + 1}, retrying...`
+        );
       } catch (error) {
         console.error(`Generation API error on attempt ${attempt + 1}:`, error);
       }
