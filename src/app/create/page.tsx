@@ -582,6 +582,9 @@ export default function CreatePage() {
                   <label className="block text-xs text-gray-500 font-mono mb-2">
                     FACTS <span className="text-gray-700">(optional - context for the AI judge)</span>
                   </label>
+                  <p className="text-xs text-gray-600 font-mono mb-2">
+                    Refer to the recipient as &quot;the player&quot; (e.g., &quot;The player owes them $50&quot;)
+                  </p>
                   {activeSituation.facts.map((fact, i) => (
                     <div key={i} className="flex gap-2 mb-2">
                       <input
@@ -590,7 +593,7 @@ export default function CreatePage() {
                         onChange={(e) =>
                           updateArrayItem(setActiveSituation, "facts", i, e.target.value)
                         }
-                        placeholder={`Fact ${i + 1}`}
+                        placeholder={i === 0 ? "e.g., The player and them are roommates" : `Fact ${i + 1}`}
                         className="flex-1 px-3 py-2 bg-black border border-gray-700 focus:border-white text-white font-mono text-sm outline-none transition-colors"
                       />
                       {activeSituation.facts.length > 1 && (
