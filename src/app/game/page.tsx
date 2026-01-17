@@ -420,6 +420,7 @@ function GamePageContent() {
                 isEnding: phase === "playing" && endingConversations.A,
                 onStartNew: () => handleStartNewConversation("A"),
                 onContinueCurrent: () => handleContinueCurrent("A"),
+                isGameOverCause: gameState.isGameOver && gameState.gameOverReason === "A",
               },
               {
                 label: "B",
@@ -428,6 +429,7 @@ function GamePageContent() {
                 isEnding: phase === "playing" && endingConversations.B,
                 onStartNew: () => handleStartNewConversation("B"),
                 onContinueCurrent: () => handleContinueCurrent("B"),
+                isGameOverCause: gameState.isGameOver && gameState.gameOverReason === "B",
               },
               ...(isExtremeMode && gameState.conversationC
                 ? [
@@ -438,6 +440,7 @@ function GamePageContent() {
                       isEnding: phase === "playing" && endingConversations.C,
                       onStartNew: () => handleStartNewConversation("C"),
                       onContinueCurrent: () => handleContinueCurrent("C"),
+                      isGameOverCause: gameState.isGameOver && gameState.gameOverReason === "C",
                     },
                   ]
                 : []),
@@ -462,6 +465,7 @@ function GamePageContent() {
               isEnding={phase === "playing" && endingConversations.A}
               onStartNew={() => handleStartNewConversation("A")}
               onContinueCurrent={() => handleContinueCurrent("A")}
+              isGameOverCause={gameState.isGameOver && gameState.gameOverReason === "A"}
             />
             {phase === "feedback" && lastResult && (
               <ConversationFeedback
@@ -482,6 +486,7 @@ function GamePageContent() {
               isEnding={phase === "playing" && endingConversations.B}
               onStartNew={() => handleStartNewConversation("B")}
               onContinueCurrent={() => handleContinueCurrent("B")}
+              isGameOverCause={gameState.isGameOver && gameState.gameOverReason === "B"}
             />
             {phase === "feedback" && lastResult && (
               <ConversationFeedback
@@ -503,6 +508,7 @@ function GamePageContent() {
                 isEnding={phase === "playing" && endingConversations.C}
                 onStartNew={() => handleStartNewConversation("C")}
                 onContinueCurrent={() => handleContinueCurrent("C")}
+                isGameOverCause={gameState.isGameOver && gameState.gameOverReason === "C"}
               />
               {phase === "feedback" && lastResult?.evaluation.C && lastResult.confusionDelta.C !== undefined && (
                 <ConversationFeedback
