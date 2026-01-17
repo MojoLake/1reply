@@ -20,6 +20,7 @@ import {
   TIMER_MIN_SECONDS,
   TIMER_DECREMENT_PER_ROUND,
   NEUTRAL_SCORE,
+  MAX_CONFUSION,
 } from "@/lib/constants";
 import GameHeader from "@/components/GameHeader";
 import ConversationPanel from "@/components/ConversationPanel";
@@ -420,7 +421,7 @@ function GamePageContent() {
                 isEnding: phase === "playing" && endingConversations.A,
                 onStartNew: () => handleStartNewConversation("A"),
                 onContinueCurrent: () => handleContinueCurrent("A"),
-                isGameOverCause: gameState.isGameOver && gameState.gameOverReason === "A",
+                isGameOverCause: gameState.isGameOver && gameState.conversationA.confusion >= MAX_CONFUSION,
               },
               {
                 label: "B",
@@ -429,7 +430,7 @@ function GamePageContent() {
                 isEnding: phase === "playing" && endingConversations.B,
                 onStartNew: () => handleStartNewConversation("B"),
                 onContinueCurrent: () => handleContinueCurrent("B"),
-                isGameOverCause: gameState.isGameOver && gameState.gameOverReason === "B",
+                isGameOverCause: gameState.isGameOver && gameState.conversationB.confusion >= MAX_CONFUSION,
               },
               ...(isExtremeMode && gameState.conversationC
                 ? [
@@ -440,7 +441,7 @@ function GamePageContent() {
                       isEnding: phase === "playing" && endingConversations.C,
                       onStartNew: () => handleStartNewConversation("C"),
                       onContinueCurrent: () => handleContinueCurrent("C"),
-                      isGameOverCause: gameState.isGameOver && gameState.gameOverReason === "C",
+                      isGameOverCause: gameState.isGameOver && !!gameState.conversationC && gameState.conversationC.confusion >= MAX_CONFUSION,
                     },
                   ]
                 : []),
@@ -465,7 +466,7 @@ function GamePageContent() {
               isEnding={phase === "playing" && endingConversations.A}
               onStartNew={() => handleStartNewConversation("A")}
               onContinueCurrent={() => handleContinueCurrent("A")}
-              isGameOverCause={gameState.isGameOver && gameState.gameOverReason === "A"}
+              isGameOverCause={gameState.isGameOver && gameState.conversationA.confusion >= MAX_CONFUSION}
             />
             {phase === "feedback" && lastResult && (
               <ConversationFeedback
@@ -486,7 +487,7 @@ function GamePageContent() {
               isEnding={phase === "playing" && endingConversations.B}
               onStartNew={() => handleStartNewConversation("B")}
               onContinueCurrent={() => handleContinueCurrent("B")}
-              isGameOverCause={gameState.isGameOver && gameState.gameOverReason === "B"}
+              isGameOverCause={gameState.isGameOver && gameState.conversationB.confusion >= MAX_CONFUSION}
             />
             {phase === "feedback" && lastResult && (
               <ConversationFeedback
@@ -508,7 +509,7 @@ function GamePageContent() {
                 isEnding={phase === "playing" && endingConversations.C}
                 onStartNew={() => handleStartNewConversation("C")}
                 onContinueCurrent={() => handleContinueCurrent("C")}
-                isGameOverCause={gameState.isGameOver && gameState.gameOverReason === "C"}
+                isGameOverCause={gameState.isGameOver && !!gameState.conversationC && gameState.conversationC.confusion >= MAX_CONFUSION}
               />
               {phase === "feedback" && lastResult?.evaluation.C && lastResult.confusionDelta.C !== undefined && (
                 <ConversationFeedback
