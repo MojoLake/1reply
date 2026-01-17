@@ -90,12 +90,13 @@ export function getConfusionBar(confusion: number): string {
 }
 
 /**
- * Get color class for confusion level (grayscale for terminal aesthetic)
+ * Get color class for confusion level (grayscale for terminal aesthetic, red at max)
  */
 export function getConfusionColor(confusion: number): string {
   if (confusion <= 1) return "text-white";
   if (confusion <= 2) return "text-gray-300";
   if (confusion <= 3) return "text-gray-400";
+  if (confusion >= MAX_CONFUSION) return "text-red-500";
   return "text-gray-500";
 }
 
