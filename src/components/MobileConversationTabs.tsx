@@ -12,6 +12,7 @@ interface TabConversation {
   isEnding?: boolean;
   onStartNew?: () => void;
   onContinueCurrent?: () => void;
+  isGameOverCause?: boolean;
 }
 
 interface MobileConversationTabsProps {
@@ -106,6 +107,7 @@ export default function MobileConversationTabs({
               onStartNew={conversations[activeTab].onStartNew}
               onContinueCurrent={conversations[activeTab].onContinueCurrent}
               hideHeader
+              isGameOverCause={conversations[activeTab].isGameOverCause}
             />
           </motion.div>
         </AnimatePresence>
