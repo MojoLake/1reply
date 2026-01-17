@@ -263,12 +263,12 @@ export function gameReducer(state: FullGameState, action: GameAction): FullGameS
         };
       }
 
-      // If game was over from confusion, show gameover with minimized modal
+      // If game was over from confusion, show gameover modal immediately
       if (state.gameState.isGameOver) {
         return {
           ...state,
           pendingContinuations: null,
-          gameOverStartMinimized: true,
+          gameOverStartMinimized: false,
           phase: "gameover",
           gameState: {
             ...state.gameState,
