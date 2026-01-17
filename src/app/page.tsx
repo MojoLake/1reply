@@ -127,10 +127,18 @@ export default function HomePage() {
                   ` | ${stats.bestRounds.classic} rounds`}
               </div>
             )}
-            <span className="absolute top-0 left-0 text-gray-700 group-hover:text-black text-xs">+</span>
-            <span className="absolute top-0 right-0 text-gray-700 group-hover:text-black text-xs">+</span>
-            <span className="absolute bottom-0 left-0 text-gray-700 group-hover:text-black text-xs">+</span>
-            <span className="absolute bottom-0 right-0 text-gray-700 group-hover:text-black text-xs">+</span>
+            <span className="absolute top-0 left-0 text-gray-700 group-hover:text-black text-xs">
+              +
+            </span>
+            <span className="absolute top-0 right-0 text-gray-700 group-hover:text-black text-xs">
+              +
+            </span>
+            <span className="absolute bottom-0 left-0 text-gray-700 group-hover:text-black text-xs">
+              +
+            </span>
+            <span className="absolute bottom-0 right-0 text-gray-700 group-hover:text-black text-xs">
+              +
+            </span>
           </motion.button>
 
           {/* Custom Challenges - links to /challenges page */}
@@ -150,10 +158,18 @@ export default function HomePage() {
               <p className="text-sm text-gray-500 group-hover:text-gray-600">
                 Play community scenarios or your own creations.
               </p>
-              <span className="absolute top-0 left-0 text-gray-700 group-hover:text-black text-xs">+</span>
-              <span className="absolute top-0 right-0 text-gray-700 group-hover:text-black text-xs">+</span>
-              <span className="absolute bottom-0 left-0 text-gray-700 group-hover:text-black text-xs">+</span>
-              <span className="absolute bottom-0 right-0 text-gray-700 group-hover:text-black text-xs">+</span>
+              <span className="absolute top-0 left-0 text-gray-700 group-hover:text-black text-xs">
+                +
+              </span>
+              <span className="absolute top-0 right-0 text-gray-700 group-hover:text-black text-xs">
+                +
+              </span>
+              <span className="absolute bottom-0 left-0 text-gray-700 group-hover:text-black text-xs">
+                +
+              </span>
+              <span className="absolute bottom-0 right-0 text-gray-700 group-hover:text-black text-xs">
+                +
+              </span>
             </motion.div>
           </Link>
 
@@ -187,10 +203,18 @@ export default function HomePage() {
                 </span>
               )}
             </div>
-            <span className="absolute top-0 left-0 text-gray-700 group-hover:text-black text-xs">+</span>
-            <span className="absolute top-0 right-0 text-gray-700 group-hover:text-black text-xs">+</span>
-            <span className="absolute bottom-0 left-0 text-gray-700 group-hover:text-black text-xs">+</span>
-            <span className="absolute bottom-0 right-0 text-gray-700 group-hover:text-black text-xs">+</span>
+            <span className="absolute top-0 left-0 text-gray-700 group-hover:text-black text-xs">
+              +
+            </span>
+            <span className="absolute top-0 right-0 text-gray-700 group-hover:text-black text-xs">
+              +
+            </span>
+            <span className="absolute bottom-0 left-0 text-gray-700 group-hover:text-black text-xs">
+              +
+            </span>
+            <span className="absolute bottom-0 right-0 text-gray-700 group-hover:text-black text-xs">
+              +
+            </span>
           </motion.button>
 
           {/* Extreme mode */}
@@ -217,10 +241,18 @@ export default function HomePage() {
                   ` | ${stats.bestRounds.extreme} rounds`}
               </div>
             )}
-            <span className="absolute top-0 left-0 text-gray-700 group-hover:text-black text-xs">+</span>
-            <span className="absolute top-0 right-0 text-gray-700 group-hover:text-black text-xs">+</span>
-            <span className="absolute bottom-0 left-0 text-gray-700 group-hover:text-black text-xs">+</span>
-            <span className="absolute bottom-0 right-0 text-gray-700 group-hover:text-black text-xs">+</span>
+            <span className="absolute top-0 left-0 text-gray-700 group-hover:text-black text-xs">
+              +
+            </span>
+            <span className="absolute top-0 right-0 text-gray-700 group-hover:text-black text-xs">
+              +
+            </span>
+            <span className="absolute bottom-0 left-0 text-gray-700 group-hover:text-black text-xs">
+              +
+            </span>
+            <span className="absolute bottom-0 right-0 text-gray-700 group-hover:text-black text-xs">
+              +
+            </span>
           </motion.button>
         </motion.div>
 
@@ -254,7 +286,17 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="relative py-6 text-center text-sm text-gray-600 font-mono">
-        <p>Made with &lt;3 for wordplay enthusiasts</p>
+        <p>
+          made by{" "}
+          <a
+            href="https://elias.simojoki.dev/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-black transition-colors"
+          >
+            elias
+          </a>
+        </p>
       </footer>
     </div>
   );

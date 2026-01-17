@@ -25,15 +25,21 @@ export default function ChallengesPage() {
 
   // Auth state tracking
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user: fetchedUser } }: { data: { user: User | null } }) => {
-      setUser(fetchedUser);
-    });
+    supabase.auth
+      .getUser()
+      .then(
+        ({ data: { user: fetchedUser } }: { data: { user: User | null } }) => {
+          setUser(fetchedUser);
+        }
+      );
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
-      setUser(session?.user ?? null);
-    });
+    } = supabase.auth.onAuthStateChange(
+      (_event: AuthChangeEvent, session: Session | null) => {
+        setUser(session?.user ?? null);
+      }
+    );
 
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
@@ -214,7 +220,17 @@ export default function ChallengesPage() {
 
       {/* Footer */}
       <footer className="py-6 text-center text-sm text-gray-600 font-mono">
-        <p>Made with &lt;3 for wordplay enthusiasts</p>
+        <p>
+          made by{" "}
+          <a
+            href="https://elias.simojoki.dev/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-black transition-colors"
+          >
+            elias
+          </a>
+        </p>
       </footer>
     </div>
   );
