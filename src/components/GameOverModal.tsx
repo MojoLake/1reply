@@ -34,6 +34,7 @@ export default function GameOverModal({
   const isNewHighScore = highScore !== undefined && score > highScore;
   const isInitialSurvival = reason === "initial_survived";
   const isFinalSurvival = reason === "survived";
+  const isLoss = reason === "A" || reason === "B" || reason === "C";
 
   const handleShare = () => {
     const gameName = customTitle ? `1Reply: ${customTitle}` : `1Reply ${mode === "daily" ? "Daily" : ""}`;
@@ -59,10 +60,10 @@ export default function GameOverModal({
           exit={{ y: 100, opacity: 0 }}
           className="fixed bottom-0 left-0 right-0 z-50 p-4 font-mono"
         >
-          <div className="max-w-4xl mx-auto bg-black border border-gray-600">
+          <div className={`max-w-4xl mx-auto bg-black border ${isLoss ? "border-red-600" : "border-gray-600"}`}>
             <div className="flex items-center justify-between p-3 gap-4">
               <div className="flex items-center gap-4 text-sm">
-                <span className="text-gray-500">
+                <span className={isLoss ? "text-red-500" : "text-gray-500"}>
                   {isInitialSurvival ? "CHECKPOINT!" : isFinalSurvival ? "SURVIVED!" : "GAME OVER"}
                 </span>
                 <span className="text-white font-bold">
@@ -117,15 +118,15 @@ export default function GameOverModal({
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", duration: 0.5 }}
-            className="w-full max-w-md bg-black border border-gray-600 overflow-hidden"
+            className={`w-full max-w-md bg-black border overflow-hidden ${isLoss ? "border-red-600" : "border-gray-600"}`}
           >
             {/* Header */}
-            <div className="p-6 border-b border-gray-700 text-center">
+            <div className={`p-6 border-b text-center ${isLoss ? "border-red-900" : "border-gray-700"}`}>
               <motion.pre
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", delay: 0.2 }}
-                className="text-white text-xs mb-4 leading-tight"
+                className={`text-xs mb-4 leading-tight ${isLoss ? "text-red-500" : "text-white"}`}
               >
 {isInitialSurvival ? `
   +-----------------+
@@ -158,7 +159,7 @@ export default function GameOverModal({
                   You made it through all 30 rounds!
                 </p>
               ) : reason && (
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-red-400">
                   Conversation [{reason}] became too confused
                 </p>
               )}
