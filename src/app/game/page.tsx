@@ -26,6 +26,8 @@ import ConversationPanel from "@/components/ConversationPanel";
 import MobileConversationTabs from "@/components/MobileConversationTabs";
 import ReplyInput from "@/components/ReplyInput";
 import JudgeFeedback from "@/components/JudgeFeedback";
+import ConversationFeedback from "@/components/ConversationFeedback";
+import FeedbackSummaryBar from "@/components/FeedbackSummaryBar";
 import GameOverModal from "@/components/GameOverModal";
 import { useGameReducer, InitialSituations } from "./useGameReducer";
 import { useGameTimer, calculateNextRoundTime } from "./useGameTimer";
@@ -446,38 +448,70 @@ function GamePageContent() {
 
         {/* Desktop: Grid layout */}
         <div
-          className={`hidden md:grid flex-1 min-h-0 max-h-[60vh] grid-cols-1 gap-4 mb-4 ${
+          className={`hidden md:grid flex-1 min-h-0 grid-cols-1 gap-4 mb-4 ${
             isExtremeMode ? "lg:grid-cols-3" : "lg:grid-cols-2"
-          }`}
+          } ${phase === "feedback" ? "max-h-[70vh]" : "max-h-[60vh]"}`}
         >
-          <ConversationPanel
-            conversation={gameState.conversationA}
-            label="A"
-            delta={lastResult?.confusionDelta.A}
-            showDelta={phase === "feedback"}
-            isEnding={phase === "playing" && endingConversations.A}
-            onStartNew={() => handleStartNewConversation("A")}
-            onContinueCurrent={() => handleContinueCurrent("A")}
-          />
-          <ConversationPanel
-            conversation={gameState.conversationB}
-            label="B"
-            delta={lastResult?.confusionDelta.B}
-            showDelta={phase === "feedback"}
-            isEnding={phase === "playing" && endingConversations.B}
-            onStartNew={() => handleStartNewConversation("B")}
-            onContinueCurrent={() => handleContinueCurrent("B")}
-          />
-          {isExtremeMode && gameState.conversationC && (
+          {/* Conversation A with inline feedback */}
+          <div className="flex flex-col min-h-0 overflow-hidden">
             <ConversationPanel
-              conversation={gameState.conversationC}
-              label="C"
-              delta={lastResult?.confusionDelta.C}
+              conversation={gameState.conversationA}
+              label="A"
+              delta={lastResult?.confusionDelta.A}
               showDelta={phase === "feedback"}
-              isEnding={phase === "playing" && endingConversations.C}
-              onStartNew={() => handleStartNewConversation("C")}
-              onContinueCurrent={() => handleContinueCurrent("C")}
+              isEnding={phase === "playing" && endingConversations.A}
+              onStartNew={() => handleStartNewConversation("A")}
+              onContinueCurrent={() => handleContinueCurrent("A")}
             />
+            {phase === "feedback" && lastResult && (
+              <ConversationFeedback
+                label="A"
+                scores={lastResult.evaluation.A}
+                delta={lastResult.confusionDelta.A}
+              />
+            )}
+          </div>
+
+          {/* Conversation B with inline feedback */}
+          <div className="flex flex-col min-h-0 overflow-hidden">
+            <ConversationPanel
+              conversation={gameState.conversationB}
+              label="B"
+              delta={lastResult?.confusionDelta.B}
+              showDelta={phase === "feedback"}
+              isEnding={phase === "playing" && endingConversations.B}
+              onStartNew={() => handleStartNewConversation("B")}
+              onContinueCurrent={() => handleContinueCurrent("B")}
+            />
+            {phase === "feedback" && lastResult && (
+              <ConversationFeedback
+                label="B"
+                scores={lastResult.evaluation.B}
+                delta={lastResult.confusionDelta.B}
+              />
+            )}
+          </div>
+
+          {/* Conversation C with inline feedback (extreme mode only) */}
+          {isExtremeMode && gameState.conversationC && (
+            <div className="flex flex-col min-h-0 overflow-hidden">
+              <ConversationPanel
+                conversation={gameState.conversationC}
+                label="C"
+                delta={lastResult?.confusionDelta.C}
+                showDelta={phase === "feedback"}
+                isEnding={phase === "playing" && endingConversations.C}
+                onStartNew={() => handleStartNewConversation("C")}
+                onContinueCurrent={() => handleContinueCurrent("C")}
+              />
+              {phase === "feedback" && lastResult?.evaluation.C && lastResult.confusionDelta.C !== undefined && (
+                <ConversationFeedback
+                  label="C"
+                  scores={lastResult.evaluation.C}
+                  delta={lastResult.confusionDelta.C}
+                />
+              )}
+            </div>
           )}
         </div>
 
@@ -525,16 +559,29 @@ function GamePageContent() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <JudgeFeedback
-                result={lastResult.evaluation}
-                confusionDelta={lastResult.confusionDelta}
-                scoreGained={lastResult.scoreGained}
-                onContinue={handleContinue}
-                completedConversations={completedThisRound}
-                isExtremeMode={isExtremeMode}
-                isGameOver={gameState.isGameOver}
-                gameOverReason={gameState.gameOverReason as "A" | "B" | "C" | undefined}
-              />
+              {/* Desktop: Summary bar only (feedback is inline above) */}
+              <div className="hidden md:block">
+                <FeedbackSummaryBar
+                  scoreGained={lastResult.scoreGained}
+                  onContinue={handleContinue}
+                  completedConversations={completedThisRound}
+                  isGameOver={gameState.isGameOver}
+                  gameOverReason={gameState.gameOverReason as "A" | "B" | "C" | undefined}
+                />
+              </div>
+              {/* Mobile: Full feedback modal */}
+              <div className="md:hidden">
+                <JudgeFeedback
+                  result={lastResult.evaluation}
+                  confusionDelta={lastResult.confusionDelta}
+                  scoreGained={lastResult.scoreGained}
+                  onContinue={handleContinue}
+                  completedConversations={completedThisRound}
+                  isExtremeMode={isExtremeMode}
+                  isGameOver={gameState.isGameOver}
+                  gameOverReason={gameState.gameOverReason as "A" | "B" | "C" | undefined}
+                />
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
