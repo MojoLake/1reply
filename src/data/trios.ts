@@ -20,7 +20,7 @@ export const trios: GamePair[] = [
       personContext: "Your project manager",
       facts: [
         "Project deadline is Friday",
-        "You is working on the frontend",
+        "You are working on the frontend",
       ],
       initialTranscript: [
         { role: "them", text: "Hi, quick check-in on the project." },
@@ -95,7 +95,7 @@ export const trios: GamePair[] = [
       personName: "Blake",
       personContext: "Your friend with similar music taste",
       facts: [
-        "You's favorite band is coming to town",
+        "Your favorite band is coming to town",
         "Blake has two tickets",
       ],
       initialTranscript: [
@@ -135,7 +135,7 @@ export const trios: GamePair[] = [
       personContext: "Your mother",
       facts: [
         "Mom wants to visit next month",
-        "You is very busy with work",
+        "You are very busy with work",
       ],
       initialTranscript: [
         {

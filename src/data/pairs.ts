@@ -1424,7 +1424,7 @@ export const pairs: GamePair[] = [
       personContext: "Your father.",
       facts: ["Dad can’t log into email.", "You usually fix it remotely."],
       initialTranscript: [
-        { role: "them", text: "Quick call?" },
+        { role: "them", text: "Hey, quick call? Dad here." },
         { role: "them", text: "My email’s acting weird again." },
       ],
       difficultyTags: ["easy"],
@@ -1460,7 +1460,7 @@ export const pairs: GamePair[] = [
         "Elise is waiting in the conference room.",
       ],
       initialTranscript: [
-        { role: "them", text: "Are you on your way?" },
+        { role: "them", text: "Starting the meeting soon - you coming?" },
         { role: "them", text: "We’re about to start." },
       ],
       difficultyTags: ["easy"],
@@ -1667,7 +1667,10 @@ export const pairs: GamePair[] = [
         "The driver is at the building entrance.",
       ],
       initialTranscript: [
-        { role: "them", text: "I’m outside right now." },
+        {
+          role: "them",
+          text: "I'm at the main entrance right now with the gear.",
+        },
         { role: "them", text: "Need a signature." },
       ],
       difficultyTags: ["easy"],
@@ -1739,7 +1742,7 @@ export const pairs: GamePair[] = [
       personContext: "Your teammate.",
       facts: ["Bea made a UI change.", "You reviews UX decisions."],
       initialTranscript: [
-        { role: "them", text: "Need your opinion on this." },
+        { role: "them", text: "Quick UX check? Need your opinion on this." },
         { role: "them", text: "Does it look okay?" },
       ],
       difficultyTags: ["easy"],
@@ -1874,7 +1877,7 @@ export const pairs: GamePair[] = [
       personContext: "Your landlord.",
       facts: ["A parcel arrived for you.", "Finn put it in the mailroom."],
       initialTranscript: [
-        { role: "them", text: "Did you get your package?" },
+        { role: "them", text: "Any sign of your package yet?" },
         { role: "them", text: "It came earlier." },
       ],
       difficultyTags: ["easy"],
@@ -1979,8 +1982,8 @@ export const pairs: GamePair[] = [
         "Test results mention follow-up imaging.",
       ],
       initialTranscript: [
-        { role: "them", text: "I need a second opinion." },
-        { role: "them", text: "Can we review the report?" },
+        { role: "them", text: "These results are concerning." },
+        { role: "them", text: "Can we review the report together?" },
       ],
       difficultyTags: ["medium"],
     },
@@ -2045,7 +2048,7 @@ export const pairs: GamePair[] = [
       personContext: "Your friend traveling back home.",
       facts: ["Evan lands soon.", "You offered a ride."],
       initialTranscript: [
-        { role: "them", text: "Can you pick me up?" },
+        { role: "them", text: "Landed! Can you pick me up from arrivals?" },
         { role: "them", text: "I’m at arrivals." },
       ],
       difficultyTags: ["easy"],
@@ -2111,8 +2114,8 @@ export const pairs: GamePair[] = [
       personContext: "Your coworker with inside info.",
       facts: ["Gabe heard a rumor about layoffs.", "Gabe trusts you."],
       initialTranscript: [
-        { role: "them", text: "Please don’t tell anyone." },
-        { role: "them", text: "I heard something bad." },
+        { role: "them", text: "I heard something you should know." },
+        { role: "them", text: "But keep it between us." },
       ],
       difficultyTags: ["hard"],
     },
@@ -2213,7 +2216,10 @@ export const pairs: GamePair[] = [
       personContext: "Your international coworker.",
       facts: ["Lars received a Finnish email.", "You speaks Finnish."],
       initialTranscript: [
-        { role: "them", text: "Can you translate this for me?" },
+        {
+          role: "them",
+          text: "Can you translate this for me? It's from the Finnish legal team.",
+        },
         { role: "them", text: "It’s from legal." },
       ],
       difficultyTags: ["easy"],
@@ -2230,7 +2236,7 @@ export const pairs: GamePair[] = [
         "Aya needs quick help understanding it.",
       ],
       initialTranscript: [
-        { role: "them", text: "Translate this pls 🙏" },
+        { role: "them", text: "What does this mean? pls translate 🙏" },
         { role: "them", text: "Found it on the door." },
       ],
       difficultyTags: ["easy"],
@@ -2282,8 +2288,8 @@ export const pairs: GamePair[] = [
       personContext: "QA engineer working with you.",
       facts: ["A doc link moved.", "Mags needs the latest spec."],
       initialTranscript: [
-        { role: "them", text: "I can’t find it anywhere." },
-        { role: "them", text: "Where’s the spec now?" },
+        { role: "them", text: "Where did the spec go?" },
+        { role: "them", text: "Link's broken." },
       ],
       difficultyTags: ["easy"],
     },
@@ -2492,7 +2498,10 @@ export const pairs: GamePair[] = [
         "Visitors are checked at the door.",
       ],
       initialTranscript: [
-        { role: "them", text: "Don’t forget to bring it." },
+        {
+          role: "them",
+          text: "Security will ask for it - don't forget to bring it.",
+        },
         { role: "them", text: "Security will ask." },
       ],
       difficultyTags: ["medium"],
@@ -2591,7 +2600,10 @@ export const pairs: GamePair[] = [
       personContext: "Owner of the repo you touched.",
       facts: ["A commit changed config.", "Jay noticed the diff."],
       initialTranscript: [
-        { role: "them", text: "Did you mean to do that?" },
+        {
+          role: "them",
+          text: "Hey, did you mean to push that config change?",
+        },
         { role: "them", text: "Config changed." },
       ],
       difficultyTags: ["easy"],
@@ -2693,7 +2705,7 @@ export const pairs: GamePair[] = [
       personContext: "Your mother.",
       facts: ["Family dog needs care for a day.", "Mom is out of town."],
       initialTranscript: [
-        { role: "them", text: "Can you watch the dog tomorrow?" },
+        { role: "them", text: "Any chance you can watch the dog tomorrow?" },
         { role: "them", text: "Just one day." },
       ],
       difficultyTags: ["easy"],
@@ -2873,8 +2885,8 @@ export const pairs: GamePair[] = [
       personContext: "Your team lead.",
       facts: ["You have been quiet in standups.", "Tasks are slipping."],
       initialTranscript: [
-        { role: "them", text: "Is everything ok with you?" },
-        { role: "them", text: "You’ve been quiet." },
+        { role: "them", text: "Something going on I should know about?" },
+        { role: "them", text: "You've been quiet." },
       ],
       difficultyTags: ["hard"],
     },
@@ -2984,7 +2996,10 @@ export const pairs: GamePair[] = [
       personContext: "Coworker affected by your mistake.",
       facts: ["You broke a shared spreadsheet.", "Chloe needs it fixed fast."],
       initialTranscript: [
-        { role: "them", text: "This is awkward but..." },
+        {
+          role: "them",
+          text: "This is awkward but... I think I accidentally broke the shared sheet.",
+        },
         { role: "them", text: "Did you edit the sheet?" },
       ],
       difficultyTags: ["medium"],
@@ -3200,7 +3215,10 @@ export const pairs: GamePair[] = [
       personContext: "Teammate handling a failing demo.",
       facts: ["The live demo is unreliable.", "Sofia wants a fallback."],
       initialTranscript: [
-        { role: "them", text: "We need a plan B." },
+        {
+          role: "them",
+          text: "The live demo is glitching. We need a plan B.",
+        },
         { role: "them", text: "Demo might fail." },
       ],
       difficultyTags: ["medium"],
@@ -3341,7 +3359,10 @@ export const pairs: GamePair[] = [
       personContext: "SRE asking you to mitigate risk.",
       facts: ["A new feature is causing errors.", "A flag can disable it."],
       initialTranscript: [
-        { role: "them", text: "Can you turn it off?" },
+        {
+          role: "them",
+          text: "Errors are spiking! Can you turn that feature off?",
+        },
         { role: "them", text: "Errors spiking." },
       ],
       difficultyTags: ["medium"],
@@ -3449,8 +3470,8 @@ export const pairs: GamePair[] = [
       personContext: "Front desk messaging you.",
       facts: ["A visitor arrived for you.", "ID check is done."],
       initialTranscript: [
-        { role: "them", text: "Can you come to the front?" },
-        { role: "them", text: "Your visitor is here." },
+        { role: "them", text: "You have a visitor at reception." },
+        { role: "them", text: "They're checked in and waiting." },
       ],
       difficultyTags: ["medium"],
     },
@@ -3659,8 +3680,8 @@ export const pairs: GamePair[] = [
       personContext: "Coworker pitching an idea with you.",
       facts: ["Liv expects pushback.", "You have data to support it."],
       initialTranscript: [
-        { role: "them", text: "Need you to back me up." },
-        { role: "them", text: "They’ll argue." },
+        { role: "them", text: "I'm about to pitch this. I'll need support." },
+        { role: "them", text: "They'll argue." },
       ],
       difficultyTags: ["medium"],
     },
@@ -3704,10 +3725,10 @@ export const pairs: GamePair[] = [
       intent: "sharing_news",
       personName: "Nash",
       personContext: "Friend setting up a prank reveal.",
-      facts: ["Nash staged something dramatic.", "It’s harmless."],
+      facts: ["Nash staged something dramatic.", "It's harmless."],
       initialTranscript: [
-        { role: "them", text: "Don’t panic 😭" },
-        { role: "them", text: "But check your door." },
+        { role: "them", text: "Okay hear me out 😭" },
+        { role: "them", text: "Check your door." },
       ],
       difficultyTags: ["hard"],
     },
@@ -3739,7 +3760,7 @@ export const pairs: GamePair[] = [
       personContext: "Your partner discussing a recurring issue.",
       facts: ["Casey is unhappy with something ongoing.", "They want action."],
       initialTranscript: [
-        { role: "them", text: "What do you want to do about it?" },
+        { role: "them", text: "So... what now?" },
         { role: "them", text: "This keeps happening." },
       ],
       difficultyTags: ["medium"],
@@ -4014,7 +4035,7 @@ export const pairs: GamePair[] = [
       personContext: "SRE asking you for help.",
       facts: ["Omar pasted logs.", "Error source is unclear."],
       initialTranscript: [
-        { role: "them", text: "Can you take a look?" },
+        { role: "them", text: "Logs are weird, can you take a look?" },
         { role: "them", text: "Logs are weird." },
       ],
       difficultyTags: ["medium"],
@@ -4047,8 +4068,8 @@ export const pairs: GamePair[] = [
       personContext: "Teammate regretting a risky hotfix.",
       facts: ["A hotfix caused side effects.", "Rollback is possible."],
       initialTranscript: [
-        { role: "them", text: "We shouldn’t have done that." },
-        { role: "them", text: "Now it’s worse." },
+        { role: "them", text: "That hotfix was a mistake." },
+        { role: "them", text: "Now it's worse." },
       ],
       difficultyTags: ["hard"],
     },
