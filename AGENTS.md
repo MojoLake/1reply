@@ -21,6 +21,7 @@
   - Introduce a new file with minimal scaffolding.
   - Follow-up commit(s) to implement behavior and tests.
 - When a change touches multiple files, keep it as small as possible and explain why in the commit body.
+- NEVER do eg. git add . or git add -A. Always be granular.
 
 ### Branching
 
