@@ -451,7 +451,7 @@ function GamePageContent() {
                   ]
                 : []),
             ]}
-            showDelta={phase === "feedback"}
+            showDelta={phase === "feedback" || phase === "gameover"}
           />
         </div>
 
@@ -467,13 +467,13 @@ function GamePageContent() {
               conversation={gameState.conversationA}
               label="A"
               delta={lastResult?.confusionDelta.A}
-              showDelta={phase === "feedback"}
+              showDelta={phase === "feedback" || phase === "gameover"}
               isEnding={phase === "playing" && endingConversations.A}
               onStartNew={() => handleStartNewConversation("A")}
               onContinueCurrent={() => handleContinueCurrent("A")}
               isGameOverCause={gameState.isGameOver && gameState.conversationA.confusion >= MAX_CONFUSION}
             />
-            {phase === "feedback" && lastResult && (
+            {(phase === "feedback" || phase === "gameover") && lastResult && (
               <ConversationFeedback
                 label="A"
                 scores={lastResult.evaluation.A}
@@ -488,13 +488,13 @@ function GamePageContent() {
               conversation={gameState.conversationB}
               label="B"
               delta={lastResult?.confusionDelta.B}
-              showDelta={phase === "feedback"}
+              showDelta={phase === "feedback" || phase === "gameover"}
               isEnding={phase === "playing" && endingConversations.B}
               onStartNew={() => handleStartNewConversation("B")}
               onContinueCurrent={() => handleContinueCurrent("B")}
               isGameOverCause={gameState.isGameOver && gameState.conversationB.confusion >= MAX_CONFUSION}
             />
-            {phase === "feedback" && lastResult && (
+            {(phase === "feedback" || phase === "gameover") && lastResult && (
               <ConversationFeedback
                 label="B"
                 scores={lastResult.evaluation.B}
@@ -510,13 +510,13 @@ function GamePageContent() {
                 conversation={gameState.conversationC}
                 label="C"
                 delta={lastResult?.confusionDelta.C}
-                showDelta={phase === "feedback"}
+                showDelta={phase === "feedback" || phase === "gameover"}
                 isEnding={phase === "playing" && endingConversations.C}
                 onStartNew={() => handleStartNewConversation("C")}
                 onContinueCurrent={() => handleContinueCurrent("C")}
                 isGameOverCause={gameState.isGameOver && !!gameState.conversationC && gameState.conversationC.confusion >= MAX_CONFUSION}
               />
-              {phase === "feedback" && lastResult?.evaluation.C && lastResult.confusionDelta.C !== undefined && (
+              {(phase === "feedback" || phase === "gameover") && lastResult?.evaluation.C && lastResult.confusionDelta.C !== undefined && (
                 <ConversationFeedback
                   label="C"
                   scores={lastResult.evaluation.C}
