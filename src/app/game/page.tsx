@@ -255,6 +255,11 @@ function GamePageContent() {
 
         const continuations = await fetchContinuations(updatedConvA, updatedConvB, updatedConvC);
         actions.setPendingContinuations(continuations);
+
+        // If game is over, skip feedback phase and go straight to gameover modal
+        if (result.gameOver) {
+          actions.applyContinuations();
+        }
       } catch (error) {
         console.error("Error judging reply:", error);
         const errorMessage = error instanceof Error ? error.message : "Unknown error";
