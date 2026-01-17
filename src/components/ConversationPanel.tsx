@@ -15,6 +15,7 @@ interface ConversationPanelProps {
   onStartNew?: () => void;
   onContinueCurrent?: () => void;
   hideHeader?: boolean;
+  isGameOverCause?: boolean;
 }
 
 export default function ConversationPanel({
@@ -26,6 +27,7 @@ export default function ConversationPanel({
   onStartNew,
   onContinueCurrent,
   hideHeader = false,
+  isGameOverCause = false,
 }: ConversationPanelProps) {
   const { situation, transcript, confusion } = conversation;
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -43,7 +45,9 @@ export default function ConversationPanel({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: label === "A" ? 0 : label === "B" ? 0.1 : 0.2 }}
-      className="relative flex flex-col h-full bg-black border border-gray-700 overflow-hidden font-mono"
+      className={`relative flex flex-col h-full bg-black border overflow-hidden font-mono ${
+        isGameOverCause ? "border-red-600" : "border-gray-700"
+      }`}
     >
       {/* Header with confusion meter - hidden when used in tabbed view */}
       {!hideHeader && (
